@@ -3,15 +3,64 @@
 #Number of cards in the Stack
 #Number of hidden cards in the deck (those will be at the front of the array, we'll use the class variable variable 'hidden' for this)
 #location on the board as well as length
+from SpiderCard import Card
 
+class CardStack:
+    # Use:  stack = CardStack(size, hidden)
+    # Pre:  cards is a stack containing the cards, hidden is the number of turned down cards
+    # Post: stack is a stack of Card objects
+    def __init__(self, cards, hidden):
+        self.cards = cards
+        self.hidden = hidden
 
-#Methods:
+    # Use:  lenght = len(stack)
+    # Post: length is the size of the stack
+    def __len__(self):
+        return len(self.cards)
+        
+    # Use:  b = stack.isEmpty()
+    # Post: b is True if stack is empty, False otherwise
+    def isEmpty(self):
+        return len(self) == 0
+    
+    # Use:  b = stack.hasHidden()
+    # Post: b is True if stack has any hidden cards, False otherwise
+    def hasHidden(self):
+        return self.hidden >= 0
+    
+    # Use:  b = stack.hasVisible()
+    # Post: b is True if stack has visible cards, False otherwise
+    def hasVisible(self):
+        return self.hidden != len(self)
 
-#to flip a hidden card if nothing else is on top:
-#def flip():
+    # Use:  stack.flip()
+    # Post: the number of hidden cards in the stack is decreased by one
+    def flip(self):
+        if not self.isEmpty() and self.hasVisible():
+            self.hidden -= 1
 
-#to add a new spiderstack (moved from somewhere else) to this one (IF it is a legal move):
-#def add():
+    # Use:  stack1.add(stack2)
+    # Pre:  stack2 is a CardStack object
+    # Post: stack2 has been put on top of stack1
+    def add(self, stack):
+        self.cards = self.cards + stack.cards
 
-#to remove a part of the spiderstack, one card or more, from this stack
-#def remove():
+    # Use:  removedStack = stack.remove(n)
+    # Pre:  n is an integer, n > 0
+    # Post: the top n cards of stack have been removed. removedStack is a new stack object containing
+    #       the cards that were removed.
+    def remove(self, n):
+        self.cards = self.cards[len(self)-n]
+        
+        
+if __name__=="__main__":
+    c1 = Card('H', 1)
+    c2 = Card('H', 2)
+    c3 = Card('H', 3)
+    cardList = [c1, c2, c3]
+    stack = CardStack(cardList, 2)
+    print len(stack)
+    print stack.hasHidden()
+    print stack.isEmpty()
+    stack2 = stack.remove(1)
+    print stack.hasVisible()

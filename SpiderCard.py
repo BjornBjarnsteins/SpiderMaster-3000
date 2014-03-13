@@ -26,6 +26,9 @@ class Card:
                 'D': 1,
                 'H': 2,
                 'S': 3}.get(self.suit, self.suit)
+                
+    def __str__(self):
+        return self.suit + str(self.rank)
     
     # Use:  cardSurface = card.getPicture()
     # Post: cardSurface is a Surface object with the picture of the card
