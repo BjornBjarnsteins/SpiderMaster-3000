@@ -7,6 +7,7 @@ minbluex,minbluey = 700,100
 maxbluex,maxbluey = 900,300
 redx,redy = 120,120
 bluex,bluey = 720,120
+lastx,lasty = 0,0
 
 def main():
     pygame.init()
@@ -23,7 +24,6 @@ def main():
     
     while True:
         spiderWindow.fill(pygame.Color(55,200,70))
-        
        
         
         rectObj1 = pygame.Surface((200,200))
@@ -46,11 +46,11 @@ def main():
             if event.type == QUIT: 
                 pygame.quit()
                 sys.exit()
-            elif event.type == MOUSEBUTTONDOWN:
+            elif event.type == MOUSEBUTTONDOWN and inGrumpy(catObj):
                 lastx,lasty = picx,picy
                 picx,picy = pygame.mouse.get_pos()
                 Holding = True
-            elif event.type == MOUSEBUTTONUP:
+            elif event.type == MOUSEBUTTONUP and inGrumpy(catObj):
                 if inBlue():
                     picx,picy = bluex,bluey
                 elif inRed():
@@ -58,7 +58,7 @@ def main():
                 else:
                     picx,picy = lastx,lasty
                 Holding = False
-            elif event.type == MOUSEMOTION and Holding:
+            elif event.type == MOUSEMOTION and Holding and inGrumpy(catObj):
                 picx,picy = pygame.mouse.get_pos()
                 
         
