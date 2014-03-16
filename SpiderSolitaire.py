@@ -66,7 +66,7 @@ class SpiderSolitaire:
     #pre; n, a and b are positive integers
     #post: the n bottom cards have been moved from position a to b in stacks
     def move(self,n,a,b):
-        if not self.stacks[a].isEmpty():
+        if not self.stacks[a].isEmpty() and self.isLegal(n,a,b):
             self.stacks[b].add(self.stacks[a].remove(n))
 
     #use:  s.deal()
@@ -82,8 +82,40 @@ class SpiderSolitaire:
             #one revealed card has been put on top of stacks[index]
             #one hidden card has been removed from cards_dealt
     
+
     def getStacks(self):
-        return self.stacks        
+        return self.stacks
+    
+    #use: b = s.isLegal(n,a,b)
+    #pre: n,a and b are positive integers
+    #post:b=True if it is legal to move the last n cards of stack a to stack b.
+    #     'Legal' is if the card to be moved is next in the card sequence to the card it's being moved onto. 
+    #     They do not need to be of the same suit.
+    def isLegal(self, n, a, b):       
+        topCard = self.stacks[a][-n] #card being moved onto another card
+        bottomCard = self.stacks[b][-1] #card to be moved upon
+        topRank = topCard.rank
+        bottomRank = bottomCard.rank
+        if(topRank == bottomRank-1):
+            return True
+        else:
+            return False
+    
+    #use: b = s.isSuit(stack)
+    #pre: stack is a stack object, a and n are positive integeres
+    #post: b = True if the bottom 13 cards of stack form a whole suit, else b = False.
+    def isSuit(self, Stack):
+        mainSuit = Stack[-1].getSuitNo()
+        for i in range(1,14):
+            suit = Stack[-i].getSuitNo()
+            rank = Stack[-i].rank
+            if(suit != mainSuit or rank != i):
+                return False
+        
+        return True
+            
+        
+         
         
 #vika 2
 #def calcScore()

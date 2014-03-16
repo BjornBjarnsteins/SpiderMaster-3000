@@ -17,6 +17,8 @@ m = (windowWidth-10*cardWidth)/11
 for i in range(0,10):
     x.append(i*cardWidth+(i+1)*m)
 y = 0
+deck_x = 1300
+deck_y = 650
 
 
 def main():
@@ -47,6 +49,7 @@ def initialize(surface, suitNo):
     game.deal()
     stacks = game.getStacks()
     displayStacks(surface, stacks, x, y)
+    displayDeck(surface)
 
 def displayStacks(surface, Stacks, x, y):
     
@@ -80,7 +83,12 @@ def displayCard(surface, card, isHidden, card_x,card_y):
     cardSurf = pygame.transform.smoothscale(cardSurf,(cardWidth,cardHeight))
     surface.blit(cardSurf, (card_x,card_y))
 
-def displayDeck():
+def displayDeck(surface):
+    C = SpiderCard('S',1)
+    cardBack = C.getImage(True)
+    cardBack = pygame.transform.smoothscale(cardBack, (cardWidth, cardHeight))
+    for i in range(0,4):
+        surface.blit(cardBack, (deck_x-i*hiddenGap,deck_y))
     return
 
 if __name__ == '__main__':
