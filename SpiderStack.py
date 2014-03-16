@@ -21,7 +21,7 @@ class CardStack:
     # Use:  b = stack.isEmpty()
     # Post: b is True if stack is empty, False otherwise
     def isEmpty(self):
-        return len(self) == 0
+        return len(self.cards) == 0
     
     # Use:  b = stack.hasHidden()
     # Post: b is True if stack has any hidden cards, False otherwise
@@ -31,7 +31,7 @@ class CardStack:
     # Use:  b = stack.hasVisible()
     # Post: b is True if stack has visible cards, False otherwise
     def hasVisible(self):
-        return self.hidden != len(self)
+        return self.hidden != len(self.cards)
 
     # Use:  stack.flip()
     # Post: the number of hidden cards in the stack is decreased by one
@@ -50,7 +50,7 @@ class CardStack:
     # Post: the top n cards of stack have been removed. removedStack is a new stack object containing
     #       the cards that were removed.
     def remove(self, n):
-        self.cards = self.cards[len(self)-n]
+        self.cards = self.cards[len(self.cards)-n]
         
         
 if __name__=="__main__":

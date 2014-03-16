@@ -25,7 +25,7 @@ class SpiderDeck:
             
         for n in range(0, 8/suitNo):
             for suit in suits:
-                for rank in range(0, 13):
+                for rank in range(1, 14):
                     self.decklist.append(Card(suit, rank))
             
     # Use:  deck.shuffle()
@@ -40,7 +40,7 @@ class SpiderDeck:
                     
 if __name__=="__main__":
     #Testing functions
-    deck = SpiderDeck(4)
+    deck = SpiderDeck(1)
     deck.shuffle()
     for c in deck.decklist:
         print c
