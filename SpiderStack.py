@@ -50,7 +50,9 @@ class CardStack:
     # Post: the top n cards of stack have been removed. removedStack is a new stack object containing
     #       the cards that were removed.
     def remove(self, n):
-        self.cards = self.cards[len(self.cards)-n]
+        removedCards = self.cards[len(self)-n:]
+        self.cards = self.cards[:len(self)-n]
+        return CardStack(removedCards, 0)
         
         
 if __name__=="__main__":
@@ -64,3 +66,4 @@ if __name__=="__main__":
     print stack.isEmpty()
     stack2 = stack.remove(1)
     print stack.hasVisible()
+    print len(stack2)
