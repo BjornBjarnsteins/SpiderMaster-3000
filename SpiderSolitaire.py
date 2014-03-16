@@ -24,9 +24,9 @@ class SpiderSolitaire:
     #use:  s = SpiderSolitaire(number_of_suits)
     #pre:  number_of_suits is an integer 1,2 or 4
     #post: s now contains 10 stacks 
-    #      the first 4 stacks contain 5 cards, 4 of them are hidden
-    #      the remaining 6 stacks contain 6 cards, 5 of which are hidden
-    #      every stack is of type CardStack and every card is of type Card
+    #      the first 4 stacks contain 6 cards, 5 of them are hidden
+    #      the remaining 6 stacks contain 5 cards, 4 of which are hidden
+    #      every stack is of type SpiderStack and every card is of type SpiderCard
     def __init__(self,number_of_suits):
         decklength = 104
 
@@ -38,7 +38,7 @@ class SpiderSolitaire:
         #The cards are dealt in 10 piles
         num_of_piles = 10
         self.stacks = [0]*num_of_piles
-        #first four piles will have 5 cards, the remaining six will have 4 cards
+        #first four piles will have 6 cards, the remaining six will have 5 cards
         for i in range(0,num_of_piles):
             #stacks contains i stacks
             if i < 4:
@@ -75,7 +75,7 @@ class SpiderSolitaire:
     def deal(self):
         num_cards_removed = 10
         cards_dealt = self.remove_n_items(num_cards_removed, self.deck)
-        #cards_dealt is a list that contains 10 cards of type Card
+        #cards_dealt is a list that contains 10 cards of type SpiderCard
         for index in range(0,num_cards_removed):
             toAdd = SpiderStack([cards_dealt.pop()],0)
             self.stacks[index].add(toAdd)
