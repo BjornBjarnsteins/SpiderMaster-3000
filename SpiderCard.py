@@ -38,12 +38,15 @@ class SpiderCard:
     
     #Use:  cardSurface = SpiderCard.getPicture()
     #Post: cardSurface is a Surface object with the picture of the card
-    def getPicture(self):
+    def getImage(self, hidden=False):
         deck_graphic = pygame.image.load('deck.png').convert()
-        card_template = pygame.Surface((self.card_size_x, self.card_size_y))        
-        card_template.blit(deck_graphic,(0,0),
+        card_template = pygame.Surface((self.card_size_x, self.card_size_y))
+        if hidden:
+            card_template.blit(deck_graphic,(0,0),
+                                (2*self.card_size_x,4*self.card_size_y,self.card_size_x,self.card_size_y))
+        else:
+            card_template.blit(deck_graphic,(0,0),
                                 (rank*self.card_size_x,suit*self.card_size_y,self.card_size_x,self.card_size_y))
-        
         return card_template
 
 if __name__=="__main__":
@@ -56,7 +59,7 @@ if __name__=="__main__":
     #Tests the getPicture method
     screen = pygame.display.set_mode((SpiderCard.card_size_x, SpiderCard.card_size_y))
     while True:
-        screen.blit(C1.getPicture(), (0,0))
+        screen.blit(C1.getImage(True), (0,0))
         pygame.display.flip()
         for event in pygame.event.get():
             if event.type == QUIT: 

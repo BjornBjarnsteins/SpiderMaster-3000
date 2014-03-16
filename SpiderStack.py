@@ -6,9 +6,9 @@
 from SpiderCard import SpiderCard
 
 class SpiderStack:
-    # Use:  stack = CardStack(size, hidden)
-    # Pre:  cards is a stack containing the cards, hidden is the number of turned down cards
-    # Post: stack is a stack of Card objects
+    # Use:  stack = SpiderStack(size, hidden)
+    # Pre:  cards is a list of SpiderCard objects, hidden is the number of turned down cards
+    # Post: stack is a stack of SpiderCard objects
     def __init__(self, cards, hidden):
         self.cards = cards
         self.hidden = hidden
@@ -53,6 +53,9 @@ class SpiderStack:
         removedCards = self.cards[len(self)-n:]
         self.cards = self.cards[:len(self)-n]
         return SpiderStack(removedCards, 0)
+
+    def getStack(self):
+        return [self.cards, self.hidden]
         
         
 if __name__=="__main__":

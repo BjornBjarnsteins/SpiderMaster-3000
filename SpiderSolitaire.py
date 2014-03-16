@@ -65,7 +65,7 @@ class SpiderSolitaire:
     #use: s.move(n,a,b)
     #pre; n, a and b are positive integers
     #post: the n bottom cards have been moved from position a to b in stacks
-    def move(n,a,b):
+    def move(self,n,a,b):
         if not self.stacks[a].isEmpty():
             self.stacks[b].add(self.stacks[a].remove(n))
 
@@ -77,10 +77,13 @@ class SpiderSolitaire:
         cards_dealt = self.remove_n_items(num_cards_removed, self.deck)
         #cards_dealt is a list that contains 10 cards of type Card
         for index in range(0,num_cards_removed):
-            stacks[index].add(cards_dealt.pop())
+            toAdd = SpiderStack([cards_dealt.pop()],0)
+            self.stacks[index].add(toAdd)
             #one revealed card has been put on top of stacks[index]
             #one hidden card has been removed from cards_dealt
-            
+    
+    def getStacks(self):
+        return self.stacks        
         
 #vika 2
 #def calcScore()
