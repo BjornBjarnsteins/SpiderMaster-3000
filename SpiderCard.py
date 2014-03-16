@@ -8,12 +8,12 @@ card_y = 0
 suit = 0
 rank = 0
 
-class Card:
+class SpiderCard:
     # the size of the cards on deck.png
     card_size_x = 168
     card_size_y = 243
     
-    # Use:  card = Card(suit, rank)
+    # Use:  card = SpiderCard(suit, rank)
     # Pre:  suit is a single upper-case character:
     #            H: Heart
     #            D: Diamond
@@ -25,7 +25,7 @@ class Card:
         self.suit = suit
         self.rank = rank
     
-    # Use:  n = card.getSuitNo()
+    # Use:  n = SpiderCard.getSuitNo()
     # Post: n is the ID of the suit of the card    
     def getSuitNo(self):
         return {'C': 0,
@@ -36,7 +36,7 @@ class Card:
     def __str__(self):
         return self.suit + str(self.rank)
     
-    #Use:  cardSurface = card.getPicture()
+    #Use:  cardSurface = SpiderCard.getPicture()
     #Post: cardSurface is a Surface object with the picture of the card
     def getPicture(self):
         deck_graphic = pygame.image.load('deck.png').convert()
@@ -48,13 +48,13 @@ class Card:
 
 if __name__=="__main__":
     # Tests getSuitNo method
-    C1 = Card('C', 1)
-    D4 = Card('D', 4)
+    C1 = SpiderCard('C', 1)
+    D4 = SpiderCard('D', 4)
     print C1.getSuitNo()
     print D4.getSuitNo()
     
     #Tests the getPicture method
-    screen = pygame.display.set_mode((Card.card_size_x, Card.card_size_y))
+    screen = pygame.display.set_mode((SpiderCard.card_size_x, SpiderCard.card_size_y))
     while True:
         screen.blit(C1.getPicture(), (0,0))
         pygame.display.flip()

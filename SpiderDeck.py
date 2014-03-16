@@ -5,7 +5,7 @@
 #In the case of all four suits, each sequence will appear 2 times.
 
 #All in all: It will always take 8 complete sequences to win the game, no matter what suit or difficulty
-from SpiderCard import Card
+from SpiderCard import SpiderCard
 import random
 
 class SpiderDeck:
@@ -26,14 +26,14 @@ class SpiderDeck:
         for n in range(0, 8/suitNo):
             for suit in suits:
                 for rank in range(1, 14):
-                    self.decklist.append(Card(suit, rank))
+                    self.decklist.append(SpiderCard(suit, rank))
             
-    # Use:  deck.shuffle()
-    # Post: deck is shuffled        
+    # Use:  SpiderDeck.shuffle()
+    # Post: SpiderDeck is shuffled        
     def shuffle(self):
         random.shuffle(self.decklist)
         
-    # Use:  cards = deck.remove()
+    # Use:  cards = SpiderDeck.remove()
     # Post: the card on the top of the deck has been removed
     def remove(self):
         return self.decklist.pop()

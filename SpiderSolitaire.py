@@ -1,6 +1,6 @@
 from SpiderDeck import SpiderDeck
-from SpiderCard import Card
-from SpiderStack import CardStack
+from SpiderCard import SpiderCard
+from SpiderStack import SpiderStack
 
 #The game (from wikipedia)
 #The main purpose of the game is to remove all cards 
@@ -43,10 +43,10 @@ class SpiderSolitaire:
             #stacks contains i stacks
             if i < 4:
                 stack_six_cards = self.remove_n_items(6,self.deck)
-                self.stacks[i] = CardStack(stack_six_cards,5)
+                self.stacks[i] = SpiderStack(stack_six_cards,5)
             else:
                 stack_five_cards = self.remove_n_items(5,self.deck)                
-                self.stacks[i] = CardStack(stack_five_cards,4)
+                self.stacks[i] = SpiderStack(stack_five_cards,4)
         #54 cards have been dealt
         #deck now contains decklength-54 = 104-54 = 100 cards
         

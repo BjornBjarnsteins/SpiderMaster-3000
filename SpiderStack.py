@@ -3,9 +3,9 @@
 #Number of cards in the Stack
 #Number of hidden cards in the deck (those will be at the front of the array, we'll use the class variable variable 'hidden' for this)
 #location on the board as well as length
-from SpiderCard import Card
+from SpiderCard import SpiderCard
 
-class CardStack:
+class SpiderStack:
     # Use:  stack = CardStack(size, hidden)
     # Pre:  cards is a stack containing the cards, hidden is the number of turned down cards
     # Post: stack is a stack of Card objects
@@ -52,15 +52,15 @@ class CardStack:
     def remove(self, n):
         removedCards = self.cards[len(self)-n:]
         self.cards = self.cards[:len(self)-n]
-        return CardStack(removedCards, 0)
+        return SpiderStack(removedCards, 0)
         
         
 if __name__=="__main__":
-    c1 = Card('H', 1)
-    c2 = Card('H', 2)
-    c3 = Card('H', 3)
+    c1 = SpiderCard('H', 1)
+    c2 = SpiderCard('H', 2)
+    c3 = SpiderCard('H', 3)
     cardList = [c1, c2, c3]
-    stack = CardStack(cardList, 2)
+    stack = SpiderStack(cardList, 2)
     print len(stack)
     print stack.hasHidden()
     print stack.isEmpty()
