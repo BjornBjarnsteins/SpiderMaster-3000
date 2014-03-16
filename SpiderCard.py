@@ -5,12 +5,10 @@ from pygame.locals import *
 
 card_x = 0
 card_y = 0
-suit = 0
-rank = 0
 
 class SpiderCard:
     # the size of the cards on deck.png
-    card_size_x = 168
+    card_size_x = 167.5
     card_size_y = 243
     
     # Use:  card = SpiderCard(suit, rank)
@@ -46,20 +44,20 @@ class SpiderCard:
                                 (2*self.card_size_x,4*self.card_size_y,self.card_size_x,self.card_size_y))
         else:
             card_template.blit(deck_graphic,(0,0),
-                                (rank*self.card_size_x,suit*self.card_size_y,self.card_size_x,self.card_size_y))
+                                ((self.rank-1)*self.card_size_x,self.getSuitNo()*self.card_size_y,self.card_size_x,self.card_size_y))
         return card_template
 
 if __name__=="__main__":
     # Tests getSuitNo method
-    C1 = SpiderCard('C', 1)
+    C1 = SpiderCard('S', 13)
     D4 = SpiderCard('D', 4)
     print C1.getSuitNo()
     print D4.getSuitNo()
     
     #Tests the getPicture method
-    screen = pygame.display.set_mode((SpiderCard.card_size_x, SpiderCard.card_size_y))
+    screen = pygame.display.set_mode((int(SpiderCard.card_size_x), SpiderCard.card_size_y))
     while True:
-        screen.blit(C1.getImage(True), (0,0))
+        screen.blit(C1.getImage(), (0,0))
         pygame.display.flip()
         for event in pygame.event.get():
             if event.type == QUIT: 

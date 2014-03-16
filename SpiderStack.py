@@ -70,3 +70,5 @@ if __name__=="__main__":
     stack2 = stack.remove(1)
     print stack.hasVisible()
     print len(stack2)
+    stack.add(stack)
+    print len(stack)
