@@ -1,6 +1,12 @@
 #Defines a card to be used in the solitaire.
 import pygame
 import sys
+from pygame.locals import *
+
+card_x = 0
+card_y = 0
+suit = 0
+rank = 0
 
 class Card:
     # the size of the cards on deck.png
@@ -30,14 +36,15 @@ class Card:
     def __str__(self):
         return self.suit + str(self.rank)
     
-    # Use:  cardSurface = card.getPicture()
-    # Post: cardSurface is a Surface object with the picture of the card
-#     def getPicture(self, screen):
-#         card_sheet = pygame.image.load('deck.png')
-#         card_template = pygame.Surface((self.card_size_x, self.card_size_y))
-#         card_graphic = screen.blit(card_sheet, (0,0), 
-#                                          ((self.rank-1)*self.card_size_x, self.getSuitNo()*self.card_size_y, self.card_size_x, self.card_size_y))
-#         return card_graphic
+    #Use:  cardSurface = card.getPicture()
+    #Post: cardSurface is a Surface object with the picture of the card
+    def getPicture(self):
+        deck_graphic = pygame.image.load('deck.png').convert()
+        card_template = pygame.Surface((self.card_size_x, self.card_size_y))        
+        card_template.blit(deck_graphic,(0,0),
+                                (rank*self.card_size_x,suit*self.card_size_y,self.card_size_x,self.card_size_y))
+        
+        return card_template
 
 if __name__=="__main__":
     # Tests getSuitNo method
@@ -46,9 +53,18 @@ if __name__=="__main__":
     print C1.getSuitNo()
     print D4.getSuitNo()
     
-    # Tests the getPicture method
-#     screen = pygame.display.set_mode((Card.card_size_x, Card.card_size_y))
-#     
-#     while True:
-#         screen.blit(C1.getPicture(screen))
+    #Tests the getPicture method
+    screen = pygame.display.set_mode((Card.card_size_x, Card.card_size_y))
+    while True:
+        screen.blit(C1.getPicture(), (0,0))
+        pygame.display.flip()
+        for event in pygame.event.get():
+            if event.type == QUIT: 
+                pygame.quit()
+                sys.exit()
+            elif event.type == MOUSEBUTTONDOWN or event.type == MOUSEMOTION:
+                card_x,card_y = pygame.mouse.get_pos()
+    
+        
+        
 #Has a method to an image for the card icon.
