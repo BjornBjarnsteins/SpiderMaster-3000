@@ -20,7 +20,7 @@ deck_y = 650
 #Global variables
 x = []
 m = 0
-y = 0
+y = 20
 hitboxes = []
 stackhboxes = []
 stacks = []
@@ -41,7 +41,7 @@ def main():
     for i in range(0,10):
         x.append(i*cardWidth+(i+1)*m)
     
-    spiderWindow = pygame.display.set_mode((windowWidth,windowHeight), RESIZABLE)
+    spiderWindow = pygame.display.set_mode((windowWidth,windowHeight))
     pygame.display.set_caption('SpiderSolitaire')
     spiderWindow.fill(pygame.Color(100,200,100))
     initialize(spiderWindow,2)
@@ -50,8 +50,6 @@ def main():
     updateHitboxes()
     
     while True:
-        displayStacks(spiderWindow, stacks, x, y)
-        displayDeck(spiderWindow)
         for event in pygame.event.get():
             if event.type == QUIT: 
                 pygame.quit()
@@ -63,6 +61,7 @@ def main():
                     pickupCards(loc)
             elif event.type == MOUSEMOTION:
                 if not inHand.isEmpty():
+                    print "I should be doing something!"
                     mouse_x,mouse_y = pygame.mouse.get_pos()
                     displayStack(spiderWindow,inHand,mouse_x,mouse_y)
                     
@@ -75,7 +74,6 @@ def initialize(surface, suitNo):
     global game
     global stacks
     game = SpiderSolitaire(suitNo)
-    game.deal()
     stacks = game.getStacks()
     displayStacks(surface, stacks, x, y)
     displayDeck(surface)
@@ -86,24 +84,24 @@ def displayStacks(surface, Stacks, x, y):
         displayStack(surface, Stacks[i], x[i], y)
 
 def displayStack(surface, Stack, stack_x,stack_y):
-    stack,hiddenNo = Stack.getStack()
+    cards,hiddenNo = Stack.getStack()
     
-    n = len(stack)
+    n = len(cards)
+    print n
     gap = 0
     card_x,card_y = stack_x,stack_y
     for i in range(0,n):
-        if(i <= hiddenNo):
+        if(i < hiddenNo):
             isHidden=True
             gap = hiddenGap
-        elif(i == hiddenNo+1):
-            isHidden=False
-            gap = hiddenGap
         else:
+            print "Found one!"
             isHidden=False
-            gap = revealedGap
-            
-        card_y += gap     
-        displayCard(surface,stack[i],isHidden,card_x,card_y) 
+            gap = revealedGap 
+        print "puttin a card at (%d,%d)"%(card_x,card_y)       
+        displayCard(surface,cards[i],isHidden,card_x,card_y)
+        card_y += gap
+    pygame.display.update()
         
 
 def displayCard(surface, card, isHidden, card_x,card_y):
@@ -142,7 +140,7 @@ def updateHitboxes():
 def getCardLoc(i,j):
     hidden = stacks[i].getStack()[1]
     card_x = x[i]
-    card_y = y+hiddenGap
+    card_y = y
     if j <= hidden:
         card_y += j*hiddenGap
     else:
@@ -164,6 +162,8 @@ def pickupCards((i,j)):
     global inHand
     global stacks
     inHand = stacks[i].remove(len(stacks[i])-j)
+    print len(inHand)
+    print inHand.hasVisible()
     
     
 
