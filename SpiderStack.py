@@ -36,7 +36,7 @@ class SpiderStack:
     # Use:  stack.flip()
     # Post: the number of hidden cards in the stack is decreased by one
     def flip(self):
-        if not self.isEmpty() and self.hasVisible():
+        if not self.isEmpty() and not self.hasVisible():
             self.hidden -= 1
 
     # Use:  stack1.add(stack2)
@@ -72,3 +72,5 @@ if __name__=="__main__":
     print len(stack2)
     stack.add(stack)
     print len(stack)
+    stack.flip()
+    print stack.hasVisible()
