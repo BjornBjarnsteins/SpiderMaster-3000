@@ -91,9 +91,9 @@ class SpiderSolitaire:
     #post:b=True if it is legal to move the last n cards of stack a to stack b.
     #     'Legal' is if the card to be moved is next in the card sequence to the card it's being moved onto. 
     #     They do not need to be of the same suit.
-    def isLegal(self, n, a, b):       
-        topCard = self.stacks[a][-n] #card being moved onto another card
-        bottomCard = self.stacks[b][-1] #card to be moved upon
+    def isLegal(self, stackOff, stackOn):       
+        topCard = stackOff.cards[0] #card being moved onto another card
+        bottomCard = stackOn.cards[-1] #card to be moved upon
         topRank = topCard.rank
         bottomRank = bottomCard.rank
         if(topRank == bottomRank-1):

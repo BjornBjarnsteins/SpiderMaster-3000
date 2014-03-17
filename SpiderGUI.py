@@ -27,7 +27,8 @@ stackhboxes = []
 stacks = []
 game = 0
 inHand = SpiderStack([],0)
-
+backgroundColor = pygame.Color(100,200,100)
+last_i,last_j = 0,0
 
 
 
@@ -44,31 +45,69 @@ def main():
     
     spiderWindow = pygame.display.set_mode((windowWidth,windowHeight))
     pygame.display.set_caption('SpiderSolitaire')
-    spiderWindow.fill(pygame.Color(100,200,100))
+    spiderWindow.fill(backgroundColor)
     initialize(spiderWindow,NoSuits)
     pygame.display.flip()
     
     updateHitboxes()
     
     while True:
+        
         for event in pygame.event.get():
             if event.type == QUIT: 
                 pygame.quit()
                 sys.exit()
             elif event.type == MOUSEBUTTONDOWN:
-                loc = detectCol()
-                print loc
-                if not loc == (-1,-1):
-                    print "That's a card!"
-                    #pickupCards(loc)
+                updateHitboxes()
+                loc_i,loc_j = detectCol()      
+                if not inHand.isEmpty():
+                    n = len(inHand)
+                    if game.isLegal(inHand,stacks[loc_i]):
+                        top_x,top_y = getCardLoc(loc_i,0) #loc of top card so we can display Stack in same place
+                        stack = stacks[loc_i]
+                        putdownCards(loc_i)
+                        clearHand() 
+                        updateHitbox(loc_i)
+                        StackBox = stackhboxes[loc_i]
+                        spiderWindow.fill(backgroundColor, StackBox)
+                        pygame.display.update(StackBox) 
+                        displayStack(spiderWindow,stack,top_x,top_y)
+
+                    else:
+                        top_x,top_y = getCardLoc(last_i,0) #loc of top card so we can display Stack in same place
+                        stack = stacks[last_i]
+                        putdownCards(last_i)
+                        clearHand() 
+                        updateHitbox(last_i)
+                        StackBox = stackhboxes[last_i]
+                        spiderWindow.fill(backgroundColor, StackBox)
+                        pygame.display.update(StackBox) 
+                        displayStack(spiderWindow,stack,top_x,top_y)    
+                elif not (loc_i,loc_j) == (-1,-1):
+                    #card j in stack i
+                    top_x,top_y = getCardLoc(loc_i,0) #loc of top card so we can display Stack in same place
+                    stack = stacks[loc_i]
+                    if not stack.hasVisible():
+                        stack.flip()
+                    else: 
+                        pickupCards((loc_i,loc_j)) #deletes from stack
+                    updateHitbox(loc_i)
+                    StackBox = stackhboxes[loc_i]
+                    spiderWindow.fill(backgroundColor, StackBox)
+                    pygame.display.update(StackBox) 
+                    displayStack(spiderWindow,stack,top_x,top_y)        
             elif event.type == MOUSEMOTION:
                 if not inHand.isEmpty():
                     #print "I should be doing something!"
                     mouse_x,mouse_y = pygame.mouse.get_pos()
-                    #displayStack(spiderWindow,inHand,mouse_x,mouse_y)
-                    
+                    temp = pygame.Surface.copy(spiderWindow)
+                    displayStack(spiderWindow,inHand,mouse_x,mouse_y)
+                    spiderWindow.blit(temp, (0,0))
+            #elif event.type == MOUSEBUTTONUP:
                 
-        
+
+    #updateBox = pygame.Rect(mouse_x,mouse_y,-cardWidth,-cardHeight)
+    #updateBox.fill(backgroundColor)    
     pygame.display.update()
     fpsClock.tick(30)
 
@@ -104,12 +143,14 @@ def displayStack(surface, Stack, stack_x,stack_y):
         displayCard(surface,cards[i],isHidden,card_x,card_y)
         card_y += gap
         
+    pygame.display.update()
+        
 
 def displayCard(surface, card, isHidden, card_x,card_y):
     cardSurf = card.getImage(isHidden)
     cardSurf = pygame.transform.smoothscale(cardSurf,(cardWidth,cardHeight))
     surface.blit(cardSurf, (card_x,card_y))
-    pygame.display.update()
+    #pygame.display.update()
 
 def displayDeck(surface):
     C = SpiderCard('S',1)
@@ -137,6 +178,25 @@ def updateHitboxes():
         stackHeight = getCardLoc(i,len(cards)-1)[1]+cardHeight
         stackhbox = pygame.Rect(x[i],y,cardWidth,stackHeight)
         stackhboxes.append(stackhbox)
+        
+def updateHitbox(i):
+    global hitboxes
+    global stackhboxes
+    
+    stack = stacks[i]
+    cards = stack.getStack()[0]
+    hitstack = []
+    
+    for j in range(0,len(cards)):
+        card = cards[j]
+        cardLoc = getCardLoc(i,j)
+        hitbox = pygame.Rect(cardLoc[0],cardLoc[1],cardWidth,cardHeight)
+        hitstack.append(hitbox)
+    hitboxes[i] = hitstack
+    stackHeight = getCardLoc(i,len(cards)-1)[1]+cardHeight
+    stackhbox = pygame.Rect(x[i],y,cardWidth,stackHeight)
+    stackhboxes[i] = stackhbox
+    
     
 def getCardLoc(i,j):
     hidden = stacks[i].getStack()[1]
@@ -163,9 +223,19 @@ def detectCol():
 def pickupCards((i,j)):
     global inHand
     global stacks
+    global last_i,last_j
     inHand = stacks[i].remove(len(stacks[i])-j)
+    last_i = i
+    last_j = j
     
+def putdownCards(i):
+    global inHand
+    global stacks
+    stacks[i].add(inHand)
     
+def clearHand():
+    global inHand
+    inHand = SpiderStack([],0) 
 
 if __name__ == '__main__':
     main()
