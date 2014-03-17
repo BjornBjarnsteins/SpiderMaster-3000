@@ -17,13 +17,14 @@ revealedGap = 30
 deck_x = 1300
 deck_y = 650
 NoSuits = 2
+colNum = 10
 
 #Global variables
 x = []
 m = 0
 y = 20
-hitboxes = []
-stackhboxes = []
+hitboxes = [0]*colNum
+stackhboxes = [0]*colNum
 stacks = []
 game = 0
 inHand = SpiderStack([],0)
@@ -194,23 +195,8 @@ def displayDeck(surface):
     return
 
 def updateHitboxes():
-    global hitboxes
-    global stackhboxes
-    hitboxes = []
-    stackhboxes = []
-    for i in range(0,len(stacks)):
-        stack = stacks[i]
-        cards = stack.getStack()[0]
-        hitstack = []
-        for j in range(0,len(cards)):
-            card = cards[j]
-            cardLoc = getCardLoc(i,j)
-            hitbox = pygame.Rect(cardLoc[0],cardLoc[1],cardWidth,cardHeight)
-            hitstack.append(hitbox)
-        hitboxes.append(hitstack)
-        stackHeight = getCardLoc(i,len(cards)-1)[1]+cardHeight
-        stackhbox = pygame.Rect(x[i],y,cardWidth,stackHeight)
-        stackhboxes.append(stackhbox)
+    for i in range(0,colNum):
+        updateHitbox(i)
         
 def updateHitbox(i):
     global hitboxes
