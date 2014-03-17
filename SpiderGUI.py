@@ -6,25 +6,40 @@ from SpiderDeck import *
 from SpiderCard import *
 from SpiderSolitaire import *
 
+
+#Global constants
 windowWidth = 1500
 windowHeight = 850
 cardWidth = 100
 cardHeight = 132
 hiddenGap = 10
 revealedGap = 30
-x = []
-m = (windowWidth-10*cardWidth)/11
-for i in range(0,10):
-    x.append(i*cardWidth+(i+1)*m)
-y = 0
 deck_x = 1300
 deck_y = 650
+
+#Global variables
+x = []
+m = 0
+y = 0
+hitboxes = []
+stackhboxes = []
+stacks = []
+game = 0
+inHand = SpiderStack([],0)
+
+
 
 
 def main():
     pygame.init()
     fpsClock = pygame.time.Clock()
     
+    global m
+    global x
+    
+    m = (windowWidth-10*cardWidth)/11
+    for i in range(0,10):
+        x.append(i*cardWidth+(i+1)*m)
     
     spiderWindow = pygame.display.set_mode((windowWidth,windowHeight), RESIZABLE)
     pygame.display.set_caption('SpiderSolitaire')
@@ -32,27 +47,40 @@ def main():
     initialize(spiderWindow,2)
     pygame.display.flip()
     
+    updateHitboxes()
+    
     while True:
+        displayStacks(spiderWindow, stacks, x, y)
+        displayDeck(spiderWindow)
         for event in pygame.event.get():
             if event.type == QUIT: 
                 pygame.quit()
                 sys.exit()
+            elif event.type == MOUSEBUTTONDOWN:
+                loc = detectCol()
+                print loc
+                if not loc == (-1,-1):
+                    pickupCards(loc)
+            elif event.type == MOUSEMOTION:
+                if not inHand.isEmpty():
+                    mouse_x,mouse_y = pygame.mouse.get_pos()
+                    displayStack(spiderWindow,inHand,mouse_x,mouse_y)
+                    
                 
         
     pygame.display.update()
     fpsClock.tick(30)
 
 def initialize(surface, suitNo):
+    global game
+    global stacks
     game = SpiderSolitaire(suitNo)
-    game.deal()
-    game.deal()
     game.deal()
     stacks = game.getStacks()
     displayStacks(surface, stacks, x, y)
     displayDeck(surface)
 
 def displayStacks(surface, Stacks, x, y):
-    
     n = len(Stacks)
     for i in range(0,n):
         displayStack(surface, Stacks[i], x[i], y)
@@ -90,6 +118,54 @@ def displayDeck(surface):
     for i in range(0,4):
         surface.blit(cardBack, (deck_x-i*hiddenGap,deck_y))
     return
+
+def updateHitboxes():
+    global hitboxes
+    global stackhboxes
+    hitboxes = []
+    stackhboxes = []
+    for i in range(0,len(stacks)):
+        stack = stacks[i]
+        cards = stack.getStack()[0]
+        hitstack = []
+        for j in range(0,len(cards)):
+            card = cards[j]
+            cardLoc = getCardLoc(i,j)
+            hitbox = card.getImage().get_rect()
+            hitbox = hitbox.move(cardLoc)
+            hitstack.append(hitbox)
+        hitboxes.append(hitstack)
+        stackHeight = getCardLoc(i,len(cards)-1)[1]+cardHeight
+        stackhbox = pygame.Rect(x[i],y+hiddenGap,cardWidth,stackHeight)
+        stackhboxes.append(stackhbox)
+    
+def getCardLoc(i,j):
+    hidden = stacks[i].getStack()[1]
+    card_x = x[i]
+    card_y = y+hiddenGap
+    if j <= hidden:
+        card_y += j*hiddenGap
+    else:
+        card_y = hidden*hiddenGap+(j-hidden)*revealedGap
+    return (card_x,card_y)
+
+def detectCol():
+    mouse = pygame.mouse.get_pos()
+    for i in range(0,len(stackhboxes)):
+        if not stackhboxes[i].collidepoint(mouse):
+            continue
+        for j in range(0,len(hitboxes[i])):
+            h = -(j+1)
+            if hitboxes[i][h].collidepoint(mouse):
+                return (i,len(hitboxes[i])+h)
+    return (-1,-1)
+
+def pickupCards((i,j)):
+    global inHand
+    global stacks
+    inHand = stacks[i].remove(len(stacks[i])-j)
+    
+    
 
 if __name__ == '__main__':
     main()
