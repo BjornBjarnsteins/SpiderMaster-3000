@@ -29,7 +29,7 @@ game = 0
 inHand = SpiderStack([],0)
 backgroundColor = pygame.Color(100,200,100)
 last_i,last_j = 0,0
-
+mouseDown = False
 
 
 def main():
@@ -38,6 +38,7 @@ def main():
     
     global m
     global x
+    global mouseDown
     
     m = (windowWidth-10*cardWidth)/11
     for i in range(0,10):
@@ -58,11 +59,15 @@ def main():
                 pygame.quit()
                 sys.exit()
             elif event.type == MOUSEBUTTONDOWN:
+                mouseDown = True
                 updateHitboxes()
-                loc_i,loc_j = detectCol()      
-                if not inHand.isEmpty():
+                loc_i,loc_j = detectCol()
+                
+                if (loc_i,loc_j) == (-1,-1) and inHand.isEmpty():
+                    continue      
+                elif not inHand.isEmpty():
                     n = len(inHand)
-                    if game.isLegal(inHand,stacks[loc_i]):
+                    if (loc_i,loc_j) != (-1,-1) and game.isLegal(inHand,stacks[loc_i]):
                         top_x,top_y = getCardLoc(loc_i,0) #loc of top card so we can display Stack in same place
                         stack = stacks[loc_i]
                         putdownCards(loc_i)
@@ -72,7 +77,6 @@ def main():
                         spiderWindow.fill(backgroundColor, StackBox)
                         pygame.display.update(StackBox) 
                         displayStack(spiderWindow,stack,top_x,top_y)
-
                     else:
                         top_x,top_y = getCardLoc(last_i,0) #loc of top card so we can display Stack in same place
                         stack = stacks[last_i]
@@ -96,14 +100,43 @@ def main():
                     spiderWindow.fill(backgroundColor, StackBox)
                     pygame.display.update(StackBox) 
                     displayStack(spiderWindow,stack,top_x,top_y)        
-            elif event.type == MOUSEMOTION:
+            elif event.type == MOUSEMOTION and mouseDown:
                 if not inHand.isEmpty():
                     #print "I should be doing something!"
                     mouse_x,mouse_y = pygame.mouse.get_pos()
                     temp = pygame.Surface.copy(spiderWindow)
                     displayStack(spiderWindow,inHand,mouse_x,mouse_y)
                     spiderWindow.blit(temp, (0,0))
-            #elif event.type == MOUSEBUTTONUP:
+            elif event.type == MOUSEBUTTONUP:
+                mouseDown = False
+                updateHitboxes()
+                loc_i,loc_j = detectCol()
+                
+                if (loc_i,loc_j) == (-1,-1) and inHand.isEmpty():
+                    continue      
+                elif not inHand.isEmpty():
+                    n = len(inHand)
+                    if (loc_i,loc_j) != (-1,-1) and game.isLegal(inHand,stacks[loc_i]):
+                        top_x,top_y = getCardLoc(loc_i,0) #loc of top card so we can display Stack in same place
+                        stack = stacks[loc_i]
+                        putdownCards(loc_i)
+                        clearHand() 
+                        updateHitbox(loc_i)
+                        StackBox = stackhboxes[loc_i]
+                        spiderWindow.fill(backgroundColor, StackBox)
+                        pygame.display.update(StackBox) 
+                        displayStack(spiderWindow,stack,top_x,top_y)
+                    else:
+                        top_x,top_y = getCardLoc(last_i,0) #loc of top card so we can display Stack in same place
+                        stack = stacks[last_i]
+                        putdownCards(last_i)
+                        clearHand() 
+                        updateHitbox(last_i)
+                        StackBox = stackhboxes[last_i]
+                        spiderWindow.fill(backgroundColor, StackBox)
+                        pygame.display.update(StackBox) 
+                        displayStack(spiderWindow,stack,top_x,top_y)  
+                
                 
 
     #updateBox = pygame.Rect(mouse_x,mouse_y,-cardWidth,-cardHeight)
