@@ -34,8 +34,9 @@ class SpiderCard:
     def __str__(self):
         return self.suit + str(self.rank)
     
-    #Use:  cardSurface = SpiderCard.getPicture()
-    #Post: cardSurface is a Surface object with the picture of the card
+    # Use:  cardSurface = SpiderCard.getPicture(hidden=False)
+    # Pre:  hidden is an optional boolean variable for whether the card is facing up or down
+    # Post: cardSurface is a Surface object with the picture of the card
     def getImage(self, hidden=False):
         deck_graphic = pygame.image.load('deck.png').convert()
         card_template = pygame.Surface((self.card_size_x, self.card_size_y))
