@@ -16,6 +16,7 @@ hiddenGap = 10
 revealedGap = 30
 deck_x = 1300
 deck_y = 650
+NoSuits = 2
 
 #Global variables
 x = []
@@ -44,7 +45,7 @@ def main():
     spiderWindow = pygame.display.set_mode((windowWidth,windowHeight))
     pygame.display.set_caption('SpiderSolitaire')
     spiderWindow.fill(pygame.Color(100,200,100))
-    initialize(spiderWindow,2)
+    initialize(spiderWindow,NoSuits)
     pygame.display.flip()
     
     updateHitboxes()
@@ -58,12 +59,13 @@ def main():
                 loc = detectCol()
                 print loc
                 if not loc == (-1,-1):
-                    pickupCards(loc)
+                    print "That's a card!"
+                    #pickupCards(loc)
             elif event.type == MOUSEMOTION:
                 if not inHand.isEmpty():
-                    print "I should be doing something!"
+                    #print "I should be doing something!"
                     mouse_x,mouse_y = pygame.mouse.get_pos()
-                    displayStack(spiderWindow,inHand,mouse_x,mouse_y)
+                    #displayStack(spiderWindow,inHand,mouse_x,mouse_y)
                     
                 
         
@@ -87,7 +89,7 @@ def displayStack(surface, Stack, stack_x,stack_y):
     cards,hiddenNo = Stack.getStack()
     
     n = len(cards)
-    print n
+    #print n
     gap = 0
     card_x,card_y = stack_x,stack_y
     for i in range(0,n):
@@ -95,19 +97,19 @@ def displayStack(surface, Stack, stack_x,stack_y):
             isHidden=True
             gap = hiddenGap
         else:
-            print "Found one!"
+            #print "Found one!"
             isHidden=False
             gap = revealedGap 
-        print "puttin a card at (%d,%d)"%(card_x,card_y)       
+        #print "puttin a card at (%d,%d)"%(card_x,card_y)       
         displayCard(surface,cards[i],isHidden,card_x,card_y)
         card_y += gap
-    pygame.display.update()
         
 
 def displayCard(surface, card, isHidden, card_x,card_y):
     cardSurf = card.getImage(isHidden)
     cardSurf = pygame.transform.smoothscale(cardSurf,(cardWidth,cardHeight))
     surface.blit(cardSurf, (card_x,card_y))
+    pygame.display.update()
 
 def displayDeck(surface):
     C = SpiderCard('S',1)
@@ -129,12 +131,11 @@ def updateHitboxes():
         for j in range(0,len(cards)):
             card = cards[j]
             cardLoc = getCardLoc(i,j)
-            hitbox = card.getImage().get_rect()
-            hitbox = hitbox.move(cardLoc)
+            hitbox = pygame.Rect(cardLoc[0],cardLoc[1],cardWidth,cardHeight)
             hitstack.append(hitbox)
         hitboxes.append(hitstack)
         stackHeight = getCardLoc(i,len(cards)-1)[1]+cardHeight
-        stackhbox = pygame.Rect(x[i],y+hiddenGap,cardWidth,stackHeight)
+        stackhbox = pygame.Rect(x[i],y,cardWidth,stackHeight)
         stackhboxes.append(stackhbox)
     
 def getCardLoc(i,j):
@@ -154,16 +155,15 @@ def detectCol():
             continue
         for j in range(0,len(hitboxes[i])):
             h = -(j+1)
+            h = len(hitboxes[i])+h
             if hitboxes[i][h].collidepoint(mouse):
-                return (i,len(hitboxes[i])+h)
+                return (i,h)
     return (-1,-1)
 
 def pickupCards((i,j)):
     global inHand
     global stacks
     inHand = stacks[i].remove(len(stacks[i])-j)
-    print len(inHand)
-    print inHand.hasVisible()
     
     
 
