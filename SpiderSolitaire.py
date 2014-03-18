@@ -91,26 +91,34 @@ class SpiderSolitaire:
     #post:b=True if it is legal to move the last n cards of stack a to stack b.
     #     'Legal' is if the card to be moved is next in the card sequence to the card it's being moved onto. 
     #     They do not need to be of the same suit.
-    def isLegal(self, stackOff, stackOn):       
+    def isLegalMove(self, stackOff, stackOn):       
         topCard = stackOff.cards[0] #card being moved onto another card
         bottomCard = stackOn.cards[-1] #card to be moved upon
         topRank = topCard.rank
         bottomRank = bottomCard.rank
+        
         if(topRank == bottomRank-1):
             return True
         else:
             return False
+    #pre: j is integer from 0 to length of stack-1. It is the card to be picked up from stack.    
+    def isLegalPickup(self, stack, j):
+        n = len(stack)-j
+        return self.inSuit(stack,n)
     
     #use: b = s.isSuit(stack)
-    #pre: stack is a stack object, a and n are positive integeres
+    #pre: stack is a stack object, a and n are positive integers
     #post: b = True if the bottom 13 cards of stack form a whole suit, else b = False.
-    def isSuit(self, Stack):
-        mainSuit = Stack[-1].getSuitNo()
-        for i in range(1,14):
-            suit = Stack[-i].getSuitNo()
-            rank = Stack[-i].rank
-            if(suit != mainSuit or rank != i):
+    def inSuit(self, Stack, n):
+        mainSuit = Stack.cards[-1].getSuitNo()
+        oldRank = Stack.cards[-1].rank
+        for i in range(2,n+1):
+            suit = Stack.cards[-i].getSuitNo()
+            newRank = Stack.cards[-i].rank
+            if(suit != mainSuit or newRank != oldRank+1):
                 return False
+            
+            oldRank = newRank
         
         return True
             
