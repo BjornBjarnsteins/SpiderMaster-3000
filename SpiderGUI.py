@@ -73,7 +73,7 @@ def main():
                     continue      
                 elif not inHand.isEmpty():
                     n = len(inHand)
-                    if (loc_i,loc_j) != (-1,-1) and game.isLegal(inHand,stacks[loc_i]):
+                    if (loc_i,loc_j) != (-1,-1) and game.isLegalMove(inHand,stacks[loc_i]):
                         putdownCards(loc_i)
                         clearHand() 
                         updateStack(spiderWindow, loc_i)
@@ -86,8 +86,10 @@ def main():
                     #displayStackHitboxes(spiderWindow)
                     if not stacks[loc_i].hasVisible():
                         stacks[loc_i].flip()
-                    else: 
+                    elif game.isLegalPickup(stacks[loc_i], loc_j): 
                         pickupCards((loc_i,loc_j)) #deletes from stack
+                    else: 
+                        print 'You cant do this'
                     updateStack(spiderWindow, loc_i)       
             elif event.type == MOUSEMOTION and mouseDown:
                 if not inHand.isEmpty():
@@ -104,7 +106,7 @@ def main():
                     continue      
                 elif not inHand.isEmpty():
                     n = len(inHand)
-                    if (loc_i,loc_j) != (-1,-1) and game.isLegal(inHand,stacks[loc_i]):
+                    if (loc_i,loc_j) != (-1,-1) and game.isLegalMove(inHand,stacks[loc_i]):
                         putdownCards(loc_i)
                         clearHand()
                         updateHitbox(loc_i) 
