@@ -16,7 +16,7 @@ hiddenGap = 10
 revealedGap = 30
 deck_x = 1300
 deck_y = 650
-NoSuits = 2
+NoSuits = 1
 colNum = 10
 deal = 4
 
@@ -26,13 +26,18 @@ m = 0
 y = 20
 hitboxes = [0]*colNum
 stackhboxes = [0]*colNum
+stackHeight = [0]*colNum
 deckhboxes = [0]*deal
 stacks = []
 game = 0
 inHand = SpiderStack([],0)
+inHandSurf = pygame.Surface((0,0))
+inHandRect = pygame.Rect(0,0,0,0)
 backgroundColor = pygame.Color(100,200,100)
 last_i,last_j = 0,0
 mouseDown = False
+mouse = (0,0)
+background = 0
 
 
 def main():
@@ -42,6 +47,7 @@ def main():
     global m
     global x
     global mouseDown
+    global background
     
     m = (windowWidth-10*cardWidth)/11
     for i in range(0,10):
@@ -54,8 +60,14 @@ def main():
     pygame.display.flip()
     
     updateHitboxes()
+    background = spiderWindow.copy()
     
     while True:
+
+        if not inHand.isEmpty() and mouseDown:
+            spiderWindow.blit(background, (0,0))
+            spiderWindow.blit(inHandSurf, mouse)
+            pygame.display.update()
         
         for event in pygame.event.get():
             if event.type == QUIT: 
@@ -75,28 +87,23 @@ def main():
                     n = len(inHand)
                     if (loc_i,loc_j) != (-1,-1) and game.isLegalMove(inHand,stacks[loc_i]):
                         putdownCards(loc_i)
-                        clearHand() 
                         updateStack(spiderWindow, loc_i)
                         updateHitbox(loc_i)
                     else:
                         putdownCards(last_i)
-                        clearHand() 
                         updateStack(spiderWindow, last_i)
                 elif not (loc_i,loc_j) == (-1,-1):
                     #displayStackHitboxes(spiderWindow)
                     if not stacks[loc_i].hasVisible():
                         stacks[loc_i].flip()
                     elif game.isLegalPickup(stacks[loc_i], loc_j): 
-                        pickupCards((loc_i,loc_j)) #deletes from stack
+                        pickupCards(spiderWindow,(loc_i,loc_j)) #deletes from stack
                     else: 
                         print 'You cant do this'
-                    updateStack(spiderWindow, loc_i)       
-            elif event.type == MOUSEMOTION and mouseDown:
-                if not inHand.isEmpty():
-                    mouse_x,mouse_y = pygame.mouse.get_pos()
-                    temp = pygame.Surface.copy(spiderWindow)
-                    displayStack(spiderWindow,inHand,mouse_x,mouse_y)
-                    spiderWindow.blit(temp, (0,0))
+                    updateStack(spiderWindow, loc_i) 
+                    background = spiderWindow.copy()      
+            elif event.type == MOUSEMOTION:
+                mouse = pygame.mouse.get_pos()
             elif event.type == MOUSEBUTTONUP:
                 mouseDown = False
                 updateHitboxes()
@@ -108,13 +115,13 @@ def main():
                     n = len(inHand)
                     if (loc_i,loc_j) != (-1,-1) and game.isLegalMove(inHand,stacks[loc_i]):
                         putdownCards(loc_i)
-                        clearHand()
-                        updateHitbox(loc_i) 
+                        updateHitbox(loc_i)
+                        spiderWindow.blit(background, (0,0)) 
                         updateStack(spiderWindow, loc_i)
                     else:
                         putdownCards(last_i)
-                        clearHand()
                         updateHitbox(loc_i)
+                        spiderWindow.blit(background, (0,0))
                         updateStack(spiderWindow, last_i)
                 
                 
@@ -138,6 +145,7 @@ def displayStacks(surface, Stacks, x, y):
     n = len(Stacks)
     for i in range(0,n):
         displayStack(surface, Stacks[i], x[i], y)
+    pygame.display.update()
 
 def displayStack(surface, Stack, stack_x,stack_y):
     cards,hiddenNo = Stack.getStack()
@@ -154,8 +162,6 @@ def displayStack(surface, Stack, stack_x,stack_y):
             gap = revealedGap     
         displayCard(surface,cards[i],isHidden,card_x,card_y)
         card_y += gap
-        
-    pygame.display.update()
         
 
 def displayCard(surface, card, isHidden, card_x,card_y):
@@ -176,8 +182,8 @@ def updateStack(surface, i):
     stack = stacks[i]
     StackBox = stackhboxes[i]
     surface.fill(backgroundColor, StackBox)
-    pygame.display.update(StackBox) 
     displayStack(surface,stack,top_x,top_y)
+    pygame.display.update() 
 
 def updateStacks(surface):
     for i in range(0,len(stacks)):
@@ -191,6 +197,7 @@ def updateHitboxes():
 def updateHitbox(i):
     global hitboxes
     global stackhboxes
+    global stackHeight
 
     stack = stacks[i]
     cards = stack.getStack()[0]
@@ -202,8 +209,8 @@ def updateHitbox(i):
         hitbox = pygame.Rect(cardLoc[0],cardLoc[1],cardWidth,cardHeight)
         hitstack.append(hitbox)
     hitboxes[i] = hitstack
-    stackHeight = getCardLoc(i,len(cards)-1)[1]+cardHeight
-    stackhbox = pygame.Rect(x[i],y,cardWidth,stackHeight)
+    stackHeight[i] = getCardLoc(i,len(cards)-1)[1]+cardHeight
+    stackhbox = pygame.Rect(x[i],y,cardWidth,stackHeight[i])
     stackhboxes[i] = stackhbox
     
 #TESTING FALL
@@ -226,6 +233,9 @@ def updateDeck(surface):
     surface.fill(backgroundColor, deckBox)
     displayDeck(surface)
     pygame.display.update(deckBox) 
+    
+def updateInHandPos(surface):
+    background = surface.copy()
 
 def dealNew(surface):
     global game
@@ -271,10 +281,14 @@ def detectDeckCol():
     updateDeckHitbox()
     return deckhboxes[-1].collidepoint(mouse)
 
-def pickupCards((i,j)):
+def pickupCards(surface,(i,j)):
     global inHand
+    global inHandSurf
     global stacks
     global last_i,last_j
+    card_x,card_y = getCardLoc(i,j)
+    toCopy = pygame.Rect(card_x,card_y,cardWidth,stackHeight[i]-card_y)
+    inHandSurf = surface.subsurface(toCopy).copy()
     inHand = stacks[i].remove(len(stacks[i])-j)
     last_i = i
     last_j = j
@@ -283,10 +297,13 @@ def putdownCards(i):
     global inHand
     global stacks
     stacks[i].add(inHand)
+    clearHand()
     
 def clearHand():
     global inHand
-    inHand = SpiderStack([],0) 
+    global inHandSurf
+    inHand = SpiderStack([],0)
+    inHandSurf = pygame.Surface((0,0))
 
 if __name__ == '__main__':
     main()
