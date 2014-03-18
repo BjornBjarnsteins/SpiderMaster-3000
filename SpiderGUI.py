@@ -68,38 +68,19 @@ def main():
                 elif not inHand.isEmpty():
                     n = len(inHand)
                     if (loc_i,loc_j) != (-1,-1) and game.isLegal(inHand,stacks[loc_i]):
-                        top_x,top_y = getCardLoc(loc_i,0) #loc of top card so we can display Stack in same place
-                        stack = stacks[loc_i]
                         putdownCards(loc_i)
                         clearHand() 
-                        updateHitbox(loc_i)
-                        StackBox = stackhboxes[loc_i]
-                        spiderWindow.fill(backgroundColor, StackBox)
-                        pygame.display.update(StackBox) 
-                        displayStack(spiderWindow,stack,top_x,top_y)
+                        updateStack(spiderWindow, loc_i)
                     else:
-                        top_x,top_y = getCardLoc(last_i,0) #loc of top card so we can display Stack in same place
-                        stack = stacks[last_i]
                         putdownCards(last_i)
                         clearHand() 
-                        updateHitbox(last_i)
-                        StackBox = stackhboxes[last_i]
-                        spiderWindow.fill(backgroundColor, StackBox)
-                        pygame.display.update(StackBox) 
-                        displayStack(spiderWindow,stack,top_x,top_y)    
+                        updateStack(spiderWindow, last_i)    
                 elif not (loc_i,loc_j) == (-1,-1):
-                    #card j in stack i
-                    top_x,top_y = getCardLoc(loc_i,0) #loc of top card so we can display Stack in same place
-                    stack = stacks[loc_i]
-                    if not stack.hasVisible():
-                        stack.flip()
+                    if not stacks[loc_i].hasVisible():
+                        stacks[loc_i].flip()
                     else: 
                         pickupCards((loc_i,loc_j)) #deletes from stack
-                    updateHitbox(loc_i)
-                    StackBox = stackhboxes[loc_i]
-                    spiderWindow.fill(backgroundColor, StackBox)
-                    pygame.display.update(StackBox) 
-                    displayStack(spiderWindow,stack,top_x,top_y)        
+                    updateStack(spiderWindow, loc_i)       
             elif event.type == MOUSEMOTION and mouseDown:
                 if not inHand.isEmpty():
                     #print "I should be doing something!"
@@ -117,25 +98,13 @@ def main():
                 elif not inHand.isEmpty():
                     n = len(inHand)
                     if (loc_i,loc_j) != (-1,-1) and game.isLegal(inHand,stacks[loc_i]):
-                        top_x,top_y = getCardLoc(loc_i,0) #loc of top card so we can display Stack in same place
-                        stack = stacks[loc_i]
                         putdownCards(loc_i)
                         clearHand() 
-                        updateHitbox(loc_i)
-                        StackBox = stackhboxes[loc_i]
-                        spiderWindow.fill(backgroundColor, StackBox)
-                        pygame.display.update(StackBox) 
-                        displayStack(spiderWindow,stack,top_x,top_y)
+                        updateStack(spiderWindow, loc_i)
                     else:
-                        top_x,top_y = getCardLoc(last_i,0) #loc of top card so we can display Stack in same place
-                        stack = stacks[last_i]
                         putdownCards(last_i)
                         clearHand() 
-                        updateHitbox(last_i)
-                        StackBox = stackhboxes[last_i]
-                        spiderWindow.fill(backgroundColor, StackBox)
-                        pygame.display.update(StackBox) 
-                        displayStack(spiderWindow,stack,top_x,top_y)  
+                        updateStack(spiderWindow, last_i)
                 
                 
 
@@ -192,6 +161,15 @@ def displayDeck(surface):
     for i in range(0,4):
         surface.blit(cardBack, (deck_x-i*hiddenGap,deck_y))
     return
+
+def updateStack(surface, i):
+    top_x,top_y = getCardLoc(i,0) #loc of top card so we can display Stack in same place
+    stack = stacks[i]
+    updateHitbox(i)
+    StackBox = stackhboxes[i]
+    surface.fill(backgroundColor, StackBox)
+    pygame.display.update(StackBox) 
+    displayStack(surface,stack,top_x,top_y)
 
 def updateHitboxes():
     global hitboxes
