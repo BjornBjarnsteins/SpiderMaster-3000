@@ -77,11 +77,13 @@ def main():
                         putdownCards(loc_i)
                         clearHand() 
                         updateStack(spiderWindow, loc_i)
+                        updateHitbox(loc_i)
                     else:
                         putdownCards(last_i)
                         clearHand() 
-                        updateStack(spiderWindow, last_i)    
+                        updateStack(spiderWindow, last_i)
                 elif not (loc_i,loc_j) == (-1,-1):
+                    #displayStackHitboxes(spiderWindow)
                     if not stacks[loc_i].hasVisible():
                         stacks[loc_i].flip()
                     else: 
@@ -89,7 +91,6 @@ def main():
                     updateStack(spiderWindow, loc_i)       
             elif event.type == MOUSEMOTION and mouseDown:
                 if not inHand.isEmpty():
-                    #print "I should be doing something!"
                     mouse_x,mouse_y = pygame.mouse.get_pos()
                     temp = pygame.Surface.copy(spiderWindow)
                     displayStack(spiderWindow,inHand,mouse_x,mouse_y)
@@ -105,11 +106,13 @@ def main():
                     n = len(inHand)
                     if (loc_i,loc_j) != (-1,-1) and game.isLegal(inHand,stacks[loc_i]):
                         putdownCards(loc_i)
-                        clearHand() 
+                        clearHand()
+                        updateHitbox(loc_i) 
                         updateStack(spiderWindow, loc_i)
                     else:
                         putdownCards(last_i)
-                        clearHand() 
+                        clearHand()
+                        updateHitbox(loc_i)
                         updateStack(spiderWindow, last_i)
                 
                 
@@ -138,7 +141,6 @@ def displayStack(surface, Stack, stack_x,stack_y):
     cards,hiddenNo = Stack.getStack()
     
     n = len(cards)
-    #print n
     gap = 0
     card_x,card_y = stack_x,stack_y
     for i in range(0,n):
@@ -146,10 +148,8 @@ def displayStack(surface, Stack, stack_x,stack_y):
             isHidden=True
             gap = hiddenGap
         else:
-            #print "Found one!"
             isHidden=False
-            gap = revealedGap 
-        #print "puttin a card at (%d,%d)"%(card_x,card_y)       
+            gap = revealedGap     
         displayCard(surface,cards[i],isHidden,card_x,card_y)
         card_y += gap
         
@@ -160,7 +160,6 @@ def displayCard(surface, card, isHidden, card_x,card_y):
     cardSurf = card.getImage(isHidden)
     cardSurf = pygame.transform.smoothscale(cardSurf,(cardWidth,cardHeight))
     surface.blit(cardSurf, (card_x,card_y))
-    #pygame.display.update()
 
 def displayDeck(surface):
     C = SpiderCard('S',1)
@@ -173,7 +172,6 @@ def displayDeck(surface):
 def updateStack(surface, i):
     top_x,top_y = getCardLoc(i,0) #loc of top card so we can display Stack in same place
     stack = stacks[i]
-    updateHitbox(i)
     StackBox = stackhboxes[i]
     surface.fill(backgroundColor, StackBox)
     pygame.display.update(StackBox) 
@@ -181,6 +179,7 @@ def updateStack(surface, i):
 
 def updateStacks(surface):
     for i in range(0,len(stacks)):
+        updateHitbox(i)
         updateStack(surface, i)
     
 def updateHitboxes():
@@ -204,6 +203,12 @@ def updateHitbox(i):
     stackHeight = getCardLoc(i,len(cards)-1)[1]+cardHeight
     stackhbox = pygame.Rect(x[i],y,cardWidth,stackHeight)
     stackhboxes[i] = stackhbox
+    
+#TESTING FALL
+def displayStackHitboxes(surface):
+    black = pygame.Color(0,0,0)
+    for hitbox in stackhboxes:
+        pygame.draw.rect(surface, black, hitbox, 2)
     
 
 def updateDeckHitbox():
