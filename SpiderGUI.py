@@ -16,9 +16,17 @@ hiddenGap = 10
 revealedGap = 30
 deck_x = 1300
 deck_y = 650
+pile_x = 30
+pile_y = 650
 NoSuits = 1
 colNum = 10
 deal = 4
+cardBack = pygame.Surface((0,0))
+
+aces = []
+
+
+piles = []
 
 #Global variables
 x = []
@@ -48,6 +56,8 @@ def main():
     global x
     global mouseDown
     global background
+    global cardBack
+    global aces
     
     m = (windowWidth-10*cardWidth)/11
     for i in range(0,10):
@@ -56,12 +66,21 @@ def main():
     spiderWindow = pygame.display.set_mode((windowWidth,windowHeight))
     pygame.display.set_caption('SpiderSolitaire')
     spiderWindow.fill(backgroundColor)
+    cardBack = SpiderCard('S',1).getImage(True)
+    cardBack = pygame.transform.smoothscale(cardBack, (cardWidth, cardHeight))
     initialize(spiderWindow,NoSuits)
-    pygame.display.flip()
+    for i in ['C','D','H','S']:
+        cardSurface = SpiderCard(i,1).getImage()
+        cardSurface = pygame.transform.smoothscale(cardSurface, (cardWidth, cardHeight))
+        aces.append(cardSurface)
+    
+    displayPiles(spiderWindow)
     
     updateHitboxes()
     background = spiderWindow.copy()
     
+    pygame.display.flip()
+        
     while True:
 
         if not inHand.isEmpty() and mouseDown:
@@ -115,9 +134,16 @@ def main():
                     n = len(inHand)
                     if (loc_i,loc_j) != (-1,-1) and game.isLegalMove(inHand,stacks[loc_i]):
                         putdownCards(loc_i)
-                        updateHitbox(loc_i)
-                        spiderWindow.blit(background, (0,0)) 
-                        updateStack(spiderWindow, loc_i)
+                        if checkPile(loc_i):
+                            addToPiles(loc_i)
+                            spiderWindow.blit(background, (0,0))
+                            displayPiles(spiderWindow) 
+                            updateStack(spiderWindow, loc_i)
+                            updateHitbox(loc_i)
+                        else:
+                            updateHitbox(loc_i)
+                            spiderWindow.blit(background, (0,0)) 
+                            updateStack(spiderWindow, loc_i)
                     else:
                         putdownCards(last_i)
                         updateHitbox(loc_i)
@@ -170,9 +196,6 @@ def displayCard(surface, card, isHidden, card_x,card_y):
     surface.blit(cardSurf, (card_x,card_y))
 
 def displayDeck(surface):
-    C = SpiderCard('S',1)
-    cardBack = C.getImage(True)
-    cardBack = pygame.transform.smoothscale(cardBack, (cardWidth, cardHeight))
     for i in range(0,deal):
         surface.blit(cardBack, (deck_x-i*hiddenGap,deck_y))
     return
@@ -204,7 +227,6 @@ def updateHitbox(i):
     hitstack = []
     
     for j in range(0,len(cards)):
-        card = cards[j]
         cardLoc = getCardLoc(i,j)
         hitbox = pygame.Rect(cardLoc[0],cardLoc[1],cardWidth,cardHeight)
         hitstack.append(hitbox)
@@ -304,6 +326,22 @@ def clearHand():
     global inHandSurf
     inHand = SpiderStack([],0)
     inHandSurf = pygame.Surface((0,0))
+    
+def checkPile(i):
+    if stacks[i].cards[-1].rank != 1 or len(stacks[i])<13:
+        return False
+    return game.inSuit(stacks[i], 13)
+
+def addToPiles(i):
+    global piles
+    piles.append(stacks[i].remove(13).cards[-1].getSuitNo())
+    
+def displayPiles(surface):
+    if len(piles) == 0:
+        return
+    for i in range(0,len(piles)):
+        surface.blit(aces[piles[i]],(pile_x+i*revealedGap,pile_y))
+    
 
 if __name__ == '__main__':
     main()

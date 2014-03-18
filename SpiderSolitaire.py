@@ -106,9 +106,9 @@ class SpiderSolitaire:
         n = len(stack)-j
         return self.inSuit(stack,n)
     
-    #use: b = s.isSuit(stack)
+    #use: b = s.isSuit(stack,n)
     #pre: stack is a stack object, a and n are positive integers
-    #post: b = True if the bottom 13 cards of stack form a whole suit, else b = False.
+    #post: b = True if the bottom n cards of stack form a whole suit, else b = False.
     def inSuit(self, Stack, n):
         mainSuit = Stack.cards[-1].getSuitNo()
         oldRank = Stack.cards[-1].rank
