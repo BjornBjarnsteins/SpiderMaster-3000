@@ -240,7 +240,7 @@ def getCardLoc(i,j):
     if j <= hidden:
         card_y += j*hiddenGap
     else:
-        card_y = hidden*hiddenGap+(j-hidden)*revealedGap
+        card_y = (hidden-1)*hiddenGap+((j+1)-hidden)*revealedGap
     return (card_x,card_y)
 
 def detectCol():
