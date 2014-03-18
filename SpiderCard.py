@@ -66,7 +66,3 @@ if __name__=="__main__":
                 sys.exit()
             elif event.type == MOUSEBUTTONDOWN or event.type == MOUSEMOTION:
                 card_x,card_y = pygame.mouse.get_pos()
-    
-        
-        
-#Has a method to an image for the card icon.
