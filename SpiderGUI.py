@@ -18,6 +18,7 @@ deck_x = 1300
 deck_y = 650
 NoSuits = 2
 colNum = 10
+deal = 4
 
 #Global variables
 x = []
@@ -25,6 +26,7 @@ m = 0
 y = 20
 hitboxes = [0]*colNum
 stackhboxes = [0]*colNum
+deckhboxes = [0]*deal
 stacks = []
 game = 0
 inHand = SpiderStack([],0)
@@ -64,7 +66,10 @@ def main():
                 updateHitboxes()
                 loc_i,loc_j = detectCol()
                 
-                if (loc_i,loc_j) == (-1,-1) and inHand.isEmpty():
+                if deal != 0 and detectDeckCol():
+                    deal()
+                    updateDeck()
+                elif (loc_i,loc_j) == (-1,-1) and inHand.isEmpty():
                     continue      
                 elif not inHand.isEmpty():
                     n = len(inHand)
@@ -117,8 +122,10 @@ def main():
 def initialize(surface, suitNo):
     global game
     global stacks
+    global deal
     game = SpiderSolitaire(suitNo)
     stacks = game.getStacks()
+    deal = 4
     displayStacks(surface, stacks, x, y)
     displayDeck(surface)
 
@@ -159,7 +166,7 @@ def displayDeck(surface):
     C = SpiderCard('S',1)
     cardBack = C.getImage(True)
     cardBack = pygame.transform.smoothscale(cardBack, (cardWidth, cardHeight))
-    for i in range(0,4):
+    for i in range(0,deal):
         surface.blit(cardBack, (deck_x-i*hiddenGap,deck_y))
     return
 
@@ -172,6 +179,10 @@ def updateStack(surface, i):
     pygame.display.update(StackBox) 
     displayStack(surface,stack,top_x,top_y)
 
+def updateStacks(surface):
+    for i in range(0,len(stacks)):
+        updateStack(surface, i)
+    
 def updateHitboxes():
     for i in range(0,colNum):
         updateHitbox(i)
@@ -179,7 +190,7 @@ def updateHitboxes():
 def updateHitbox(i):
     global hitboxes
     global stackhboxes
-    
+
     stack = stacks[i]
     cards = stack.getStack()[0]
     hitstack = []
@@ -193,6 +204,33 @@ def updateHitbox(i):
     stackHeight = getCardLoc(i,len(cards)-1)[1]+cardHeight
     stackhbox = pygame.Rect(x[i],y,cardWidth,stackHeight)
     stackhboxes[i] = stackhbox
+    
+
+def updateDeckHitbox():
+    global deckhboxes
+    
+    for i in range(0,deal):
+        deckBox = pygame.Rect(deck_x-i*hiddenGap,deck_y, cardWidth, cardHeight)
+        deckhboxes[i] = deckBox
+
+def updateDeck(surface):
+    updateDeckHitbox()
+    deckBox = pygame.Rect(deck_x-deal*hiddenGap, deck_y, cardWidth+deal*hiddenGap, cardHeight)
+    surface.fill(backgroundColor, deckBox)
+    pygame.display.update(deckBox) 
+    displayDeck(surface)
+
+def deal():
+    global game
+    
+    if(deal > 0):
+        game.deal()
+        updateHitboxes()
+        updateStacks()
+        deal -= 1
+    else:
+        print 'You cant deal another'
+        
     
     
 def getCardLoc(i,j):
@@ -215,7 +253,12 @@ def detectCol():
             h = len(hitboxes[i])+h
             if hitboxes[i][h].collidepoint(mouse):
                 return (i,h)
+        
     return (-1,-1)
+
+def detectDeckCol():
+    mouse = pygame.mouse.get_pos()
+    return deckhboxes[deal-1].collidepoint(mouse)
 
 def pickupCards((i,j)):
     global inHand
