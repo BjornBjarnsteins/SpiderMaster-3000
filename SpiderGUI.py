@@ -67,8 +67,8 @@ def main():
                 loc_i,loc_j = detectCol()
                 
                 if deal != 0 and detectDeckCol():
-                    deal()
-                    updateDeck()
+                    dealNew(spiderWindow)
+                    updateDeck(spiderWindow)
                 elif (loc_i,loc_j) == (-1,-1) and inHand.isEmpty():
                     continue      
                 elif not inHand.isEmpty():
@@ -217,16 +217,19 @@ def updateDeck(surface):
     updateDeckHitbox()
     deckBox = pygame.Rect(deck_x-deal*hiddenGap, deck_y, cardWidth+deal*hiddenGap, cardHeight)
     surface.fill(backgroundColor, deckBox)
-    pygame.display.update(deckBox) 
     displayDeck(surface)
+    pygame.display.update(deckBox) 
 
-def deal():
+def dealNew(surface):
     global game
+    global deal
     
     if(deal > 0):
         game.deal()
         updateHitboxes()
-        updateStacks()
+        updateStacks(surface)
+        updateDeckHitbox()
+        updateDeck(surface)
         deal -= 1
     else:
         print 'You cant deal another'
@@ -258,7 +261,8 @@ def detectCol():
 
 def detectDeckCol():
     mouse = pygame.mouse.get_pos()
-    return deckhboxes[deal-1].collidepoint(mouse)
+    updateDeckHitbox()
+    return deckhboxes[-1].collidepoint(mouse)
 
 def pickupCards((i,j)):
     global inHand
