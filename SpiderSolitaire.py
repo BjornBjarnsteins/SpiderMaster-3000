@@ -82,7 +82,8 @@ class SpiderSolitaire:
             #one revealed card has been put on top of stacks[index]
             #one hidden card has been removed from cards_dealt
     
-
+    #use: s = game.getStacks()
+    #post: s is an array of the ten stacks in the instance 'game' of spidersolitaire.
     def getStacks(self):
         return self.stacks
     
@@ -101,7 +102,12 @@ class SpiderSolitaire:
             return True
         else:
             return False
-    #pre: j is integer from 0 to length of stack-1. It is the card to be picked up from stack.    
+    
+    #use: b = game.isLegalPickup(s,j)    
+    #pre: j is integer from 0 to length of stack-1.
+    #post: b = True if the cards from j (counted from 0) in the stack s down to the last card 
+    #      are of the same suit and in correct number sequence, from largest number to smallest.
+    #     else, b = False.
     def isLegalPickup(self, stack, j):
         n = len(stack)-j
         return self.inSuit(stack,n)
@@ -116,15 +122,10 @@ class SpiderSolitaire:
             suit = Stack.cards[-i].getSuitNo()
             newRank = Stack.cards[-i].rank
             if(suit != mainSuit or newRank != oldRank+1):
-                return False
-            
+                return False  
             oldRank = newRank
-        
         return True
-            
-        
-         
-        
+             
 #vika 2
 #def calcScore()
 

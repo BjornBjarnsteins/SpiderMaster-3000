@@ -8,43 +8,61 @@ from SpiderSolitaire import *
 
 
 #Global constants
+#Note: If fullscreen and/or resizable will be implemented, some of these will not be kept constant.
+#screen dimensions:
 windowWidth = 1500
-windowHeight = 850
+windowHeight = 850 
+#card dimensions
 cardWidth = 100
 cardHeight = 132
-hiddenGap = 10
-revealedGap = 30
+#number of suits in play:
+NoSuits = 1
+#gap settings
+hiddenGap = 10 #the gap from a hidden card to the next card on top.
+revealedGap = 30 #the gap from a revealed card to the next card on top.
+#Coordinates of the deck.
 deck_x = 1300
 deck_y = 650
+#Coordinates of the full suits (='a pile') the user has collected.
 pile_x = 30
 pile_y = 650
-NoSuits = 1
+#number of stacks in game:
 colNum = 10
-deal = 4
+#image of the back of a card
 cardBack = pygame.Surface((0,0))
-
+#surfaces for the aces:
 aces = []
 
-
-piles = []
-
 #Global variables
+#Coordinates for the stack stacks[i] will be (x[i],y)
 x = []
-m = 0
 y = 20
-hitboxes = [0]*colNum
-stackhboxes = [0]*colNum
+#space between stacks
+m = 0
+#number of deals left:
+deal = 4
+#hitboxes for:
+hitboxes = [0]*colNum #for the cards in game
+stackhboxes = [0]*colNum #for the stacks
+deckhboxes = [0]*deal #for the deal buttons
+#variables for the stacks:
 stackHeight = [0]*colNum
-deckhboxes = [0]*deal
 stacks = []
+#this instance of spider solitaire:
 game = 0
+#contains collected piles denoted by suit number.
+piles = []
+#cards that have been picked up:
 inHand = SpiderStack([],0)
-inHandSurf = pygame.Surface((0,0))
-inHandRect = pygame.Rect(0,0,0,0)
+inHandSurf = pygame.Surface((0,0)) #the image of inHand
+inHandRect = pygame.Rect(0,0,0,0) #hitbox
+#the fabulous green:
 backgroundColor = pygame.Color(100,200,100)
+#position where inHand was picked up last:
 last_i,last_j = 0,0
 mouseDown = False
 mouse = (0,0)
+#image to update the background while moving cards:
 background = 0
 
 
@@ -52,37 +70,18 @@ def main():
     pygame.init()
     fpsClock = pygame.time.Clock()
     
-    global m
-    global x
     global mouseDown
     global background
-    global cardBack
-    global aces
     
-    m = (windowWidth-10*cardWidth)/11
-    for i in range(0,10):
-        x.append(i*cardWidth+(i+1)*m)
-    
+    #setup window and initialize game:
     spiderWindow = pygame.display.set_mode((windowWidth,windowHeight))
     pygame.display.set_caption('SpiderSolitaire')
     spiderWindow.fill(backgroundColor)
-    cardBack = SpiderCard('S',1).getImage(True)
-    cardBack = pygame.transform.smoothscale(cardBack, (cardWidth, cardHeight))
     initialize(spiderWindow,NoSuits)
-    for i in ['C','D','H','S']:
-        cardSurface = SpiderCard(i,1).getImage()
-        cardSurface = pygame.transform.smoothscale(cardSurface, (cardWidth, cardHeight))
-        aces.append(cardSurface)
-    
-    displayPiles(spiderWindow)
-    
-    updateHitboxes()
-    background = spiderWindow.copy()
-    
     pygame.display.flip()
         
     while True:
-
+        #update the background and inHand image constantly:
         if not inHand.isEmpty() and mouseDown:
             spiderWindow.blit(background, (0,0))
             spiderWindow.blit(inHandSurf, mouse)
@@ -95,13 +94,18 @@ def main():
             elif event.type == MOUSEBUTTONDOWN:
                 mouseDown = True
                 updateHitboxes()
-                loc_i,loc_j = detectCol()
+                #loc_i is number of stack, loc_j is number of card in that stack (both counted from 0) or (-1,-1) if it is not above any stack.
+                loc_i,loc_j = detectCol() 
                 
+                #check if we're pressing a deal button and have deals left:
                 if deal != 0 and detectDeckCol():
                     dealNew(spiderWindow)
                     updateDeck(spiderWindow)
+                #skip the loop if mouse isn't pressing anything relevant:
                 elif (loc_i,loc_j) == (-1,-1) and inHand.isEmpty():
-                    continue      
+                    continue
+                #if we have cards in our hand, put them down if legal, else return to last position:
+                #NOTE: this part is not in use yet. It will implement a different method of moving cards.     
                 elif not inHand.isEmpty():
                     n = len(inHand)
                     if (loc_i,loc_j) != (-1,-1) and game.isLegalMove(inHand,stacks[loc_i]):
@@ -111,10 +115,13 @@ def main():
                     else:
                         putdownCards(last_i)
                         updateStack(spiderWindow, last_i)
+                #if the hand is empty and we're pressing a stack, flip the card if it is face down, if not, pick it up if legal:        
                 elif not (loc_i,loc_j) == (-1,-1):
-                    #displayStackHitboxes(spiderWindow)
                     if not stacks[loc_i].hasVisible():
                         stacks[loc_i].flip()
+                    #If the top card is not hidden, make sure nothing happens if hidden card is pressed.
+                    elif loc_j<stacks[loc_i].hidden:
+                        continue
                     elif game.isLegalPickup(stacks[loc_i], loc_j): 
                         pickupCards(spiderWindow,(loc_i,loc_j)) #deletes from stack
                     else: 
@@ -126,14 +133,17 @@ def main():
             elif event.type == MOUSEBUTTONUP:
                 mouseDown = False
                 updateHitboxes()
+                #loc_i is number of stack, loc_j is number of card in that stack (both counted from 0) or (-1,-1) if it is not above any stack.
                 loc_i,loc_j = detectCol()
-                
-                if (loc_i,loc_j) == (-1,-1) and inHand.isEmpty():
-                    continue      
+                #skip the loop if we release with an empty hand:
+                if inHand.isEmpty():
+                    continue
+                #if our hand is not empty, put the cards down where the mouse is released if legal, else return them to their previous position.      
                 elif not inHand.isEmpty():
                     n = len(inHand)
                     if (loc_i,loc_j) != (-1,-1) and game.isLegalMove(inHand,stacks[loc_i]):
                         putdownCards(loc_i)
+                        #checks if we have a full suit when we put down cards:
                         if checkPile(loc_i):
                             addToPiles(loc_i)
                             spiderWindow.blit(background, (0,0))
@@ -149,30 +159,62 @@ def main():
                         updateHitbox(loc_i)
                         spiderWindow.blit(background, (0,0))
                         updateStack(spiderWindow, last_i)
-                
-                
-
-    #updateBox = pygame.Rect(mouse_x,mouse_y,-cardWidth,-cardHeight)
-    #updateBox.fill(backgroundColor)    
-    pygame.display.update()
+                 
     fpsClock.tick(30)
 
+
+#use: initialize(surface,n)
+#pre: surface is a pygame.Surface object, n = 1,2 or 4.
+#post: creates a new instance of the Spider Solitaire 'game' with n number of suits in play.
+#      surface is the game window.
 def initialize(surface, suitNo):
     global game
     global stacks
     global deal
+    global m
+    global x
+    global cardBack
+    global aces
+    
+    
     game = SpiderSolitaire(suitNo)
     stacks = game.getStacks()
     deal = 4
+    
+    #calculate space between stacks and coordinates of the stacks.
+    m = (windowWidth-10*cardWidth)/11
+    for i in range(0,10):
+        x.append(i*cardWidth+(i+1)*m)
+    #populate aces with face up images for all suits.
+    for i in ['C','D','H','S']:
+        cardSurface = SpiderCard(i,1).getImage()
+        cardSurface = pygame.transform.smoothscale(cardSurface, (cardWidth, cardHeight))
+        aces.append(cardSurface)
+    
+    #get image for the back of card:    
+    cardBack = SpiderCard('S',1).getImage(True)
+    cardBack = pygame.transform.smoothscale(cardBack, (cardWidth, cardHeight))
+    
+    updateHitboxes()     
     displayStacks(surface, stacks, x, y)
     displayDeck(surface)
+    
+    background = surface.copy()
 
+#use: displayStacks(surface, s, x, y)
+#pre: surface is a pygame.Surface object, s an array of SpiderStack objects, x an array of positive integers
+#     len(x) = len(s) and y is an integer.
+#post:draws stacks in s on surface. Top left corner of s[i] is at (x[i],y)
 def displayStacks(surface, Stacks, x, y):
     n = len(Stacks)
     for i in range(0,n):
         displayStack(surface, Stacks[i], x[i], y)
     pygame.display.update()
 
+
+#use: displayStack(surface, s, x, y)
+#pre: surface is a pygame.Surface object, s is a SpiderStack object, (x,y) are positive coordinates.
+#post:draws stack s on surface. Top left corner of s is at (x,y)
 def displayStack(surface, Stack, stack_x,stack_y):
     cards,hiddenNo = Stack.getStack()
     
@@ -180,6 +222,7 @@ def displayStack(surface, Stack, stack_x,stack_y):
     gap = 0
     card_x,card_y = stack_x,stack_y
     for i in range(0,n):
+        #determines wheter to use a hidden gap or revealed gap:
         if(i < hiddenNo):
             isHidden=True
             gap = hiddenGap
@@ -190,16 +233,24 @@ def displayStack(surface, Stack, stack_x,stack_y):
         card_y += gap
         
 
-def displayCard(surface, card, isHidden, card_x,card_y):
+#use: displayCard(surf, card, hidden, x, y)
+#pre: surf is a pygame.Surface object, card is a SpiderCard object, hidden is boolean,  x,y are positive integers
+#post: the image of card has been drawn onto surf, face down if hidden, at (x,y)
+def displayCard(surface, card, isHidden, card_x, card_y):
     cardSurf = card.getImage(isHidden)
     cardSurf = pygame.transform.smoothscale(cardSurf,(cardWidth,cardHeight))
     surface.blit(cardSurf, (card_x,card_y))
 
+#use: displayDeck(surf)
+#pre: surf is a pygame.Surface object
+#post: All remaining deals have been drawn as face down cards on surf
 def displayDeck(surface):
     for i in range(0,deal):
         surface.blit(cardBack, (deck_x-i*hiddenGap,deck_y))
-    return
 
+#use: updateStack(surf, num)
+#pre: surf is a pygame.Surface object and num is in range(0,len(stacks))
+#post: the image of stacks[num] has been updated
 def updateStack(surface, i):
     top_x,top_y = getCardLoc(i,0) #loc of top card so we can display Stack in same place
     stack = stacks[i]
@@ -208,15 +259,23 @@ def updateStack(surface, i):
     displayStack(surface,stack,top_x,top_y)
     pygame.display.update() 
 
+#use: updateStacks(surf)
+#pre: surf is a pygame.Surface object
+#post: hitboxes and stackhboxes have been updated, Stacks have been re-drawn on surf
 def updateStacks(surface):
     for i in range(0,len(stacks)):
         updateHitbox(i)
         updateStack(surface, i)
-    
+
+#use: updateHitboxes()
+#post: hitboxes and stackhboxes have been updated for all stacks
 def updateHitboxes():
     for i in range(0,colNum):
         updateHitbox(i)
-        
+
+#use: updateHitbox(num)
+#pre: num is a valid index for stacks
+#post: hitboxes[i] and stackhboxes[i] have been updated.
 def updateHitbox(i):
     global hitboxes
     global stackhboxes
@@ -231,17 +290,21 @@ def updateHitbox(i):
         hitbox = pygame.Rect(cardLoc[0],cardLoc[1],cardWidth,cardHeight)
         hitstack.append(hitbox)
     hitboxes[i] = hitstack
-    stackHeight[i] = getCardLoc(i,len(cards)-1)[1]+cardHeight
+    stackHeight[i] = getCardLoc(i,len(cards)-1)[1]+cardHeight-y
     stackhbox = pygame.Rect(x[i],y,cardWidth,stackHeight[i])
     stackhboxes[i] = stackhbox
-    
-#TESTING FALL
+
+#Should only be used for debugging purposes!!!
+#use: displayStackHitboxes(surf)
+#pre: surf is a pygame.Surface object
+#post: all elements in stackhboxes have been drawn on surf
 def displayStackHitboxes(surface):
     black = pygame.Color(0,0,0)
     for hitbox in stackhboxes:
         pygame.draw.rect(surface, black, hitbox, 2)
     
-
+#use: updateDeckHitbox()
+#post: deckBox is up to date
 def updateDeckHitbox():
     global deckhboxes
     
@@ -249,16 +312,19 @@ def updateDeckHitbox():
         deckBox = pygame.Rect(deck_x-i*hiddenGap,deck_y, cardWidth, cardHeight)
         deckhboxes[i] = deckBox
 
+#use: updateDeck(surf)
+#pre: surf is a pygame.Surface object
+#post: images of decks have been updated
 def updateDeck(surface):
     updateDeckHitbox()
     deckBox = pygame.Rect(deck_x-deal*hiddenGap, deck_y, cardWidth+deal*hiddenGap, cardHeight)
     surface.fill(backgroundColor, deckBox)
     displayDeck(surface)
     pygame.display.update(deckBox) 
-    
-def updateInHandPos(surface):
-    background = surface.copy()
 
+#use: dealNew(surf)
+#pre: surf is a pygame.Surface object
+#post: one card has been delt on top of each stack
 def dealNew(surface):
     global game
     global deal
@@ -273,8 +339,9 @@ def dealNew(surface):
     else:
         print 'You cant deal another'
         
-    
-    
+#use: x,y = getCardLoc(stack_num, card_num)
+#pre: stack_num is a valid index of stacks, card_num is a valid index of stacks[stack_num]
+#post: (x,y) are the coordinates for the top left corner of stacks[stack_num].cards[card_num]
 def getCardLoc(i,j):
     hidden = stacks[i].getStack()[1]
     card_x = x[i]
@@ -285,6 +352,8 @@ def getCardLoc(i,j):
         card_y = (hidden-1)*hiddenGap+((j+1)-hidden)*revealedGap
     return (card_x,card_y)
 
+#use: x,y = detectCol()
+#post: stacks[x].cards[y] is the card that was pressed, if no card was pressed (x,y) = (-1,-1)
 def detectCol():
     mouse = pygame.mouse.get_pos()
     for i in range(0,len(stackhboxes)):
@@ -298,11 +367,18 @@ def detectCol():
         
     return (-1,-1)
 
+#use: b = detectDeckCol()
+#post: b = True if mouse is over deckhboxes[-1], else False
 def detectDeckCol():
     mouse = pygame.mouse.get_pos()
     updateDeckHitbox()
     return deckhboxes[-1].collidepoint(mouse)
 
+#use: pickupCards(surf, (i,j))
+#pre: surf is a pygame.Surface object, (i,j) is a tuple, i is a legal index for stacks,
+#     and j is a legal index for stacks[i].cards
+#post: stacks[i].cards[j:] have been removed form stacks[i]
+#      and added to inHand and inHandSurf has been updated
 def pickupCards(surface,(i,j)):
     global inHand
     global inHandSurf
@@ -314,28 +390,43 @@ def pickupCards(surface,(i,j)):
     inHand = stacks[i].remove(len(stacks[i])-j)
     last_i = i
     last_j = j
-    
+
+#use: putdownCards(num)
+#pre: num is a legal index for stacks
+#post: inHand has been added to stacks[i] and is now empty
 def putdownCards(i):
     global inHand
     global stacks
     stacks[i].add(inHand)
     clearHand()
-    
+
+#use: clearHand()
+#post: inHand is empty and inHandSurf is no picture
 def clearHand():
     global inHand
     global inHandSurf
     inHand = SpiderStack([],0)
     inHandSurf = pygame.Surface((0,0))
-    
+
+#use: b = checkPile(num)
+#pre: num is a legal index for stacks
+#post: b = True if the last 13 cards of stacks[i] are in order and of the same suit
 def checkPile(i):
     if stacks[i].cards[-1].rank != 1 or len(stacks[i])<13:
         return False
     return game.inSuit(stacks[i], 13)
 
+#use: addToPiles(num)
+#pre: num is a legal index for stacks
+#post: The last  13 cards of stacks[i] have been removed and
+#      a pile of the corresponding suit has been added to piles
 def addToPiles(i):
     global piles
     piles.append(stacks[i].remove(13).cards[-1].getSuitNo())
-    
+
+#use: displayPiles(surf)
+#pre: surf is a pygame.Surface object
+#post: images of the collected piles have been drawn on surf
 def displayPiles(surface):
     if len(piles) == 0:
         return
