@@ -5,8 +5,9 @@ from SpiderCard import *
 from SpiderStack import *
 from SpiderDeck import *
 from SpiderSolitaire import *
-class TestSpiderCard(unittest.TestCase):
 
+
+class TestSpiderCard(unittest.TestCase):
 
     def setUp(self):
         self.card1 = SpiderCard('H', 3)
@@ -73,17 +74,17 @@ class TestSpiderSolitaire(unittest.TestCase):
             try:
                 self.solitaire.deal()
             except KeyError, ex:
-                print "deal with it" + ex
+                print "KeyError: " + ex
     
     def test_move(self):
-        pass #hard to find a way to test this one
+        pass 
     
     def test_getStacks(self):
         stacks = self.solitaire.getStacks()
         self.assertEqual(self.solitaire.stacks,stacks)
         
     def test_remove_n_functions(self):
-        pass #stupid helper function
+        pass 
     
     def test_miscellaneous(self):
         #some random tests
