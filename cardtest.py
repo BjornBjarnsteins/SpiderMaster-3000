@@ -104,8 +104,30 @@ class TestSpiderSolitaire(unittest.TestCase):
         self.fail("something went wrong")
         
     
+class TestSpiderDeck(unittest.TestCase):
+
+    deck1 = SpiderDeck(1)
+    deck2 = SpiderDeck(2)
+    deck4 = SpiderDeck(4)
     
+    len1 = len(deck1.decklist)
+    len2 = len(deck2.decklist)
+    len3 = len(deck4.decklist)
+    
+    def test_init(self):
+        # Checks if all decks are equally long
+        self.assertEqual(self.len1, self.len2)
+        self.assertEqual(self.len2, self.len3)
+        self.assertEqual(self.len1, self.len3)
+    
+    def test_shuffle(self):
+        self.deck1.shuffle()
+        self.assertEqual(len(deck1.decklist), len1)
         
+    def test_shuffle(self):
+        card1 = deck1.remove()
+        self.assertIsInstance(card1, SpiderCard)
+        self.assertEqual(len(deck1.decklist), len1-1)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
