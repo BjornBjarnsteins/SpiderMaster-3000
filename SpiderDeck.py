@@ -37,6 +37,14 @@ class SpiderDeck:
     # Post: the card on the top of the deck has been removed
     def remove(self):
         return self.decklist.pop()
+    
+    def __str__(self):
+        card_string = ''
+        for cards in self.decklist:
+            card_string = card_string + cards.suit + str(cards.rank) + ' '
+            if cards.rank == 13:
+                card_string = card_string + '\n'
+        return card_string
                     
 if __name__=="__main__":
     #Testing functions
