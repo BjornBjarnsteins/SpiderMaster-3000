@@ -40,7 +40,7 @@ y = 20
 #space between stacks
 m = 0
 #number of deals left:
-deal = 4
+deal = 5
 #hitboxes for:
 hitboxes = [0]*colNum #for the cards in game
 stackhboxes = [0]*colNum #for the stacks
@@ -179,7 +179,7 @@ def initialize(surface, suitNo):
     
     game = SpiderSolitaire(suitNo)
     stacks = game.getStacks()
-    deal = 4
+    deal = 5
     
     #calculate space between stacks and coordinates of the stacks.
     m = (windowWidth-10*cardWidth)/11
