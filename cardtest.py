@@ -30,21 +30,25 @@ class TestSpiderStack(unittest.TestCase):
     cards = [SpiderCard("H",1),SpiderCard("S",2)]
     hidden = 1
     
-    stack = SpiderStack(cards,hidden)
+    stack = SpiderStack(cards, hidden)
+    stack2 = SpiderStack(cards,hidden)
     
     def test_isEmpty(self):
-        self.assertFalse(self.stack.isEmpty())
+        self.assertFalse(self.stack2.isEmpty())
     
     def test_hasHidden(self):
         self.assertTrue(self.stack.hasHidden())
     
     def test_hasVisible(self):
-        self.assertTrue(self.stack.hasVisible())
+        self.assertTrue(self.stack2.hasVisible())
     
-    #flip decreases number of hidden cards by one
+    #flip decreases number of hidden cards by one if there are no revealed cards at top of the stack
     def test_flip(self):
-        self.stack.flip()
-        self.assertEqual(self.stack.hasHidden(), False) #produces an error, should be false
+        self.stack2.flip()
+        self.assertTrue(self.stack2.hasHidden()) #produces an error, should be false
+        self.stack2.remove(1)
+        self.stack2.flip()
+        self.assertFalse(self.stack2.hasHidden())
     
     def test_add(self):
         #add stack on top of itself
@@ -67,17 +71,14 @@ class TestSpiderSolitaire(unittest.TestCase):
     solitaire = SpiderSolitaire(number_of_suits)
     
     def test_deal(self):
-        hidden_cards = 100
+        hidden_cards = 50
         cards_dealt = 10
-        num_times_to_deal = hidden_cards /cards_dealt
+        num_times_to_deal = hidden_cards/cards_dealt
         for i in range(0,num_times_to_deal):
             try:
                 self.solitaire.deal()
             except KeyError, ex:
                 print "KeyError: " + ex
-    
-    def test_move(self):
-        pass 
     
     def test_getStacks(self):
         stacks = self.solitaire.getStacks()
@@ -87,22 +88,24 @@ class TestSpiderSolitaire(unittest.TestCase):
         pass 
     
     def test_miscellaneous(self):
-        #some random tests
-        cards_to_move = 2
-        pos_a = 1
-        pos_b = 5
-        self.solitaire.move(cards_to_move,pos_a,pos_b)
         
-        random_num = random.randint(0,len(self.solitaire.stack)-1)
-        self.solitaire.isLegalMove(self.solitaire.stack,random_num)
+        C1 = SpiderCard('H', 7)
+        C2 = SpiderCard('H', 6)
+        C3 = SpiderCard('S', 5)
+        C4 = SpiderCard('H', 4)
+        C5 = SpiderCard('H', 3)
         
-        random_num = random.randint(0,len(self.solitaire.stack)-1)
-        self.solitaire.isLegalPickup(self.solitaire.stack,random_num)
+        B1 = SpiderCard('S', 8)
+        testStack = SpiderStack([C1, C2, C3, C4, C5], 0)
+        stackOff = SpiderStack([C1, C2],0)
+        stackOn = SpiderStack([B1],0) 
         
-        bottom_n_cards = 3
-        self.solitaire.isSuit(self.solitaire.stack,bottom_n_cards)
-        self.fail("something went wrong")
-        
+        self.assertTrue(self.solitaire.inSuit(testStack, 2))
+        self.assertFalse(self.solitaire.inSuit(testStack, 3))
+        self.assertTrue(self.solitaire.isLegalPickup(testStack, 3))
+        self.assertFalse(self.solitaire.isLegalPickup(testStack,2))
+        self.assertTrue(self.solitaire.isLegalMove(stackOff, stackOn))
+
     
 class TestSpiderDeck(unittest.TestCase):
 
@@ -120,14 +123,14 @@ class TestSpiderDeck(unittest.TestCase):
         self.assertEqual(self.len2, self.len3)
         self.assertEqual(self.len1, self.len3)
     
-    def test_shuffle(self):
+    def test_shuffle1(self):
         self.deck1.shuffle()
-        self.assertEqual(len(deck1.decklist), len1)
+        self.assertEqual(len(self.deck1.decklist), self.len1)
         
-    def test_shuffle(self):
-        card1 = deck1.remove()
+    def test_shuffle2(self):
+        card1 = self.deck1.remove()
         self.assertIsInstance(card1, SpiderCard)
-        self.assertEqual(len(deck1.decklist), len1-1)
+        self.assertEqual(len(self.deck1.decklist), self.len1-1)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

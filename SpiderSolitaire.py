@@ -65,9 +65,10 @@ class SpiderSolitaire:
     #use: s.move(n,a,b)
     #pre; n, a and b are positive integers
     #post: the n bottom cards have been moved from position a to b in stacks
-    def move(self,n,a,b):
-        if not self.stacks[a].isEmpty() and self.isLegal(n,a,b):
-            self.stacks[b].add(self.stacks[a].remove(n))
+    #Obsolete:
+    #def move(self,n,a,b):
+    #    if not self.stacks[a].isEmpty() and self.isLegalMove(n,a,b):
+    #        self.stacks[b].add(self.stacks[a].remove(n))
 
     #use:  s.deal()
     #post: 10 cards have been removed from the hidden pile (deck) and have been distributed 
