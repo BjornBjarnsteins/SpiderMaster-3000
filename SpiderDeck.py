@@ -9,10 +9,19 @@ from SpiderCard import SpiderCard
 import random
 
 class SpiderDeck:
+    '''
+    Data invariants:
+    
+    decklist: a list of SpiderCard objects.
+            
+    suits:    the suits present in the deck, either 1, 2, or 4
+    
+    '''
     
     # Use:  deck = SpiderDeck(n)
     # Pre:  n is a number, 1, 2 or 4
-    def __init__(self, suitNo, decklength=104):
+    # Post: deck is a deck of cards containing n suits and 104 cards
+    def __init__(self, suitNo):
         # decklist er listi af Card hlutum
         self.decklist = []
         self.suits = []
