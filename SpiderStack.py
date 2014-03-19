@@ -63,6 +63,9 @@ class SpiderStack:
         self.cards = self.cards[:len(self)-n]
         return SpiderStack(removedCards, 0)
 
+    # Use: s = stack.getStack()
+    # Post: s is a 2 element array, where the first element is an array of the cards in the stack 
+    #       and the second is the number of hidden cards in the deck.
     def getStack(self):
         return [self.cards, self.hidden]
         
