@@ -6,6 +6,15 @@
 from SpiderCard import SpiderCard
 
 class SpiderStack:
+    '''
+    Data invariants:
+    
+    cards:   a list/stack of SpiderCard objects
+            
+    hidden:  the number of cards turned face down in this stack
+    
+    '''
+    
     # Use:  stack = SpiderStack(size, hidden)
     # Pre:  cards is a list of SpiderCard objects, hidden is the number of turned down cards
     # Post: stack is a stack of SpiderCard objects
@@ -26,7 +35,7 @@ class SpiderStack:
     # Use:  b = stack.hasHidden()
     # Post: b is True if stack has any hidden cards, False otherwise
     def hasHidden(self):
-        return self.hidden >= 0
+        return self.hidden >= 1
     
     # Use:  b = stack.hasVisible()
     # Post: b is True if stack has visible cards, False otherwise

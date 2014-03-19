@@ -7,6 +7,14 @@ card_x = 0
 card_y = 0
 
 class SpiderCard:
+    '''
+    Data invariants:
+    
+    suit:   the suit of the card, one of the following: 'H', 'D', 'C', 'S'
+            
+    rank:   the rank of the card, 1 <= rank <= 13
+    
+    '''
     # the size of the cards on deck.png
     card_size_x = 167.5
     card_size_y = 243

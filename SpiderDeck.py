@@ -9,10 +9,19 @@ from SpiderCard import SpiderCard
 import random
 
 class SpiderDeck:
+    '''
+    Data invariants:
+    
+    decklist: a list of SpiderCard objects.
+            
+    suits:    the suits present in the deck, either 1, 2, or 4
+    
+    '''
     
     # Use:  deck = SpiderDeck(n)
     # Pre:  n is a number, 1, 2 or 4
-    def __init__(self, suitNo, decklength=104):
+    # Post: deck is a deck of cards containing n suits and 104 cards
+    def __init__(self, suitNo):
         # decklist er listi af Card hlutum
         self.decklist = []
         self.suits = []
@@ -37,6 +46,14 @@ class SpiderDeck:
     # Post: the card on the top of the deck has been removed
     def remove(self):
         return self.decklist.pop()
+    
+    def __str__(self):
+        card_string = ''
+        for cards in self.decklist:
+            card_string = card_string + cards.suit + str(cards.rank) + ' '
+            if cards.rank == 13:
+                card_string = card_string + '\n'
+        return card_string
                     
 if __name__=="__main__":
     #Testing functions
