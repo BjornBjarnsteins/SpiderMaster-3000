@@ -282,6 +282,16 @@ def updateHitbox(i):
     global stackHeight
 
     stack = stacks[i]
+    
+    #if the stack is empty, this will create a hitbox to make it possible to add cards to the empty stack
+    if stack.isEmpty():
+        hitbox = pygame.Rect(x[i],y,cardWidth,cardHeight)
+        hitboxes[i] = [hitbox]
+        stackhboxes[i] = hitbox
+        stackHeight[i] = cardHeight
+        return
+        
+        
     cards = stack.getStack()[0]
     hitstack = []
     
@@ -290,7 +300,7 @@ def updateHitbox(i):
         hitbox = pygame.Rect(cardLoc[0],cardLoc[1],cardWidth,cardHeight)
         hitstack.append(hitbox)
     hitboxes[i] = hitstack
-    stackHeight[i] = getCardLoc(i,len(cards)-1)[1]+cardHeight-y
+    stackHeight[i] = getCardLoc(i,len(cards)-1)[1]+cardHeight
     stackhbox = pygame.Rect(x[i],y,cardWidth,stackHeight[i])
     stackhboxes[i] = stackhbox
 
