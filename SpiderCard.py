@@ -18,7 +18,6 @@ class SpiderCard:
     # the size of the cards on deck.png
     card_size_x = 167.5
     card_size_y = 243
-    
     # Use:  card = SpiderCard(suit, rank)
     # Pre:  suit is a single upper-case character:
     #            H: Heart
@@ -43,11 +42,11 @@ class SpiderCard:
         return self.suit + str(self.rank)
     
     # Use:  cardSurface = SpiderCard.getPicture(hidden=False)
-    # Pre:  hidden is an optional boolean variable for whether the card is facing up or down
+    # Pre:  hidden is an optional boolean variable for whether the card is facing up or down,
+    #       deck_graphic is an Image object, a deck of cards graphic
     # Post: cardSurface is a Surface object with the picture of the card
-    def getImage(self, hidden=False):
-        deck_graphic = pygame.image.load('deck.png').convert()
-        card_template = pygame.Surface((self.card_size_x, self.card_size_y))
+    def getImage(self, deck_graphic,hidden=False):
+        card_template = pygame.Surface((self.card_size_x, self.card_size_y))  
         if hidden:
             card_template.blit(deck_graphic,(0,0),
                                 (2*self.card_size_x,4*self.card_size_y,self.card_size_x,self.card_size_y))
@@ -62,11 +61,12 @@ if __name__=="__main__":
     D4 = SpiderCard('D', 4)
     print C1.getSuitNo()
     print D4.getSuitNo()
-    
+
     #Tests the getPicture method
     screen = pygame.display.set_mode((int(SpiderCard.card_size_x), SpiderCard.card_size_y))
+    deck_graphic = pygame.image.load('deck.png').convert()
     while True:
-        screen.blit(C1.getImage(), (0,0))
+        screen.blit(C1.getImage(deck_graphic), (0,0))
         pygame.display.flip()
         for event in pygame.event.get():
             if event.type == QUIT: 

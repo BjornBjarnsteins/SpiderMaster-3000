@@ -6,7 +6,6 @@ from SpiderDeck import *
 from SpiderCard import *
 from SpiderSolitaire import *
 
-
 #Global constants
 #Note: If fullscreen and/or resizable will be implemented, some of these will not be kept constant.
 #screen dimensions:
@@ -74,6 +73,7 @@ def main():
     global background
     
     #setup window and initialize game:
+
     spiderWindow = pygame.display.set_mode((windowWidth,windowHeight))
     pygame.display.set_caption('SpiderSolitaire')
     spiderWindow.fill(backgroundColor)
@@ -84,9 +84,14 @@ def main():
         #update the background and inHand image constantly:
         if not inHand.isEmpty() and mouseDown:
             spiderWindow.blit(background, (0,0))
-            spiderWindow.blit(inHandSurf, mouse)
+            mouseX = mouse[0] - cardWidth/2
+            mouseY = mouse[1] - cardHeight/2
+            #for now, when the card is picked up the mouse position
+            #is set as the midpoint coordinates of the selected card
+            midPos = (mouseX,mouseY)
+            spiderWindow.blit(inHandSurf, midPos)
             pygame.display.update()
-        
+            
         for event in pygame.event.get():
             if event.type == QUIT: 
                 pygame.quit()
@@ -185,20 +190,28 @@ def initialize(surface, suitNo):
     m = (windowWidth-10*cardWidth)/11
     for i in range(0,10):
         x.append(i*cardWidth+(i+1)*m)
+        
+    #we initialize the deck_graphic inside the GUI code instead
+    #of initializing it every time a card is displayed, this is done
+    #for performance reasons
+    global deck_graphic
+    deck_graphic = pygame.image.load('deck.png').convert()
+
+    
     #populate aces with face up images for all suits.
     for i in ['C','D','H','S']:
-        cardSurface = SpiderCard(i,1).getImage()
+        cardSurface = SpiderCard(i,1).getImage(deck_graphic)
         cardSurface = pygame.transform.smoothscale(cardSurface, (cardWidth, cardHeight))
         aces.append(cardSurface)
-    
     #get image for the back of card:    
-    cardBack = SpiderCard('S',1).getImage(True)
+    cardBack = SpiderCard('S',1).getImage(deck_graphic,True)
     cardBack = pygame.transform.smoothscale(cardBack, (cardWidth, cardHeight))
-    
+
+
     updateHitboxes()     
     displayStacks(surface, stacks, x, y)
     displayDeck(surface)
-    
+
     background = surface.copy()
 
 #use: displayStacks(surface, s, x, y)
@@ -216,6 +229,7 @@ def displayStacks(surface, Stacks, x, y):
 #pre: surface is a pygame.Surface object, s is a SpiderStack object, (x,y) are positive coordinates.
 #post:draws stack s on surface. Top left corner of s is at (x,y)
 def displayStack(surface, Stack, stack_x,stack_y):
+        
     cards,hiddenNo = Stack.getStack()
     
     n = len(cards)
@@ -229,15 +243,14 @@ def displayStack(surface, Stack, stack_x,stack_y):
         else:
             isHidden=False
             gap = revealedGap     
-        displayCard(surface,cards[i],isHidden,card_x,card_y)
+        displayCard(surface,cards[i],isHidden,card_x,card_y,deck_graphic)
         card_y += gap
-        
 
 #use: displayCard(surf, card, hidden, x, y)
 #pre: surf is a pygame.Surface object, card is a SpiderCard object, hidden is boolean,  x,y are positive integers
 #post: the image of card has been drawn onto surf, face down if hidden, at (x,y)
-def displayCard(surface, card, isHidden, card_x, card_y):
-    cardSurf = card.getImage(isHidden)
+def displayCard(surface, card, isHidden, card_x, card_y, deck_graphic):
+    cardSurf = card.getImage(deck_graphic,isHidden)
     cardSurf = pygame.transform.smoothscale(cardSurf,(cardWidth,cardHeight))
     surface.blit(cardSurf, (card_x,card_y))
 
