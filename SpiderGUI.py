@@ -25,6 +25,12 @@ deck_y = 650
 #Coordinates of the full suits (='a pile') the user has collected.
 pile_x = 30
 pile_y = 650
+#Coordinates of the timer
+timer_x = 1300
+timer_y = 800
+#Coordinates of the score
+score_x = 1000
+score_y = 800
 #number of stacks in game:
 colNum = 10
 #image of the back of a card
@@ -136,6 +142,7 @@ def main():
                         pickupCards(spiderWindow,(loc_i,loc_j)) #deletes from stack
                         cardLoc = getCardLoc(loc_i,loc_j)
                         offset = (mouse[0]-cardLoc[0],mouse[1]-cardLoc[1])
+                        lastStack = loc_i
                     else: 
                         print 'You cant do this'
                     updateStack(spiderWindow, loc_i) 
@@ -162,10 +169,16 @@ def main():
                             displayPiles(spiderWindow) 
                             updateStack(spiderWindow, loc_i)
                             updateHitbox(loc_i)
+                            game.changeScore(setBonus)
+                            displayScore(spiderWindow, font)
                         else:
                             updateHitbox(loc_i)
                             spiderWindow.blit(background, (0,0)) 
                             updateStack(spiderWindow, loc_i)
+                            if not lastStack == loc_i:
+                                game.changeScore(movePenalty)
+                            displayScore(spiderWindow, font)
+                        pygame.display.update()
                     else:
                         putdownCards(last_i)
                         updateHitbox(loc_i)
@@ -187,11 +200,13 @@ def initialize(surface, suitNo):
     global x
     global cardBack
     global aces
+    global font
     
     
     game = SpiderSolitaire(suitNo)
     stacks = game.getStacks()
     deal = 5
+    font = pygame.font.Font(None, 30)
     
     #calculate space between stacks and coordinates of the stacks.
     m = (windowWidth-10*cardWidth)/11
@@ -218,6 +233,7 @@ def initialize(surface, suitNo):
     updateHitboxes()     
     displayStacks(surface, stacks, x, y)
     displayDeck(surface)
+    displayScore(surface, font)
 
     background = surface.copy()
 
@@ -267,6 +283,14 @@ def displayCard(surface, card, isHidden, card_x, card_y, deck_graphic):
 def displayDeck(surface):
     for i in range(0,deal):
         surface.blit(cardBack, (deck_x-i*hiddenGap,deck_y))
+
+# Use:  displayScore(surface, font)
+# Pre:  surface is a pygame.Surface object, font is a pygame.font.Font object
+# Post: game.score has been updated
+def displayScore(surface, font):
+    # Todo: change the background color scheme to fit the background
+    surface.fill((0, 0, 0), pygame.Rect(score_x, score_y, 150, 30))
+    surface.blit(font.render('Score: ' + str(game.score), True, (255,255,255)), (score_x, score_y))
 
 #use: updateStack(surf, num)
 #pre: surf is a pygame.Surface object and num is in range(0,len(stacks))

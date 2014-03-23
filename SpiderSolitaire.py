@@ -10,6 +10,11 @@ from SpiderStack import SpiderStack
 #sequences can be moved together. The 50 remaining cards can be dealt to the 
 #tableau ten at a time when none of the piles are empty.
 
+# Constants for scoring
+initialScore = 500
+movePenalty = -1
+setBonus = 100
+
 class SpiderSolitaire:
     '''
     Data invariants:
@@ -29,6 +34,8 @@ class SpiderSolitaire:
     #      every stack is of type SpiderStack and every card is of type SpiderCard
     def __init__(self,number_of_suits):
         decklength = 104
+        
+        self.score = initialScore
 
         self.deck = SpiderDeck(number_of_suits)
         self.deck.shuffle()
@@ -128,6 +135,12 @@ class SpiderSolitaire:
                 return False  
             oldRank = newRank
         return True
+    
+    # Use:  s.changeScore(n)
+    # Pre:  n is an integer
+    # Post: s.score is increased by n
+    def changeScore(self, n):
+        self.score += n
              
 #vika 2
 #def calcScore()
@@ -145,3 +158,5 @@ if __name__ == '__main__':
         for j in SpiderCard.cards:
             print(j),
         print
+    s.changeScore(movePenalty)
+    print s.score
