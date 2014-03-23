@@ -56,14 +56,15 @@ inHand = SpiderStack([],0)
 inHandSurf = pygame.Surface((0,0)) #the image of inHand
 inHandRect = pygame.Rect(0,0,0,0) #hitbox
 #the fabulous green:
-backgroundColor = pygame.Color(100,200,100)
+backgroundColor = pygame.Color(30,148,45)
 #position where inHand was picked up last:
 last_i,last_j = 0,0
 mouseDown = False
 mouse = (0,0)
+offset = (0,0)
 #image to update the background while moving cards:
 background = 0
-
+mainBack = pygame.image.load('Backgrounds\grumpy_background.jpg')
 
 def main():
     pygame.init()
@@ -71,12 +72,16 @@ def main():
     
     global mouseDown
     global background
+    global mainBack
+    global offset
     
     #setup window and initialize game:
 
     spiderWindow = pygame.display.set_mode((windowWidth,windowHeight))
     pygame.display.set_caption('SpiderSolitaire')
-    spiderWindow.fill(backgroundColor)
+    #spiderWindow.fill(backgroundColor)
+    mainBack = pygame.transform.smoothscale(mainBack, (windowWidth, windowHeight))
+    spiderWindow.blit(mainBack, (0,0))
     initialize(spiderWindow,NoSuits)
     pygame.display.flip()
         
@@ -84,8 +89,8 @@ def main():
         #update the background and inHand image constantly:
         if not inHand.isEmpty() and mouseDown:
             spiderWindow.blit(background, (0,0))
-            mouseX = mouse[0] - cardWidth/2
-            mouseY = mouse[1] - cardHeight/2
+            mouseX = mouse[0] - offset[0]
+            mouseY = mouse[1] - offset[1]
             #for now, when the card is picked up the mouse position
             #is set as the midpoint coordinates of the selected card
             midPos = (mouseX,mouseY)
@@ -129,6 +134,8 @@ def main():
                         continue
                     elif game.isLegalPickup(stacks[loc_i], loc_j): 
                         pickupCards(spiderWindow,(loc_i,loc_j)) #deletes from stack
+                        cardLoc = getCardLoc(loc_i,loc_j)
+                        offset = (mouse[0]-cardLoc[0],mouse[1]-cardLoc[1])
                     else: 
                         print 'You cant do this'
                     updateStack(spiderWindow, loc_i) 
@@ -268,7 +275,8 @@ def updateStack(surface, i):
     top_x,top_y = getCardLoc(i,0) #loc of top card so we can display Stack in same place
     stack = stacks[i]
     StackBox = stackhboxes[i]
-    surface.fill(backgroundColor, StackBox)
+    #surface.fill(backgroundColor, StackBox)
+    surface.blit(mainBack, (x[i],y), StackBox)
     displayStack(surface,stack,top_x,top_y)
     pygame.display.update() 
 
@@ -341,7 +349,10 @@ def updateDeckHitbox():
 def updateDeck(surface):
     updateDeckHitbox()
     deckBox = pygame.Rect(deck_x-deal*hiddenGap, deck_y, cardWidth+deal*hiddenGap, cardHeight)
-    surface.fill(backgroundColor, deckBox)
+    #surface.fill(backgroundColor, deckBox)
+    for rect in deckhboxes:
+        pos = (rect.x,rect.y)
+        surface.blit(mainBack,pos,rect)
     displayDeck(surface)
     pygame.display.update(deckBox) 
 
