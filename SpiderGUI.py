@@ -289,7 +289,7 @@ def displayDeck(surface):
 # Post: game.score has been updated
 def displayScore(surface, font):
     # Todo: change the background color scheme to fit the background
-    surface.fill((0, 0, 0), pygame.Rect(score_x, score_y, 150, 30))
+    surface.blit(mainBack, (score_x,score_y),pygame.Rect(score_x, score_y, 150, 30))
     surface.blit(font.render('Score: ' + str(game.score), True, (255,255,255)), (score_x, score_y))
 
 #use: updateStack(surf, num)
