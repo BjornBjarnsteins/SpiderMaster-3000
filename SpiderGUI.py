@@ -74,7 +74,7 @@ def main():
     global background
     global mainBack
     global offset
-    
+    global inHandRect
     #setup window and initialize game:
 
     spiderWindow = pygame.display.set_mode((windowWidth,windowHeight))
@@ -89,12 +89,12 @@ def main():
         #update the background and inHand image constantly:
         if not inHand.isEmpty() and mouseDown:
             spiderWindow.blit(background, (0,0))
-            mouseX = mouse[0] - offset[0]
-            mouseY = mouse[1] - offset[1]
-            #for now, when the card is picked up the mouse position
-            #is set as the midpoint coordinates of the selected card
-            midPos = (mouseX,mouseY)
-            spiderWindow.blit(inHandSurf, midPos)
+            inHandX = mouse[0] - offset[0]
+            inHandY = mouse[1] - offset[1]
+            inHandPos = (inHandX,inHandY)
+            spiderWindow.blit(inHandSurf, inHandPos)
+            inHandRect.x = inHandX
+            inHandRect.y = inHandY
             pygame.display.update()
             
         for event in pygame.event.get():
@@ -153,7 +153,7 @@ def main():
                 #if our hand is not empty, put the cards down where the mouse is released if legal, else return them to their previous position.      
                 elif not inHand.isEmpty():
                     n = len(inHand)
-                    if (loc_i,loc_j) != (-1,-1) and game.isLegalMove(inHand,stacks[loc_i]):
+                    if (loc_i,loc_j) != (-1,-1):
                         putdownCards(loc_i)
                         #checks if we have a full suit when we put down cards:
                         if checkPile(loc_i):
@@ -389,16 +389,23 @@ def getCardLoc(i,j):
 #use: x,y = detectCol()
 #post: stacks[x].cards[y] is the card that was pressed, if no card was pressed (x,y) = (-1,-1)
 def detectCol():
-    mouse = pygame.mouse.get_pos()
-    for i in range(0,len(stackhboxes)):
-        if not stackhboxes[i].collidepoint(mouse):
-            continue
-        for j in range(0,len(hitboxes[i])):
-            h = -(j+1)
-            h = len(hitboxes[i])+h
-            if hitboxes[i][h].collidepoint(mouse):
-                return (i,h)
-        
+    if inHand.isEmpty():
+        mouse = pygame.mouse.get_pos()
+        for i in range(0,len(stackhboxes)):
+            if not stackhboxes[i].collidepoint(mouse):
+                continue
+            for j in range(0,len(hitboxes[i])):
+                h = -(j+1)
+                h = len(hitboxes[i])+h
+                if hitboxes[i][h].collidepoint(mouse):
+                    return (i,h)
+    else:
+        print "inHandRect at (%d,%d) w = %d, h = %d"%(inHandRect.x,inHandRect.y,inHandRect.w,inHandRect.h)
+        for i in range(0,len(stackhboxes)):
+            if stackhboxes[i].colliderect(inHandRect):
+                if game.isLegalMove(inHand, stacks[i]):
+                    return (i,len(stacks[i])-1)
+               
     return (-1,-1)
 
 #use: b = detectDeckCol()
@@ -416,11 +423,13 @@ def detectDeckCol():
 def pickupCards(surface,(i,j)):
     global inHand
     global inHandSurf
+    global inHandRect
     global stacks
     global last_i,last_j
     card_x,card_y = getCardLoc(i,j)
     toCopy = pygame.Rect(card_x,card_y,cardWidth,stackHeight[i]-card_y)
     inHandSurf = surface.subsurface(toCopy).copy()
+    inHandRect = inHandSurf.get_rect()
     inHand = stacks[i].remove(len(stacks[i])-j)
     last_i = i
     last_j = j
@@ -439,8 +448,10 @@ def putdownCards(i):
 def clearHand():
     global inHand
     global inHandSurf
+    global inHandRect
     inHand = SpiderStack([],0)
     inHandSurf = pygame.Surface((0,0))
+    inHandRect = pygame.Rect(0,0,0,0)
 
 #use: b = checkPile(num)
 #pre: num is a legal index for stacks
