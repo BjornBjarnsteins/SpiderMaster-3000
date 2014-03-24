@@ -31,7 +31,7 @@ deck_x = windowWidth - 200
 deck_y = windowHeight - 200
 #Coordinates of the full suits (='a pile') the user has collected.
 pile_x = 30
-pile_y = 650
+pile_y = windowHeight - 200
 #Coordinates of the timer
 timer_x = windowWidth - 200
 timer_y = windowHeight - 50
