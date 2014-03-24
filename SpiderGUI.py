@@ -109,7 +109,6 @@ def main():
             inHandRect.x = inHandX
             inHandRect.y = inHandY
             pygame.display.update()
-        
             
         for event in pygame.event.get():
             if event.type == QUIT: 
@@ -195,6 +194,7 @@ def main():
             elif event.type == SEC_EVENT:
                 time += 1
                 displayTime(spiderWindow, font)
+                pygame.display.update()
                 
                  
     fpsClock.tick(30)
