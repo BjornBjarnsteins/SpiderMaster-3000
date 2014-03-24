@@ -122,7 +122,11 @@ def main():
             inHandRect.x = inHandX
             inHandRect.y = inHandY
             
-            inHandCoord = inHandSurf.get_rect()            
+            #get info on mouse position
+            mouseX = mouse[0] - cardWidth/2
+            mouseY = mouse[1] - cardHeight/2
+            inHandCoord = inHandSurf.get_rect()
+            
             #card position,top left corner
             inHandCoord[0] = inHandX-2
             inHandCoord[1] = inHandY-2
