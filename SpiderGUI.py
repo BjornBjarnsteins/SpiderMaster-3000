@@ -212,7 +212,7 @@ def main():
                     spiderWindow.blit(background,(0,0))
                     pygame.display.flip()
                 else:
-                    pygame.display.set_mode((windowWidth,windowHeight),pygame.FULLSCREEN)
+                    pygame.display.set_mode((windowWidth,windowHeight))
                     spiderWindow.blit(background,(0,0))
                     pygame.display.flip()
                 fullscreenOn = not fullscreenOn
