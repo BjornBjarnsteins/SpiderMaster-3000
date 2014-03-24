@@ -6,12 +6,16 @@ from SpiderStack import *
 from SpiderDeck import *
 from SpiderCard import *
 from SpiderSolitaire import *
+from win32api import GetSystemMetrics
 
 #Global constants
 #Note: If fullscreen and/or resizable will be implemented, some of these will not be kept constant.
 #screen dimensions:
-windowWidth = 1500
-windowHeight = 850 
+systemWidth = GetSystemMetrics(0)
+systemHeight = GetSystemMetrics(1)
+windowWidth = min(systemWidth, 1500)
+windowHeight = min(systemHeight, 850)
+
 #card dimensions
 cardWidth = 100
 cardHeight = 132
@@ -21,17 +25,17 @@ NoSuits = 1
 hiddenGap = 10 #the gap from a hidden card to the next card on top.
 revealedGap = 30 #the gap from a revealed card to the next card on top.
 #Coordinates of the deck.
-deck_x = 1300
-deck_y = 650
+deck_x = windowWidth - 200
+deck_y = windowHeight - 200
 #Coordinates of the full suits (='a pile') the user has collected.
 pile_x = 30
 pile_y = 650
 #Coordinates of the timer
-timer_x = 1300
-timer_y = 800
+timer_x = windowWidth - 200
+timer_y = windowHeight - 50
 #Coordinates of the score
-score_x = 1000
-score_y = 800
+score_x = windowWidth - 500
+score_y = windowHeight - 50
 #number of stacks in game:
 colNum = 10
 #image of the back of a card
@@ -149,7 +153,6 @@ def main():
                         pickupCards(spiderWindow,(loc_i,loc_j)) #deletes from stack
                         cardLoc = getCardLoc(loc_i,loc_j)
                         offset = (mouse[0]-cardLoc[0],mouse[1]-cardLoc[1])
-                        lastStack = loc_i
                     else: 
                         print 'You cant do this'
                     updateStack(spiderWindow, loc_i) 
@@ -182,7 +185,7 @@ def main():
                             updateHitbox(loc_i)
                             spiderWindow.blit(background, (0,0)) 
                             updateStack(spiderWindow, loc_i)
-                            if not lastStack == loc_i:
+                            if not last_i == loc_i:
                                 game.changeScore(movePenalty)
                             displayScore(spiderWindow, font)
                         pygame.display.update()
