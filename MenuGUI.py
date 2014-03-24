@@ -34,7 +34,7 @@ def main():
     BLACK = (0,0,0)
     LIGHTGREEN = (185,255,185)
     RED = (255,0,0)
-    FPS = 70 #FPS controls the framerate of our display
+    FPS = 30 #FPS controls the framerate of our display
         
     #graphics
     suits = pygame.image.load('images/suits.png').convert()
@@ -109,13 +109,18 @@ def main():
             #is hovering over
             if fontEasy.position.collidepoint(eventX,eventY):
                 fontEasy.textSurface = fontEasy.render('{easy}',False,RED)
+                fontMedium.textSurface = fontEasy.render('{medium}',False,BLACK)
+                fontHard.textSurface = fontEasy.render('{hard}',False,BLACK)
                 animation(0.34,turnSize,suitSpade)
             elif fontMedium.position.collidepoint(eventX,eventY):
-                fontMedium.textSurface = fontMedium.render('{medium}',False,RED)            
+                fontMedium.textSurface = fontMedium.render('{medium}',False,RED)
+                fontEasy.textSurface = fontEasy.render('{easy}',False,BLACK)
+                fontHard.textSurface = fontEasy.render('{hard}',False,BLACK)
                 animation(0.42,turnSize,suitSpade)
                 animation(0.25,turnSize,suitHeart)
             elif fontHard.position.collidepoint(eventX,eventY):
-                fontHard.textSurface = fontHard.render('{hard}',False,RED)                
+                fontHard.textSurface = fontHard.render('{hard}',False,RED)
+                fontMedium.textSurface = fontEasy.render('{medium}',False,BLACK)
                 animation(0.42,turnSize,suitSpade)
                 animation(0.25,turnSize,suitHeart)
                 animation(0.59,turnSize,suitDiamond)
