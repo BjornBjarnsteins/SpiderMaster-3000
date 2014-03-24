@@ -51,11 +51,11 @@ def main():
 
     #Menu dialog
     fontSizeMenu = 42
-    fontEasy = TextItem("Easy",position=(width/2,2*height/6),font="fonts/PixelMusketeer.ttf",color=BLACK,
+    fontEasy = TextItem("{Easy}",position=(width/2,2*height/6),font="fonts/{PixelFlag}.ttf",color=BLACK,
                             fontSize=fontSizeMenu)
-    fontMedium = TextItem("Medium",position=(width/2,2.5*height/6),font="fonts/PixelMusketeer.ttf",
+    fontMedium = TextItem("{Medium}",position=(width/2,2.5*height/6),font="fonts/{PixelFlag}.ttf",
                               color=BLACK,fontSize=fontSizeMenu)
-    fontHard = TextItem("Hard",position=(width/2,3*height/6),font="fonts/PixelMusketeer.ttf",
+    fontHard = TextItem("{Hard}",position=(width/2,3*height/6),font="fonts/{PixelFlag}.ttf",
                        color=BLACK,fontSize=fontSizeMenu)       
     #position of suits
     suitClub = (0,0)
@@ -77,8 +77,8 @@ def main():
         #draw background
         screen.fill(LIGHTGREEN)
     
-        title = TextItem("{SPIDER SOLITAIRE}",position=(width/2,height/6),
-                                    font="fonts/{PixelFlag}.ttf",color=BLACK,fontSize=fontSizeTitle)
+        title = TextItem("Spider Solitaire",position=(width/2,height/6),
+                                    font="fonts/PixelMusketeer.ttf",color=BLACK,fontSize=fontSizeTitle)
         screen.blit(title.textSurface,title.position)
         #event cases
         for event in pygame.event.get():
@@ -116,7 +116,7 @@ def main():
                 animation(0.25,turnSize,suitHeart)
                 animation(0.59,turnSize,suitDiamond)
                 animation(0.08,turnSize,suitClub)   
-        if fontSizeTitle > 140:
+        if fontSizeTitle > 100:
             #animate title sequence
             fontSizeTitle = int(fontSizeTitle*0.8)            
         screen.blit(fontEasy.textSurface,fontEasy.position)
