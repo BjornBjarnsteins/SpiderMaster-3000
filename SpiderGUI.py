@@ -114,6 +114,7 @@ def main():
     while True:
         #update the background and inHand image constantly:
         if not inHand.isEmpty() and mouseDown:
+            inHandSurf.set_colorkey((0,0,0))
             spiderWindow.blit(background, (0,0))
             inHandX = mouse[0] - offset[0]
             inHandY = mouse[1] - offset[1]
@@ -122,7 +123,12 @@ def main():
             inHandRect.x = inHandX
             inHandRect.y = inHandY
             
-            inHandCoord = inHandSurf.get_rect()            
+            #get info on mouse position
+            mouseX = mouse[0] - cardWidth/2
+            mouseY = mouse[1] - cardHeight/2
+            color = (0,0,0)
+            inHandCoord = inHandSurf.get_rect()
+            
             #card position,top left corner
             inHandCoord[0] = inHandX-2
             inHandCoord[1] = inHandY-2
