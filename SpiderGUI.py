@@ -94,7 +94,7 @@ def main():
     global inHandRect
     #setup window and initialize game:
 
-    spiderWindow = pygame.display.set_mode((windowWidth,windowHeight))
+    spiderWindow = pygame.display.set_mode((windowWidth,windowHeight),pygame.FULLSCREEN)
     pygame.display.set_caption('SpiderSolitaire')
     #spiderWindow.fill(backgroundColor)
     mainBack = pygame.transform.smoothscale(mainBack, (windowWidth, windowHeight))
@@ -118,6 +118,11 @@ def main():
             if event.type == QUIT: 
                 pygame.quit()
                 sys.exit()
+            elif event.type == KEYDOWN:
+                #check if input is alt+f4
+                if (event.key == K_F4 and bool(event.mod & KMOD_ALT)):
+                    pygame.quit()
+                    sys.exit()
             elif event.type == MOUSEBUTTONDOWN:
                 mouseDown = True
                 updateHitboxes()
@@ -446,7 +451,7 @@ def detectCol():
                 if hitboxes[i][h].collidepoint(mouse):
                     return (i,h)
     else:
-        print "inHandRect at (%d,%d) w = %d, h = %d"%(inHandRect.x,inHandRect.y,inHandRect.w,inHandRect.h)
+        #print "inHandRect at (%d,%d) w = %d, h = %d"%(inHandRect.x,inHandRect.y,inHandRect.w,inHandRect.h)
         for i in range(0,len(stackhboxes)):
             if stackhboxes[i].colliderect(inHandRect):
                 if game.isLegalMove(inHand, stacks[i]):
