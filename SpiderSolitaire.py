@@ -35,6 +35,8 @@ class SpiderSolitaire:
     def __init__(self,number_of_suits):
         decklength = 104
         
+        self.isWon = False
+        
         self.score = initialScore
 
         self.deck = SpiderDeck(number_of_suits)
@@ -56,6 +58,16 @@ class SpiderSolitaire:
                 self.stacks[i] = SpiderStack(stack_five_cards,4)
         #54 cards have been dealt
         #deck now contains decklength-54 = 104-54 = 100 cards
+    
+    # Use:  w = s.CheckWin()
+    # Post: w is true if the solitaire is won, false otherwise
+    def CheckWin(self):
+        if len(self.deck.decklist) == 0:
+            for s in self.stacks:
+                if not s.isEmpty():
+                    return False
+            self.isWon = True
+        return self.isWon
         
     #pre:  n is a positive integer, deck is a SpiderDeck
     #post: removes and returns the n foremost cards from deck, 
@@ -160,3 +172,5 @@ if __name__ == '__main__':
         print
     s.changeScore(movePenalty)
     print s.score
+    s.deal()
+    print len(s.deck.decklist)
