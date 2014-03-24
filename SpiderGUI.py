@@ -1,5 +1,6 @@
 import pygame, sys
 import math
+from pygame import USEREVENT
 from pygame.locals import *
 from SpiderStack import *
 from SpiderDeck import *
@@ -72,10 +73,15 @@ offset = (0,0)
 background = 0
 mainBack = pygame.image.load('Backgrounds\grumpy_background.jpg')
 
+# Initializes the game timer
+time = 0
+SEC_EVENT = USEREVENT + 1
+
 def main():
     pygame.init()
     fpsClock = pygame.time.Clock()
     
+    global time
     global mouseDown
     global background
     global mainBack
@@ -90,6 +96,7 @@ def main():
     spiderWindow.blit(mainBack, (0,0))
     initialize(spiderWindow,NoSuits)
     pygame.display.flip()
+    pygame.time.set_timer(SEC_EVENT, 1000)
         
     while True:
         #update the background and inHand image constantly:
@@ -102,6 +109,7 @@ def main():
             inHandRect.x = inHandX
             inHandRect.y = inHandY
             pygame.display.update()
+        
             
         for event in pygame.event.get():
             if event.type == QUIT: 
@@ -184,6 +192,10 @@ def main():
                         updateHitbox(loc_i)
                         spiderWindow.blit(background, (0,0))
                         updateStack(spiderWindow, last_i)
+            elif event.type == SEC_EVENT:
+                time += 1
+                displayTime(spiderWindow, font)
+                
                  
     fpsClock.tick(30)
 
@@ -201,12 +213,14 @@ def initialize(surface, suitNo):
     global cardBack
     global aces
     global font
+    #global time
     
     
     game = SpiderSolitaire(suitNo)
     stacks = game.getStacks()
     deal = 5
     font = pygame.font.Font(None, 30)
+    #time = 0
     
     #calculate space between stacks and coordinates of the stacks.
     m = (windowWidth-10*cardWidth)/11
@@ -291,6 +305,10 @@ def displayScore(surface, font):
     # Todo: change the background color scheme to fit the background
     surface.blit(mainBack, (score_x,score_y),pygame.Rect(score_x, score_y, 150, 30))
     surface.blit(font.render('Score: ' + str(game.score), True, (255,255,255)), (score_x, score_y))
+    
+def displayTime(surface, font):
+    surface.blit(mainBack, (timer_x,timer_y),pygame.Rect(timer_x, timer_y, 150, 30))
+    surface.blit(font.render(str(time) + 's', True, (255,255,255)), (timer_x, timer_y))
 
 #use: updateStack(surf, num)
 #pre: surf is a pygame.Surface object and num is in range(0,len(stacks))
