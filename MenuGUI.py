@@ -92,13 +92,13 @@ def main():
                     easy.NoSuits = 1
                     easy.main()
                 if fontMedium.position.collidepoint(eventX,eventY):
-                    easy = SpiderGUI
-                    easy.NoSuits = 2
-                    easy.main()
+                    medium = SpiderGUI
+                    medium.NoSuits = 2
+                    medium.main()
                 if fontHard.position.collidepoint(eventX,eventY):
-                    easy = SpiderGUI
-                    easy.NoSuits = 4
-                    easy.main()     
+                    hard = SpiderGUI
+                    hard.NoSuits = 4
+                    hard.main()     
         #if mouse hovers on window              
         if pygame.mouse.get_focused():
             eventX,eventY= pygame.mouse.get_pos()
