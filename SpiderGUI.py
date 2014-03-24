@@ -6,17 +6,17 @@ from SpiderStack import *
 from SpiderDeck import *
 from SpiderCard import *
 from SpiderSolitaire import *
-#from win32api import GetSystemMetrics
+from win32api import GetSystemMetrics
 
 #Global constants
 #Note: If fullscreen and/or resizable will be implemented, some of these will not be kept constant.
 #screen dimensions:
-#systemWidth = GetSystemMetrics(0)
-#systemHeight = GetSystemMetrics(1)
-#windowWidth = min(systemWidth, 1500)
-#windowHeight = min(systemHeight, 850)
-windowWidth = 1500
-windowHeight = 850
+systemWidth = GetSystemMetrics(0)
+systemHeight = GetSystemMetrics(1)
+windowWidth = min(systemWidth, 1500)
+windowHeight = min(systemHeight, 850)
+#windowWidth = 1500
+#windowHeight = 850
 
 #card dimensions
 cardWidth = 100
