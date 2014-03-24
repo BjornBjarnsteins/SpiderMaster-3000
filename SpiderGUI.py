@@ -6,15 +6,17 @@ from SpiderStack import *
 from SpiderDeck import *
 from SpiderCard import *
 from SpiderSolitaire import *
-from win32api import GetSystemMetrics
+#from win32api import GetSystemMetrics
 
 #Global constants
 #Note: If fullscreen and/or resizable will be implemented, some of these will not be kept constant.
 #screen dimensions:
-systemWidth = GetSystemMetrics(0)
-systemHeight = GetSystemMetrics(1)
-windowWidth = min(systemWidth, 1500)
-windowHeight = min(systemHeight, 850)
+#systemWidth = GetSystemMetrics(0)
+#systemHeight = GetSystemMetrics(1)
+#windowWidth = min(systemWidth, 1500)
+#windowHeight = min(systemHeight, 850)
+windowWidth = 1500
+windowHeight = 850
 
 #card dimensions
 cardWidth = 100
@@ -72,10 +74,13 @@ backgroundColor = pygame.Color(30,148,45)
 last_i,last_j = 0,0
 mouseDown = False
 mouse = (0,0)
+#offset of the mouse and inHand, used for drawing
 offset = (0,0)
 #image to update the background while moving cards:
 background = 0
 mainBack = pygame.image.load('Backgrounds\grumpy_background.jpg')
+
+fullscreenOn = False
 
 # Initializes the game timer
 time = 0
@@ -92,6 +97,7 @@ def main():
     global mainBack
     global offset
     global inHandRect
+    global fullscreenOn
     #setup window and initialize game:
 
     spiderWindow = pygame.display.set_mode((windowWidth,windowHeight),pygame.FULLSCREEN)
@@ -100,6 +106,7 @@ def main():
     mainBack = pygame.transform.smoothscale(mainBack, (windowWidth, windowHeight))
     spiderWindow.blit(mainBack, (0,0))
     initialize(spiderWindow,NoSuits)
+    background = spiderWindow.copy()
     pygame.display.flip()
         
     while True:
@@ -199,6 +206,16 @@ def main():
                         updateHitbox(loc_i)
                         spiderWindow.blit(background, (0,0))
                         updateStack(spiderWindow, last_i)
+            elif event.type == KEYDOWN:
+                if fullscreenOn and event.key in (K_f,K_ESCAPE):
+                    pygame.display.set_mode((windowWidth,windowHeight))
+                    spiderWindow.blit(background,(0,0))
+                    pygame.display.flip()
+                else:
+                    pygame.display.set_mode((windowWidth,windowHeight),pygame.FULLSCREEN)
+                    spiderWindow.blit(background,(0,0))
+                    pygame.display.flip()
+                fullscreenOn = not fullscreenOn
             elif event.type == SEC_EVENT:
                 time += 1
                 displayTime(spiderWindow, font)
