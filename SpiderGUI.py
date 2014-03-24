@@ -87,6 +87,8 @@ time = 0
 SEC_EVENT = USEREVENT + 1
 pygame.time.set_timer(SEC_EVENT, 1000)
 
+#colors
+BLACK = (0,0,0)
 def main():
     pygame.init()
     fpsClock = pygame.time.Clock()
@@ -112,6 +114,7 @@ def main():
     while True:
         #update the background and inHand image constantly:
         if not inHand.isEmpty() and mouseDown:
+            inHandSurf.set_colorkey((0,0,0))
             spiderWindow.blit(background, (0,0))
             inHandX = mouse[0] - offset[0]
             inHandY = mouse[1] - offset[1]
@@ -119,6 +122,21 @@ def main():
             spiderWindow.blit(inHandSurf, inHandPos)
             inHandRect.x = inHandX
             inHandRect.y = inHandY
+            
+            #get info on mouse position
+            mouseX = mouse[0] - cardWidth/2
+            mouseY = mouse[1] - cardHeight/2
+            color = (0,0,0)
+            inHandCoord = inHandSurf.get_rect()
+            
+            #card position,top left corner
+            inHandCoord[0] = inHandX-2
+            inHandCoord[1] = inHandY-2
+            #outline size
+            inHandCoord[2] = inHandCoord[2] + 2
+            inHandCoord[3] = inHandCoord[3] + 2
+            #draw a rectangle outline around the selected cards
+            pygame.draw.rect(spiderWindow,color, inHandCoord, 4)
             pygame.display.update()
             
         for event in pygame.event.get():
@@ -254,7 +272,10 @@ def initialize(surface, suitNo):
     #of initializing it every time a card is displayed, this is done
     #for performance reasons
     global deck_graphic
-    deck_graphic = pygame.image.load('deck.png').convert()
+    
+    #this deck graphic uses a colorkey for transparency
+    #to remove the black borders that surround each card
+    deck_graphic = pygame.image.load('deck_colorkey.png').convert()
 
     
     #populate aces with face up images for all suits.
@@ -265,7 +286,8 @@ def initialize(surface, suitNo):
     #get image for the back of card:    
     cardBack = SpiderCard('S',1).getImage(deck_graphic,True)
     cardBack = pygame.transform.smoothscale(cardBack, (cardWidth, cardHeight))
-
+    cardBack.set_colorkey(BLACK)
+                          
 
     updateHitboxes()     
     displayStacks(surface, stacks, x, y)
@@ -312,6 +334,7 @@ def displayStack(surface, Stack, stack_x,stack_y):
 def displayCard(surface, card, isHidden, card_x, card_y, deck_graphic):
     cardSurf = card.getImage(deck_graphic,isHidden)
     cardSurf = pygame.transform.smoothscale(cardSurf,(cardWidth,cardHeight))
+    cardSurf.set_colorkey(BLACK)
     surface.blit(cardSurf, (card_x,card_y))
 
 #use: displayDeck(surf)
