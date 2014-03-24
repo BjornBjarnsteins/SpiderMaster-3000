@@ -51,11 +51,11 @@ def main():
 
     #Menu dialog
     fontSizeMenu = 42
-    fontEasy = TextItem("{Easy}",position=(width/2,2*height/6),font="fonts/{PixelFlag}.ttf",color=BLACK,
+    fontEasy = TextItem("{easy}",position=(width/2,1.85*height/6),font="fonts/{PixelFlag}.ttf",color=BLACK,
                             fontSize=fontSizeMenu)
-    fontMedium = TextItem("{Medium}",position=(width/2,2.5*height/6),font="fonts/{PixelFlag}.ttf",
+    fontMedium = TextItem("{medium}",position=(width/2,2.45*height/6),font="fonts/{PixelFlag}.ttf",
                               color=BLACK,fontSize=fontSizeMenu)
-    fontHard = TextItem("{Hard}",position=(width/2,3*height/6),font="fonts/{PixelFlag}.ttf",
+    fontHard = TextItem("{hard}",position=(width/2,3.05*height/6),font="fonts/{PixelFlag}.ttf",
                        color=BLACK,fontSize=fontSizeMenu)       
     #position of suits
     suitClub = (0,0)
@@ -77,7 +77,7 @@ def main():
         #draw background
         screen.fill(LIGHTGREEN)
     
-        title = TextItem("Spider Solitaire",position=(width/2,height/6),
+        title = TextItem("Spider Solitaire",position=(width/2,0.85*height/6),
                                     font="fonts/PixelMusketeer.ttf",color=BLACK,fontSize=fontSizeTitle)
         screen.blit(title.textSurface,title.position)
         #event cases
@@ -98,24 +98,35 @@ def main():
                 if fontHard.position.collidepoint(eventX,eventY):
                     easy = SpiderGUI
                     easy.NoSuits = 4
-                    easy.main()                   
+                    easy.main()     
+        #if mouse hovers on window              
         if pygame.mouse.get_focused():
             eventX,eventY= pygame.mouse.get_pos()
             seconds = time.clock()*3
             turnSize = math.fabs(math.sin(seconds))
             turnSize = int(turnSize*suitWidth)+1
-            #draw mouse focus animation depending on which button the cursor 
+            #draw mouse focus animation and color text depending on which button the cursor 
             #is hovering over
             if fontEasy.position.collidepoint(eventX,eventY):
+                fontEasy.textSurface = fontEasy.render('{easy}',False,RED)
                 animation(0.34,turnSize,suitSpade)
             elif fontMedium.position.collidepoint(eventX,eventY):
+                fontMedium.textSurface = fontMedium.render('{medium}',False,RED)            
                 animation(0.42,turnSize,suitSpade)
                 animation(0.25,turnSize,suitHeart)
             elif fontHard.position.collidepoint(eventX,eventY):
+                fontHard.textSurface = fontHard.render('{hard}',False,RED)                
                 animation(0.42,turnSize,suitSpade)
                 animation(0.25,turnSize,suitHeart)
                 animation(0.59,turnSize,suitDiamond)
-                animation(0.08,turnSize,suitClub)   
+                animation(0.08,turnSize,suitClub)  
+            #otherwise we set the text to its default color
+            else:
+                fontEasy.textSurface = fontEasy.render('{easy}',False,BLACK)
+                fontMedium.textSurface = fontEasy.render('{medium}',False,BLACK)
+                fontHard.textSurface = fontEasy.render('{hard}',False,BLACK)
+
+                 
         if fontSizeTitle > 100:
             #animate title sequence
             fontSizeTitle = int(fontSizeTitle*0.8)            
