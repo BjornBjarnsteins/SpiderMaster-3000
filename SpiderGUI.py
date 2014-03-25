@@ -245,8 +245,10 @@ def main():
                 if event.key == K_h:
                     if helpOn:
                         spiderWindow.blit(background, (0,0))
+                        pygame.display.flip()
                         helpOn = False
-                    else:                            
+                    else: 
+                        background = spiderWindow.copy()                           
                         spiderWindow.blit(helpScreen, (0,0))
                         pygame.display.flip()
                         helpOn = True
@@ -303,12 +305,12 @@ def initialize(surface, suitNo):
     helpScreen.set_alpha(200)
     helpScreen.fill(pygame.Color(0,0,0))
     helpScreen.blit(text1, (windowWidth/2-200,windowHeight/2-200))
-    helpScreen.blit(text2, (windowWidth/2-350,windowHeight/2-140))
-    helpScreen.blit(text3, (windowWidth/2-350,windowHeight/2-115))
-    helpScreen.blit(text4, (windowWidth/2-360,windowHeight/2-90))
-    helpScreen.blit(text5, (windowWidth/2-360,windowHeight/2-65))
-    helpScreen.blit(text6, (windowWidth/2-350,windowHeight/2-40))
-    helpScreen.blit(text7, (windowWidth/2-340,windowHeight/2+20))
+    helpScreen.blit(text2, (windowWidth/2-350,windowHeight/2-120))
+    helpScreen.blit(text3, (windowWidth/2-350,windowHeight/2-95))
+    helpScreen.blit(text4, (windowWidth/2-360,windowHeight/2-70))
+    helpScreen.blit(text5, (windowWidth/2-360,windowHeight/2-45))
+    helpScreen.blit(text6, (windowWidth/2-350,windowHeight/2-20))
+    helpScreen.blit(text7, (windowWidth/2-340,windowHeight/2+150))
     helpScreen.blit(text8, (windowWidth/2-225,windowHeight/2+300))
     
     #calculate space between stacks and coordinates of the stacks.
