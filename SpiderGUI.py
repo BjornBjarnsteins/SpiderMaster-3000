@@ -150,7 +150,7 @@ def main():
             if event.type == QUIT: 
                 pygame.quit()
                 sys.exit()
-            elif event.type == MOUSEBUTTONDOWN:
+            elif event.type == MOUSEBUTTONDOWN and not helpOn:
                 mouseDown = True
                 updateHitboxes()
                 #loc_i is number of stack, loc_j is number of card in that stack (both counted from 0) or (-1,-1) if it is not above any stack.
@@ -189,9 +189,9 @@ def main():
                         print 'You cant do this'
                     updateStack(spiderWindow, loc_i) 
                     background = spiderWindow.copy()      
-            elif event.type == MOUSEMOTION:
+            elif event.type == MOUSEMOTION and not helpOn:
                 mouse = pygame.mouse.get_pos()
-            elif event.type == MOUSEBUTTONUP:
+            elif event.type == MOUSEBUTTONUP and not helpOn:
                 mouseDown = False
                 updateHitboxes()
                 #loc_i is number of stack, loc_j is number of card in that stack (both counted from 0) or (-1,-1) if it is not above any stack.
@@ -488,15 +488,14 @@ def updateDeckHitbox():
 #pre: surf is a pygame.Surface object
 #post: images of decks have been updated
 def updateDeck(surface):
-    if not helpOn:
-        updateDeckHitbox()
-        deckBox = pygame.Rect(deck_x-deal*hiddenGap, deck_y, cardWidth+deal*hiddenGap, cardHeight)
-        #surface.fill(backgroundColor, deckBox)
-        for rect in deckhboxes:
-            pos = (rect.x,rect.y)
-            surface.blit(mainBack,pos,rect)
-        displayDeck(surface)
-        pygame.display.update(deckBox) 
+    updateDeckHitbox()
+    deckBox = pygame.Rect(deck_x-deal*hiddenGap, deck_y, cardWidth+deal*hiddenGap, cardHeight)
+    #surface.fill(backgroundColor, deckBox)
+    for rect in deckhboxes:
+        pos = (rect.x,rect.y)
+        surface.blit(mainBack,pos,rect)
+    displayDeck(surface)
+    pygame.display.update(deckBox) 
 
 #use: dealNew(surf)
 #pre: surf is a pygame.Surface object
@@ -505,7 +504,7 @@ def dealNew(surface):
     global game
     global deal
     
-    if(deal > 0 and not helpOn):
+    if(deal > 0):
         game.deal()
         updateHitboxes()
         updateStacks(surface)
