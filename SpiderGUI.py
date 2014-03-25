@@ -254,7 +254,7 @@ def main():
                         spiderWindow.blit(helpScreen, (0,0))
                         pygame.display.flip()
                         helpOn = True
-            elif event.type == SEC_EVENT:
+            elif event.type == SEC_EVENT and not helpOn:
                 time += 1
                 displayTime(spiderWindow, font)
                 pygame.display.update()
@@ -406,9 +406,11 @@ def displayScore(surface, font):
 # Pre:  surf is a Surface, font is a Font
 # Post: The game timer has been updated
 def displayTime(surface, font):
-    surface.blit(mainBack, (timer_x,timer_y),pygame.Rect(timer_x, timer_y, 150, 30))
-    surface.blit(font.render(str(time) + 's', True, (255,255,255)), (timer_x, timer_y))
+    if not helpOn:
+        surface.blit(mainBack, (timer_x,timer_y),pygame.Rect(timer_x, timer_y, 150, 30))
+        surface.blit(font.render(str(time) + 's', True, (255,255,255)), (timer_x, timer_y))
 
+        
 #use: updateStack(surf, num)
 #pre: surf is a pygame.Surface object and num is in range(0,len(stacks))
 #post: the image of stacks[num] has been updated
