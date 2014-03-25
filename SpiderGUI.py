@@ -62,7 +62,7 @@ deckhboxes = [0]*deal #for the deal buttons
 stackHeight = [0]*colNum
 stacks = []
 #this instance of spider solitaire:
-game = 0
+game = SpiderSolitaire(1)
 #contains collected piles denoted by suit number.
 piles = []
 #cards that have been picked up:
@@ -90,6 +90,8 @@ fullscreenOn = False
 time = 0
 SEC_EVENT = USEREVENT + 1
 pygame.time.set_timer(SEC_EVENT, 1000)
+
+hiscores = []
 
 #colors
 BLACK = (0,0,0)
@@ -256,9 +258,9 @@ def main():
                 time += 1
                 displayTime(spiderWindow, font)
                 pygame.display.update()
-    
+    gettext.install("highscore")
     dialog = HSDialog(0)
-    dialog.mainLoop()            
+    dialog.MainLoop()            
                  
     fpsClock.tick(30)
 
@@ -286,7 +288,6 @@ def initialize(surface, suitNo):
     helpOn = False
     font = pygame.font.Font(None, 30)
     hiscores = LoadScores()
-    print hiscores
     
     
     headfont = pygame.font.SysFont(None, 40)
@@ -632,7 +633,7 @@ def getDifficulty():
 # pre:  name is the name of the player, file is an optional input for where the file is saved
 def StoreScore(name, score, file='highscores.txt'):
     newScore = (name, score, getDifficulty())
-    #hiscores.append(newScore)
+    hiscores.append(newScore)
     output = open(file, 'w')
     for s in hiscores:
         output.write(StoreScoreHelp(s))

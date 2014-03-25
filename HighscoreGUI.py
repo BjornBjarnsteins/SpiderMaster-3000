@@ -51,7 +51,7 @@ class NameDialog(wx.Dialog):
 
     def GetName(self, event):  # wxGlade: NameDialog.<event_handler>
         currentName = self.text_ctrl_1.GetValue()
-        StoreScore(currentName)
+        StoreScore(currentName, game.score)
         self.Destroy()
 
 # end of class NameDialog
