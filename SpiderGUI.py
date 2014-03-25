@@ -488,14 +488,15 @@ def updateDeckHitbox():
 #pre: surf is a pygame.Surface object
 #post: images of decks have been updated
 def updateDeck(surface):
-    updateDeckHitbox()
-    deckBox = pygame.Rect(deck_x-deal*hiddenGap, deck_y, cardWidth+deal*hiddenGap, cardHeight)
-    #surface.fill(backgroundColor, deckBox)
-    for rect in deckhboxes:
-        pos = (rect.x,rect.y)
-        surface.blit(mainBack,pos,rect)
-    displayDeck(surface)
-    pygame.display.update(deckBox) 
+    if not helpOn:
+        updateDeckHitbox()
+        deckBox = pygame.Rect(deck_x-deal*hiddenGap, deck_y, cardWidth+deal*hiddenGap, cardHeight)
+        #surface.fill(backgroundColor, deckBox)
+        for rect in deckhboxes:
+            pos = (rect.x,rect.y)
+            surface.blit(mainBack,pos,rect)
+        displayDeck(surface)
+        pygame.display.update(deckBox) 
 
 #use: dealNew(surf)
 #pre: surf is a pygame.Surface object
@@ -504,7 +505,7 @@ def dealNew(surface):
     global game
     global deal
     
-    if(deal > 0):
+    if(deal > 0 and not helpOn):
         game.deal()
         updateHitboxes()
         updateStacks(surface)
