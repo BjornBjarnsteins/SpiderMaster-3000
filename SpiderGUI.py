@@ -7,6 +7,7 @@ from SpiderDeck import *
 from SpiderCard import *
 from SpiderSolitaire import *
 from win32api import GetSystemMetrics
+from HighscoreGUI import *
 
 #Global constants
 #Note: If fullscreen and/or resizable will be implemented, some of these will not be kept constant.
@@ -253,7 +254,9 @@ def main():
                 time += 1
                 displayTime(spiderWindow, font)
                 pygame.display.update()
-                
+    
+    dialog = HSDialog(0)
+    dialog.mainLoop()            
                  
     fpsClock.tick(30)
 
@@ -273,12 +276,15 @@ def initialize(surface, suitNo):
     global font
     global helpOn
     global helpScreen
+    global hiscores
     
     game = SpiderSolitaire(suitNo)
     stacks = game.getStacks()
     deal = 5
     helpOn = False
     font = pygame.font.Font(None, 30)
+    hiscores = LoadScores()
+    print hiscores
     
     
     headfont = pygame.font.SysFont(None, 40)
@@ -609,6 +615,41 @@ def displayPiles(surface):
         return
     for i in range(0,len(piles)):
         surface.blit(aces[piles[i]],(pile_x+i*revealedGap,pile_y))
+
+# use:  getDifficulty()
+# post: returns the difficulty of the game
+def getDifficulty():
+    if NoSuits == 1:
+        return 'Easy'
+    elif NoSuits == 2:
+        return 'Medium'
+    elif NoSuits == 4:
+        return 'Hard'
+    
+# use:  StoreScore(name, file='highscores.txt')
+# pre:  name is the name of the player, file is an optional input for where the file is saved
+def StoreScore(name, score, file='highscores.txt'):
+    newScore = (name, score, getDifficulty())
+    #hiscores.append(newScore)
+    output = open(file, 'w')
+    for s in hiscores:
+        output.write(StoreScoreHelp(s))
+
+def StoreScoreHelp(score):
+    outputString = score[0] + ' ' + str(score[1]) + ' ' + score[2]
+    return outputString
+    
+def LoadScores(file='highscores.txt'):
+    scorelist = []
+    try:
+        for line in open(file):
+            args = line.split()
+            scorelist = scorelist + [(args[0], int(args[1]), args[2])]
+    except Exception:
+        scorelist = []
+    return scorelist
+    
+
 
 #use: b = winCond()
 #post: b = True if the game is won, b = False otherwise.    
