@@ -303,7 +303,7 @@ def initialize(surface, suitNo):
     helpScreen.blit(text5, (windowWidth/2-360,windowHeight/2-65))
     helpScreen.blit(text6, (windowWidth/2-350,windowHeight/2-40))
     helpScreen.blit(text7, (windowWidth/2-340,windowHeight/2+20))
-    helpScreen.blit(text8, (windowWidth/2-200,windowHeight/2+300))
+    helpScreen.blit(text8, (windowWidth/2-225,windowHeight/2+300))
     
     #calculate space between stacks and coordinates of the stacks.
     m = (windowWidth-10*cardWidth)/11
