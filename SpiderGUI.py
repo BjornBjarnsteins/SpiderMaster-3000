@@ -102,7 +102,7 @@ def main():
     global fullscreenOn
     #setup window and initialize game:
 
-    spiderWindow = pygame.display.set_mode((windowWidth,windowHeight),pygame.FULLSCREEN)
+    spiderWindow = pygame.display.set_mode((windowWidth,windowHeight))
     pygame.display.set_caption('SpiderSolitaire')
     #spiderWindow.fill(backgroundColor)
     mainBack = pygame.transform.smoothscale(mainBack, (windowWidth, windowHeight))
@@ -111,7 +111,7 @@ def main():
     background = spiderWindow.copy()
     pygame.display.flip()
         
-    while True:
+    while not game.CheckWin():
         #update the background and inHand image constantly:
         if not inHand.isEmpty() and mouseDown:
             inHandSurf.set_colorkey((0,0,0))
@@ -143,11 +143,6 @@ def main():
             if event.type == QUIT: 
                 pygame.quit()
                 sys.exit()
-            elif event.type == KEYDOWN:
-                #check if input is alt+f4
-                if (event.key == K_F4 and bool(event.mod & KMOD_ALT)):
-                    pygame.quit()
-                    sys.exit()
             elif event.type == MOUSEBUTTONDOWN:
                 mouseDown = True
                 updateHitboxes()
@@ -225,15 +220,21 @@ def main():
                         spiderWindow.blit(background, (0,0))
                         updateStack(spiderWindow, last_i)
             elif event.type == KEYDOWN:
-                if fullscreenOn and event.key in (K_f,K_ESCAPE):
-                    pygame.display.set_mode((windowWidth,windowHeight))
-                    spiderWindow.blit(background,(0,0))
-                    pygame.display.flip()
-                else:
-                    pygame.display.set_mode((windowWidth,windowHeight))
-                    spiderWindow.blit(background,(0,0))
-                    pygame.display.flip()
-                fullscreenOn = not fullscreenOn
+                if event.key in (K_f,K_ESCAPE):
+                    if fullscreenOn:
+                        pygame.display.set_mode((windowWidth,windowHeight))
+                        spiderWindow.blit(background,(0,0))
+                        pygame.display.flip()
+                        
+                    else:
+                        pygame.display.set_mode((windowWidth,windowHeight), FULLSCREEN)
+                        spiderWindow.blit(background,(0,0))
+                        pygame.display.flip()
+                    fullscreenOn = not fullscreenOn
+                #check if input is alt+f4
+                if (event.key == K_F4 and bool(event.mod & KMOD_ALT)):
+                    pygame.quit()
+                    sys.exit()
             elif event.type == SEC_EVENT:
                 time += 1
                 displayTime(spiderWindow, font)
