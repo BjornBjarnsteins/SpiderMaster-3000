@@ -78,8 +78,11 @@ mouse = (0,0)
 offset = (0,0)
 #image to update the background while moving cards:
 background = 0
-mainBack = pygame.image.load('Backgrounds\poker_background.png')
-
+mainBack = pygame.image.load('Backgrounds\grumpy_background.jpg')
+#for help on/off:
+helpOn = False
+#for the help itself:
+helpScreen = 0
 fullscreenOn = False
 
 # Initializes the game timer
@@ -100,6 +103,7 @@ def main():
     global offset
     global inHandRect
     global fullscreenOn
+    global helpOn
     #setup window and initialize game:
 
     spiderWindow = pygame.display.set_mode((windowWidth,windowHeight))
@@ -206,6 +210,8 @@ def main():
                             updateHitbox(loc_i)
                             game.changeScore(setBonus)
                             displayScore(spiderWindow, font)
+                            if(winCond()):
+                                print 'you won!'
                         else:
                             updateHitbox(loc_i)
                             spiderWindow.blit(background, (0,0)) 
@@ -235,6 +241,14 @@ def main():
                 if (event.key == K_F4 and bool(event.mod & KMOD_ALT)):
                     pygame.quit()
                     sys.exit()
+                if event.key == K_h:
+                    if helpOn:
+                        spiderWindow.blit(background, (0,0))
+                        helpOn = False
+                    else:                            
+                        spiderWindow.blit(helpScreen, (0,0))
+                        pygame.display.flip()
+                        helpOn = True
             elif event.type == SEC_EVENT:
                 time += 1
                 displayTime(spiderWindow, font)
@@ -257,12 +271,39 @@ def initialize(surface, suitNo):
     global cardBack
     global aces
     global font
-    
+    global helpOn
+    global helpScreen
     
     game = SpiderSolitaire(suitNo)
     stacks = game.getStacks()
     deal = 5
+    helpOn = False
     font = pygame.font.Font(None, 30)
+    
+    
+    headfont = pygame.font.SysFont(None, 40)
+    basicfont = pygame.font.SysFont(None, 30)
+    littlefont = pygame.font.SysFont(None, 20)
+    text1 = headfont.render('Welcome to Spider Solitaire!', True, (248, 248, 255))
+    text2 = basicfont.render('Your objective is to collect 8 full suits. You can put a card down on', True, (248, 248, 255))
+    text3 = basicfont.render(' another card if it is one below it in rank. You can only pick up cards', True, (248, 248, 255))
+    text4 = basicfont.render(' in rank order of the same suit. Down in the right corner is your deck of', True, (248, 248, 255))
+    text5 = basicfont.render('50 cards. You can deal a new row 5 times. Down in the left corner is your', True, (248, 248, 255))
+    text6 = basicfont.render('collection of full suits.', True, (248, 248, 255))
+    text7 = headfont.render('Good luck and may the odds be ever in your favor!', True, (248, 248, 255))
+    text8 = littlefont.render('Press F for fullscreen and H if you would like to see this help again.', True, (248, 248, 255))
+    
+    helpScreen = pygame.Surface((windowWidth, windowHeight))
+    helpScreen.set_alpha(200)
+    helpScreen.fill(pygame.Color(0,0,0))
+    helpScreen.blit(text1, (windowWidth/2-200,windowHeight/2-200))
+    helpScreen.blit(text2, (windowWidth/2-350,windowHeight/2-140))
+    helpScreen.blit(text3, (windowWidth/2-350,windowHeight/2-115))
+    helpScreen.blit(text4, (windowWidth/2-360,windowHeight/2-90))
+    helpScreen.blit(text5, (windowWidth/2-360,windowHeight/2-65))
+    helpScreen.blit(text6, (windowWidth/2-350,windowHeight/2-40))
+    helpScreen.blit(text7, (windowWidth/2-340,windowHeight/2+20))
+    helpScreen.blit(text8, (windowWidth/2-200,windowHeight/2+300))
     
     #calculate space between stacks and coordinates of the stacks.
     m = (windowWidth-10*cardWidth)/11
@@ -278,7 +319,6 @@ def initialize(surface, suitNo):
     #to remove the black borders that surround each card
     deck_graphic = pygame.image.load('deck_colorkey.png').convert()
 
-    
     #populate aces with face up images for all suits.
     for i in ['C','D','H','S']:
         cardSurface = SpiderCard(i,1).getImage(deck_graphic)
@@ -569,7 +609,11 @@ def displayPiles(surface):
         return
     for i in range(0,len(piles)):
         surface.blit(aces[piles[i]],(pile_x+i*revealedGap,pile_y))
-    
+
+#use: b = winCond()
+#post: b = True if the game is won, b = False otherwise.    
+def winCond():
+    return len(piles) == 8
 
 if __name__ == '__main__':
     main()
