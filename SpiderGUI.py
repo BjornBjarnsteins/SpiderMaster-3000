@@ -78,7 +78,7 @@ mouse = (0,0)
 offset = (0,0)
 #image to update the background while moving cards:
 background = 0
-mainBack = pygame.image.load('Backgrounds\grumpy_background.jpg')
+mainBack = pygame.image.load('Backgrounds\poker_background.png')
 
 fullscreenOn = False
 
