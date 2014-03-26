@@ -119,7 +119,6 @@ def main():
     pygame.display.flip()
         
     while not game.CheckWin():
-        break
         #update the background and inHand image constantly:
         if not inHand.isEmpty() and mouseDown:
             inHandSurf.set_colorkey((0,0,0))
