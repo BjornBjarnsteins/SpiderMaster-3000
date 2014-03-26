@@ -258,9 +258,10 @@ def main():
                 time += 1
                 displayTime(spiderWindow, font)
                 pygame.display.update()
-    gettext.install("highscore")
-    dialog = HSDialog(0)
-    dialog.MainLoop()            
+    if isHighScore(game.score):
+        gettext.install("highscore")
+        dialog = HSDialog(0)
+        dialog.MainLoop()            
                  
     fpsClock.tick(30)
 
@@ -635,7 +636,10 @@ def getDifficulty():
 # pre:  name is the name of the player, file is an optional input for where the file is saved
 def StoreScore(name, score, filename='highscores.txt'):
     newScore = (name, score, getDifficulty())
-    hiscores.append(newScore)
+    if len(hiscores) >= 10:
+        hiscores[10] = newScore
+    else:
+        hiscores.append(newScore)
     output = open(filename, 'w')
     for s in hiscores:
         output.write(StoreScoreHelp(s))
@@ -652,8 +656,13 @@ def LoadScores(filename='highscores.txt'):
             scorelist = scorelist + [(args[0], int(args[1]), args[2])]
     except Exception:
         scorelist = []
-    return scorelist
-    
+    return sorted(scorelist)
+
+# use:  isHighScore(n)
+# pre:  n is a positive integer
+# post: if n is higher than the lowest high score, returns True. False otherwise
+def isHighScore(n):
+    return n > hiscores[-1:][0]
 
 
 #use: b = winCond()
