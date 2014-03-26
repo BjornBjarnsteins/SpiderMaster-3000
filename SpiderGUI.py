@@ -84,6 +84,8 @@ mainBack = pygame.image.load('Backgrounds\grumpy_background.jpg')
 helpOn = False
 #for the help itself:
 helpScreen = 0
+#win message:
+winScreen = 0
 fullscreenOn = False
 
 # Initializes the game timer
@@ -118,7 +120,7 @@ def main():
     background = spiderWindow.copy()
     pygame.display.flip()
         
-    while not game.CheckWin():
+    while not winCond():
         #update the background and inHand image constantly:
         if not inHand.isEmpty() and mouseDown:
             inHandSurf.set_colorkey((0,0,0))
@@ -214,7 +216,7 @@ def main():
                             game.changeScore(setBonus)
                             displayScore(spiderWindow, font)
                             if(winCond()):
-                                print 'you won!'
+                                spiderWindow.blit(winScreen, (0,0))
                         else:
                             updateHitbox(loc_i)
                             spiderWindow.blit(background, (0,0)) 
@@ -282,6 +284,7 @@ def initialize(surface, suitNo):
     global helpOn
     global helpScreen
     global hiscores
+    global winScreen
     
     game = SpiderSolitaire(suitNo)
     stacks = game.getStacks()
@@ -314,6 +317,13 @@ def initialize(surface, suitNo):
     helpScreen.blit(text6, (windowWidth/2-350,windowHeight/2-20))
     helpScreen.blit(text7, (windowWidth/2-340,windowHeight/2+150))
     helpScreen.blit(text8, (windowWidth/2-225,windowHeight/2+300))
+    
+    winfont = pygame.font.SysFont(none, 70)
+    text9 = winfont.render('You won!', True, (248, 248, 255))
+    winScreen = pygame.Surface((windowWidth, windowHeight))
+    winScreen.set_alpha(200)
+    winScreen.fill(pygame.Color(0,0,0))
+    winScreen.blit(text9, (windowWidth/2-50, windowHeight/2-150))
     
     #calculate space between stacks and coordinates of the stacks.
     m = (windowWidth-10*cardWidth)/11
