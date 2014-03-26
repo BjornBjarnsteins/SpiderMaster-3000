@@ -59,6 +59,7 @@ hitboxes = [0]*colNum #for the cards in game
 stackhboxes = [0]*colNum #for the stacks
 deckhboxes = [0]*deal #for the deal buttons
 spiderBox = 0 #for the settings button
+menuButtons = [] #for the menu buttons
 #variables for the stacks:
 stackHeight = [0]*colNum
 stacks = []
@@ -86,9 +87,11 @@ helpOn = False
 #for the help itself:
 helpScreen = 0
 #for settings:
-settingsOn = False
+menuOn = False
 #win message:
 winScreen = 0
+#for the settings window (high scores, difficulty, help)
+menuScreen = 0
 fullscreenOn = False
 
 # Initializes the game timer
@@ -161,13 +164,15 @@ def play(spiderWindow):
                 #loc_i is number of stack, loc_j is number of card in that stack (both counted from 0) or (-1,-1) if it is not above any stack.
                 loc_i,loc_j = detectCol() 
                 
+                if detectSettingsCol():
+                    toggleMenu(spiderWindow)
+                elif menuOn:
+                    continue
                 #check if we're pressing a deal button and have deals left:
-                if deal != 0 and detectDeckCol():
+                elif deal != 0 and detectDeckCol():
                     dealNew(spiderWindow)
                     updateDeck(spiderWindow)
                 #skip the loop if mouse isn't pressing anything relevant:
-                elif detectSettingsCol():
-                    toggleSettings(spiderWindow)
                 elif (loc_i,loc_j) == (-1,-1) and inHand.isEmpty():
                     continue
                 #if we have cards in our hand, put them down if legal, else return to last position:
@@ -261,14 +266,22 @@ def play(spiderWindow):
                         spiderWindow.blit(helpScreen, (0,0))
                         pygame.display.flip()
                         helpOn = True
-            elif event.type == SEC_EVENT and not (helpOn or settingsOn) :
+            elif event.type == SEC_EVENT and not (helpOn or menuOn) :
                 time += 1
                 displayTime(spiderWindow, font)
                 pygame.display.update()
     if isHighScore(game.score) or True:
         gettext.install("highscore")
         dialog = HSDialog(0)
-        dialog.MainLoop()            
+        dialog.MainLoop()
+    
+    while True:
+        for event in pygame.event.get():
+            if event.type == QUIT: 
+                pygame.quit()
+                sys.exit()
+            elif event.type in (KEYDOWN, MOUSEBUTTONDOWN):
+                break       
                  
     fpsClock.tick(30)
 
@@ -299,7 +312,7 @@ def initialize(surface, suitNo):
     hiscores = LoadScores()
     
     createHelp()
-    createSettings(surface)
+    createMenuButton(surface)
     createWin()
     
     #calculate space between stacks and coordinates of the stacks.
@@ -338,7 +351,7 @@ def initialize(surface, suitNo):
 #post: creates the Help screen for the game
 def createHelp():
     global helpScreen
-    headfont = pygame.font.SysFont(None, 40)
+    headfont = pygame.font.SysFont(None, 70)
     basicfont = pygame.font.SysFont(None, 30)
     littlefont = pygame.font.SysFont(None, 20)
     text1 = headfont.render('Welcome to Spider Solitaire!', True, (248, 248, 255))
@@ -353,13 +366,13 @@ def createHelp():
     helpScreen = pygame.Surface((windowWidth, windowHeight))
     helpScreen.set_alpha(200)
     helpScreen.fill(pygame.Color(0,0,0))
-    helpScreen.blit(text1, (windowWidth/2-200,windowHeight/2-200))
+    helpScreen.blit(text1, (windowWidth/2-350,windowHeight/2-200))
     helpScreen.blit(text2, (windowWidth/2-350,windowHeight/2-120))
     helpScreen.blit(text3, (windowWidth/2-350,windowHeight/2-95))
     helpScreen.blit(text4, (windowWidth/2-360,windowHeight/2-70))
     helpScreen.blit(text5, (windowWidth/2-360,windowHeight/2-45))
     helpScreen.blit(text6, (windowWidth/2-350,windowHeight/2-20))
-    helpScreen.blit(text7, (windowWidth/2-340,windowHeight/2+150))
+    helpScreen.blit(text7, (windowWidth/2-600,windowHeight/2+150))
     helpScreen.blit(text8, (windowWidth/2-225,windowHeight/2+300))
 
 #use: createHelp()
@@ -373,7 +386,7 @@ def createWin():
     winScreen.fill(pygame.Color(0,0,0))
     winScreen.blit(text9, (windowWidth/2-50, windowHeight/2-150))
 
-def createSettings(surface):
+def createMenuButton(surface):
     global spiderBox
     spiderW = 60
     spiderH = 60
@@ -383,19 +396,69 @@ def createSettings(surface):
     spiderBox = pygame.Rect(windowWidth-65, windowHeight-65, spiderW, spiderH)
     pygame.display.update(spiderBox)
    
-def toggleSettings(surface):
-    global settingsOn
+def toggleMenu(surface):
+    global menuOn
     global background
-    if not settingsOn:
+    if not menuOn:
         background = surface.copy()
-        print 'you opened settings'
-        settingsOn = True
+        menu(surface)
+        menuOn = True
     else:
-        settingsOn = False
-        print 'you closed the settings'
+        menuOn = False
         surface.blit(background, (0,0))
-        
-           
+        pygame.display.flip()
+
+#use: 
+#pre:
+#post:        
+def menu(surface):
+    global menuScreen
+    global menuButtons
+    menuScreen = pygame.Surface((windowWidth, windowHeight))
+    menuScreen.set_alpha(200)
+    menuScreen.fill(pygame.Color(0,0,0))
+    
+    bWidth = 300
+    bHeight = 100
+    x_loc = windowWidth/2-120
+    y_loc = windowHeight/2-200
+    y_locs = [y_loc, y_loc+bHeight, y_loc+2*bHeight, y_loc+3*bHeight]
+    
+    gameSurf = pygame.Surface((bWidth, bHeight))
+    diffSurf =  pygame.Surface((bWidth,bHeight))
+    scoreSurf =  pygame.Surface((bWidth, bHeight))
+    helpSurf = pygame.Surface((bWidth,bHeight))
+    
+    font = pygame.font.SysFont(None, 70)
+    game = font.render('New Game', True, (248, 248, 255))
+    gameSurf.blit(game, (0,0))
+    diff = font.render('Set difficulty', True, (248, 248, 255))
+    diffSurf.blit(diff, (0,0))
+    score = font.render('Highscores', True, (248, 248, 255))
+    scoreSurf.blit(score, (0,0))
+    help = font.render('Help', True, (248, 248, 255))
+    helpSurf.blit(help, (0,0))
+    
+    menuSurfaces = [gameSurf, diffSurf, scoreSurf, helpSurf]
+    
+    gameButton = gameSurf.get_rect()
+    gameButton.x,gameButton.y = (x_loc,y_locs[0])
+    diffButton = diffSurf.get_rect()
+    diffButton.x,diffButton.y = (x_loc,y_locs[1])
+    scoreButton = scoreSurf.get_rect()
+    scoreButton.x,scoreButton.y = (x_loc,y_locs[2])
+    helpButton = helpSurf.get_rect()
+    helpButton.x,helpButton.y = (x_loc,y_locs[3])
+    menuButtons = [gameButton, diffButton, scoreButton, helpButton]
+    
+    surface.blit(menuScreen, (0,0))
+    for i in range(0,len(menuSurfaces)):
+        menuSurfaces[i].set_colorkey(pygame.Color(0,0,0))
+        surface.blit(menuSurfaces[i], (x_loc, y_locs[i]))
+        createMenuButton(surface)
+    
+    pygame.display.flip()
+    
 
 #use: displayStacks(surface, s, x, y)
 #pre: surface is a pygame.Surface object, s an array of SpiderStack objects, x an array of positive integers
@@ -615,7 +678,13 @@ def detectSettingsCol():
     mouse = pygame.mouse.get_pos()
     return spiderBox.collidepoint(mouse)
     
-
+def detectMenuCol():
+    mouse = pygame.mouse.get_pos()
+    for i in range(0,len(menuButtons)):
+        if button.collidepoint(mouse):
+            return i
+    
+    return -1
 #use: pickupCards(surf, (i,j))
 #pre: surf is a pygame.Surface object, (i,j) is a tuple, i is a legal index for stacks,
 #     and j is a legal index for stacks[i].cards
@@ -698,7 +767,7 @@ def StoreScore(name, score, filename='highscores.txt'):
     else:
         hiscores.append(newScore)
     hiscores.sort()
-    resetFile(filename)
+    #resetFile(filename)
     for s in range(0, len(hiscores)):
         AddScoreToFile(hiscores[s])
 
@@ -730,6 +799,8 @@ def LoadScores(filename='highscores.txt'):
 # pre:  n is a positive integer
 # post: if n is higher than the lowest high score, returns True. False otherwise
 def isHighScore(n):
+    if len(hiscores)==0:
+        return True
     return n > hiscores[-1:][0]
 
 

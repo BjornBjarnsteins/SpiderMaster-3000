@@ -102,13 +102,8 @@ def main():
                 if fontHard.position.collidepoint(eventX,eventY):
                     hard = SpiderGUI
                     hard.NoSuits = 4
-<<<<<<< HEAD
-                    hard.play(screen)     
-        #if mouse hovers on window              
-=======
-                    hard.main()     
+                    hard.play(screen)
         #if mouse is inside our window              
->>>>>>> cced4e8f6ba5cc7ef0f3cee3e9e66d35da1d6981
         if pygame.mouse.get_focused():
             eventX,eventY= pygame.mouse.get_pos()
             seconds = time.clock()*3
