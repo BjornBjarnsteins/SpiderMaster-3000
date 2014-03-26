@@ -38,7 +38,7 @@ def main():
         
     #graphics
     suits = pygame.image.load('images/suits.png').convert()
-
+    
     suitWidth = 160
     suitHeight = 160
     suitSurf = pygame.Surface((suitWidth,suitHeight))
@@ -99,10 +99,11 @@ def main():
                     hard = SpiderGUI
                     hard.NoSuits = 4
                     hard.main()     
-        #if mouse hovers on window              
+        #if mouse is inside our window              
         if pygame.mouse.get_focused():
             eventX,eventY= pygame.mouse.get_pos()
             seconds = time.clock()*3
+            #turnSize is the width size of any of the suit graphics
             turnSize = math.fabs(math.sin(seconds))
             turnSize = int(turnSize*suitWidth)+1
             #draw mouse focus animation and color text depending on which button the cursor 
