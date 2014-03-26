@@ -258,7 +258,7 @@ def main():
                 time += 1
                 displayTime(spiderWindow, font)
                 pygame.display.update()
-    if isHighScore(game.score):
+    if isHighScore(game.score) or True:
         gettext.install("highscore")
         dialog = HSDialog(0)
         dialog.MainLoop()            
@@ -640,12 +640,23 @@ def StoreScore(name, score, filename='highscores.txt'):
         hiscores[10] = newScore
     else:
         hiscores.append(newScore)
-    output = open(filename, 'w')
-    for s in hiscores:
-        output.write(StoreScoreHelp(s))
+    hiscores.sort()
+    resetFile(filename)
+    for s in range(0, len(hiscores)):
+        AddScoreToFile(hiscores[s])
+
+# Use:  resetFile(file)
+# Pre:  file is a filename
+# Post: file is empty
+def resetFile(filename):
+    open(filename, 'w')
+
+def AddScoreToFile(score, filename='highscores.txt'):
+    output = open(filename, 'a')
+    output.write(StoreScoreHelp(score))
 
 def StoreScoreHelp(score):
-    outputString = score[0] + ' ' + str(score[1]) + ' ' + score[2]
+    outputString = score[0] + ' ' + str(score[1]) + ' ' + score[2] + '\n'
     return outputString
     
 def LoadScores(filename='highscores.txt'):
