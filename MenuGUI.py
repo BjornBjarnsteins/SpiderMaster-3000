@@ -1,6 +1,7 @@
 import pygame, sys, os, random, time, math
 import SpiderGUI
 from pygame.locals import * 
+from win32api import GetSystemMetrics
 
 class TextItem (pygame.font.Font):
     
@@ -22,11 +23,14 @@ def main():
     windowY = 30
     os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (windowX,windowY)
     
-    width = 1024
-    height = 600
+    #screen dimensions:
+    systemWidth = GetSystemMetrics(0)
+    systemHeight = GetSystemMetrics(1)
+    windowWidth = min(systemWidth, 1500)
+    windowHeight = min(systemHeight, 850)
     
     pygame.init()
-    screen = pygame.display.set_mode((width, height))
+    screen = pygame.display.set_mode((windowWidth, windowHeight))
     pygame.display.set_caption('SpiderMaster-3000')
 
     #colors
@@ -51,11 +55,11 @@ def main():
 
     #Menu dialog
     fontSizeMenu = 42
-    fontEasy = TextItem("{easy}",position=(width/2,1.85*height/6),font="fonts/{PixelFlag}.ttf",color=BLACK,
+    fontEasy = TextItem("{easy}",position=(windowWidth/2,1.85*windowHeight/6),font="fonts/{PixelFlag}.ttf",color=BLACK,
                             fontSize=fontSizeMenu)
-    fontMedium = TextItem("{medium}",position=(width/2,2.45*height/6),font="fonts/{PixelFlag}.ttf",
+    fontMedium = TextItem("{medium}",position=(windowWidth/2,2.45*windowHeight/6),font="fonts/{PixelFlag}.ttf",
                               color=BLACK,fontSize=fontSizeMenu)
-    fontHard = TextItem("{hard}",position=(width/2,3.05*height/6),font="fonts/{PixelFlag}.ttf",
+    fontHard = TextItem("{hard}",position=(windowWidth/2,3.05*windowHeight/6),font="fonts/{PixelFlag}.ttf",
                        color=BLACK,fontSize=fontSizeMenu)       
     #position of suits
     suitClub = (0,0)
@@ -70,14 +74,14 @@ def main():
         suitSurf.blit(suits,(0,0),(suitPos,suitSize))
         surf = pygame.transform.scale(suitSurf,(turnSize,suitWidth))
         offsetX = suitWidth-turnSize/2
-        spadePos = (posX*width+offsetX,0.63*height)
+        spadePos = (posX*windowWidth+offsetX,0.63*windowHeight)
         screen.blit(surf,spadePos)
         
     while True:
         #draw background
         screen.fill(LIGHTGREEN)
     
-        title = TextItem("Spider Solitaire",position=(width/2,0.85*height/6),
+        title = TextItem("Spider Solitaire",position=(windowWidth/2,0.85*windowHeight/6),
                                     font="fonts/PixelMusketeer.ttf",color=BLACK,fontSize=fontSizeTitle)
         screen.blit(title.textSurface,title.position)
         #event cases
@@ -90,15 +94,15 @@ def main():
                 if fontEasy.position.collidepoint(eventX,eventY):
                     easy = SpiderGUI
                     easy.NoSuits = 1
-                    easy.main()
+                    easy.play(screen)
                 if fontMedium.position.collidepoint(eventX,eventY):
                     medium = SpiderGUI
                     medium.NoSuits = 2
-                    medium.main()
+                    medium.play(screen)
                 if fontHard.position.collidepoint(eventX,eventY):
                     hard = SpiderGUI
                     hard.NoSuits = 4
-                    hard.main()     
+                    hard.play(screen)     
         #if mouse hovers on window              
         if pygame.mouse.get_focused():
             eventX,eventY= pygame.mouse.get_pos()

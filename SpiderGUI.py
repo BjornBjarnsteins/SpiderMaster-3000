@@ -58,6 +58,7 @@ deal = 5
 hitboxes = [0]*colNum #for the cards in game
 stackhboxes = [0]*colNum #for the stacks
 deckhboxes = [0]*deal #for the deal buttons
+spiderBox = 0 #for the settings button
 #variables for the stacks:
 stackHeight = [0]*colNum
 stacks = []
@@ -84,6 +85,8 @@ mainBack = pygame.image.load('Backgrounds\grumpy_background.jpg')
 helpOn = False
 #for the help itself:
 helpScreen = 0
+#for settings:
+settingsOn = False
 #win message:
 winScreen = 0
 fullscreenOn = False
@@ -97,7 +100,7 @@ hiscores = []
 
 #colors
 BLACK = (0,0,0)
-def main():
+def play(spiderWindow):
     pygame.init()
     fpsClock = pygame.time.Clock()
     
@@ -111,7 +114,7 @@ def main():
     global helpOn
     #setup window and initialize game:
 
-    spiderWindow = pygame.display.set_mode((windowWidth,windowHeight))
+    #spiderWindow = pygame.display.set_mode((windowWidth,windowHeight))
     pygame.display.set_caption('SpiderSolitaire')
     #spiderWindow.fill(backgroundColor)
     mainBack = pygame.transform.smoothscale(mainBack, (windowWidth, windowHeight))
@@ -163,6 +166,8 @@ def main():
                     dealNew(spiderWindow)
                     updateDeck(spiderWindow)
                 #skip the loop if mouse isn't pressing anything relevant:
+                elif detectSettingsCol():
+                    toggleSettings(spiderWindow)
                 elif (loc_i,loc_j) == (-1,-1) and inHand.isEmpty():
                     continue
                 #if we have cards in our hand, put them down if legal, else return to last position:
@@ -256,7 +261,7 @@ def main():
                         spiderWindow.blit(helpScreen, (0,0))
                         pygame.display.flip()
                         helpOn = True
-            elif event.type == SEC_EVENT and not helpOn:
+            elif event.type == SEC_EVENT and not (helpOn or settingsOn) :
                 time += 1
                 displayTime(spiderWindow, font)
                 pygame.display.update()
@@ -293,37 +298,9 @@ def initialize(surface, suitNo):
     font = pygame.font.Font(None, 30)
     hiscores = LoadScores()
     
-    
-    headfont = pygame.font.SysFont(None, 40)
-    basicfont = pygame.font.SysFont(None, 30)
-    littlefont = pygame.font.SysFont(None, 20)
-    text1 = headfont.render('Welcome to Spider Solitaire!', True, (248, 248, 255))
-    text2 = basicfont.render('Your objective is to collect 8 full suits. You can put a card down on', True, (248, 248, 255))
-    text3 = basicfont.render(' another card if it is one below it in rank. You can only pick up cards', True, (248, 248, 255))
-    text4 = basicfont.render(' in rank order of the same suit. Down in the right corner is your deck of', True, (248, 248, 255))
-    text5 = basicfont.render('50 cards. You can deal a new row 5 times. Down in the left corner is your', True, (248, 248, 255))
-    text6 = basicfont.render('collection of full suits.', True, (248, 248, 255))
-    text7 = headfont.render('Good luck and may the odds be ever in your favor!', True, (248, 248, 255))
-    text8 = littlefont.render('Press F for fullscreen and H if you would like to see this help again.', True, (248, 248, 255))
-    
-    helpScreen = pygame.Surface((windowWidth, windowHeight))
-    helpScreen.set_alpha(200)
-    helpScreen.fill(pygame.Color(0,0,0))
-    helpScreen.blit(text1, (windowWidth/2-200,windowHeight/2-200))
-    helpScreen.blit(text2, (windowWidth/2-350,windowHeight/2-120))
-    helpScreen.blit(text3, (windowWidth/2-350,windowHeight/2-95))
-    helpScreen.blit(text4, (windowWidth/2-360,windowHeight/2-70))
-    helpScreen.blit(text5, (windowWidth/2-360,windowHeight/2-45))
-    helpScreen.blit(text6, (windowWidth/2-350,windowHeight/2-20))
-    helpScreen.blit(text7, (windowWidth/2-340,windowHeight/2+150))
-    helpScreen.blit(text8, (windowWidth/2-225,windowHeight/2+300))
-    
-    winfont = pygame.font.SysFont(none, 70)
-    text9 = winfont.render('You won!', True, (248, 248, 255))
-    winScreen = pygame.Surface((windowWidth, windowHeight))
-    winScreen.set_alpha(200)
-    winScreen.fill(pygame.Color(0,0,0))
-    winScreen.blit(text9, (windowWidth/2-50, windowHeight/2-150))
+    createHelp()
+    createSettings(surface)
+    createWin()
     
     #calculate space between stacks and coordinates of the stacks.
     m = (windowWidth-10*cardWidth)/11
@@ -356,6 +333,69 @@ def initialize(surface, suitNo):
     displayScore(surface, font)
 
     background = surface.copy()
+
+#use: createHelp()
+#post: creates the Help screen for the game
+def createHelp():
+    global helpScreen
+    headfont = pygame.font.SysFont(None, 40)
+    basicfont = pygame.font.SysFont(None, 30)
+    littlefont = pygame.font.SysFont(None, 20)
+    text1 = headfont.render('Welcome to Spider Solitaire!', True, (248, 248, 255))
+    text2 = basicfont.render('Your objective is to collect 8 full suits. You can put a card down on', True, (248, 248, 255))
+    text3 = basicfont.render(' another card if it is one below it in rank. You can only pick up cards', True, (248, 248, 255))
+    text4 = basicfont.render(' in rank order of the same suit. Down in the right corner is your deck of', True, (248, 248, 255))
+    text5 = basicfont.render('50 cards. You can deal a new row 5 times. Down in the left corner is your', True, (248, 248, 255))
+    text6 = basicfont.render('collection of full suits.', True, (248, 248, 255))
+    text7 = headfont.render('Good luck and may the odds be ever in your favor!', True, (248, 248, 255))
+    text8 = littlefont.render('Press F for fullscreen and H if you would like to see this help again.', True, (248, 248, 255))
+    
+    helpScreen = pygame.Surface((windowWidth, windowHeight))
+    helpScreen.set_alpha(200)
+    helpScreen.fill(pygame.Color(0,0,0))
+    helpScreen.blit(text1, (windowWidth/2-200,windowHeight/2-200))
+    helpScreen.blit(text2, (windowWidth/2-350,windowHeight/2-120))
+    helpScreen.blit(text3, (windowWidth/2-350,windowHeight/2-95))
+    helpScreen.blit(text4, (windowWidth/2-360,windowHeight/2-70))
+    helpScreen.blit(text5, (windowWidth/2-360,windowHeight/2-45))
+    helpScreen.blit(text6, (windowWidth/2-350,windowHeight/2-20))
+    helpScreen.blit(text7, (windowWidth/2-340,windowHeight/2+150))
+    helpScreen.blit(text8, (windowWidth/2-225,windowHeight/2+300))
+
+#use: createHelp()
+#post: creates the win screen for the game
+def createWin():
+    global winScreen
+    winfont = pygame.font.SysFont(None, 70)
+    text9 = winfont.render('You won!', True, (248, 248, 255))
+    winScreen = pygame.Surface((windowWidth, windowHeight))
+    winScreen.set_alpha(200)
+    winScreen.fill(pygame.Color(0,0,0))
+    winScreen.blit(text9, (windowWidth/2-50, windowHeight/2-150))
+
+def createSettings(surface):
+    global spiderBox
+    spiderW = 60
+    spiderH = 60
+    spider = pygame.image.load('spider.png').convert_alpha()
+    spider = pygame.transform.smoothscale(spider, (spiderW, spiderH))
+    surface.blit(spider, (windowWidth-65, windowHeight-65))
+    spiderBox = pygame.Rect(windowWidth-65, windowHeight-65, spiderW, spiderH)
+    pygame.display.update(spiderBox)
+   
+def toggleSettings(surface):
+    global settingsOn
+    global background
+    if not settingsOn:
+        background = surface.copy()
+        print 'you opened settings'
+        settingsOn = True
+    else:
+        settingsOn = False
+        print 'you closed the settings'
+        surface.blit(background, (0,0))
+        
+           
 
 #use: displayStacks(surface, s, x, y)
 #pre: surface is a pygame.Surface object, s an array of SpiderStack objects, x an array of positive integers
@@ -418,7 +458,7 @@ def displayScore(surface, font):
 # Post: The game timer has been updated
 def displayTime(surface, font):
     if not helpOn:
-        surface.blit(mainBack, (timer_x,timer_y),pygame.Rect(timer_x, timer_y, 150, 30))
+        surface.blit(mainBack, (timer_x,timer_y),pygame.Rect(timer_x, timer_y, 100, 30))
         surface.blit(font.render(str(time) + 's', True, (255,255,255)), (timer_x, timer_y))
 
         
@@ -568,6 +608,13 @@ def detectDeckCol():
     mouse = pygame.mouse.get_pos()
     updateDeckHitbox()
     return deckhboxes[-1].collidepoint(mouse)
+
+#use: b = detectSettingsCol()
+#post: b = True if mouse is over settings symbol, else false
+def detectSettingsCol():
+    mouse = pygame.mouse.get_pos()
+    return spiderBox.collidepoint(mouse)
+    
 
 #use: pickupCards(surf, (i,j))
 #pre: surf is a pygame.Surface object, (i,j) is a tuple, i is a legal index for stacks,
