@@ -74,7 +74,7 @@ def main():
         suitSurf.blit(suits,(0,0),(suitPos,suitSize))
         surf = pygame.transform.scale(suitSurf,(turnSize,suitWidth))
         offsetX = suitWidth-turnSize/2
-        spadePos = (posX*windowWidth+offsetX,0.63*windowHeight)
+        spadePos = (posX*(windowWidth+suitWidth)+offsetX,0.63*windowHeight)
         screen.blit(surf,spadePos)
         
     while True:
@@ -116,20 +116,27 @@ def main():
                 fontEasy.textSurface = fontEasy.render('{easy}',False,RED)
                 fontMedium.textSurface = fontEasy.render('{medium}',False,BLACK)
                 fontHard.textSurface = fontEasy.render('{hard}',False,BLACK)
-                animation(0.34,turnSize,suitSpade)
+                posX = 0.34
+                animation(posX,turnSize,suitSpade)
             elif fontMedium.position.collidepoint(eventX,eventY):
+                posXSpade = 0.40
+                posXHeart = 0.27
                 fontMedium.textSurface = fontMedium.render('{medium}',False,RED)
                 fontEasy.textSurface = fontEasy.render('{easy}',False,BLACK)
                 fontHard.textSurface = fontEasy.render('{hard}',False,BLACK)
-                animation(0.42,turnSize,suitSpade)
-                animation(0.25,turnSize,suitHeart)
+                animation(posXSpade,turnSize,suitSpade)
+                animation(posXHeart,turnSize,suitHeart)
             elif fontHard.position.collidepoint(eventX,eventY):
+                posXSpade = 0.40
+                posXHeart = 0.27
+                posXDiamond = 0.53
+                posXClub = 0.14
                 fontHard.textSurface = fontHard.render('{hard}',False,RED)
                 fontMedium.textSurface = fontEasy.render('{medium}',False,BLACK)
-                animation(0.42,turnSize,suitSpade)
-                animation(0.25,turnSize,suitHeart)
-                animation(0.59,turnSize,suitDiamond)
-                animation(0.08,turnSize,suitClub)  
+                animation(posXSpade,turnSize,suitSpade)
+                animation(posXHeart,turnSize,suitHeart)
+                animation(posXDiamond,turnSize,suitDiamond)
+                animation(posXClub,turnSize,suitClub)  
             #otherwise we set the text to its default color
             else:
                 fontEasy.textSurface = fontEasy.render('{easy}',False,BLACK)
