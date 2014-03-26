@@ -68,13 +68,13 @@ def main():
     suitSpade = (160,160)
     suitSize = (suitWidth,suitHeight)
     
-    #pre: posX is float, turnSize and suitPos are integers
+    #pre: distanceFromMid is float, turnSize and suitPos are integers
     #post: draws the mouseOver animation
-    def animation(posX,turnSize,suitPos):
+    def animation(distanceFromMid,turnSize,suitPos):
         suitSurf.blit(suits,(0,0),(suitPos,suitSize))
         surf = pygame.transform.scale(suitSurf,(turnSize,suitWidth))
         offsetX = suitWidth-turnSize/2
-        spadePos = (posX*(windowWidth+suitWidth)+offsetX,0.63*windowHeight)
+        spadePos = (distanceFromMid+(windowWidth/2)+offsetX-suitWidth,0.63*windowHeight)
         screen.blit(surf,spadePos)
         
     while True:
@@ -110,33 +110,33 @@ def main():
             #turnSize is the width size of any of the suit graphics
             turnSize = math.fabs(math.sin(seconds))
             turnSize = int(turnSize*suitWidth)+1
+
+            #specify distances from the midpoint for each suits
+            distanceSpade = 200*0.5
+            distanceHeart = -200*0.5
+            distanceDiamond = 200*1.5
+            distanceClub = -200*1.5
             #draw mouse focus animation and color text depending on which button the cursor 
             #is hovering over
             if fontEasy.position.collidepoint(eventX,eventY):
+                distance = 0
                 fontEasy.textSurface = fontEasy.render('{easy}',False,RED)
                 fontMedium.textSurface = fontEasy.render('{medium}',False,BLACK)
                 fontHard.textSurface = fontEasy.render('{hard}',False,BLACK)
-                posX = 0.34
-                animation(posX,turnSize,suitSpade)
+                animation(distance,turnSize,suitSpade)
             elif fontMedium.position.collidepoint(eventX,eventY):
-                posXSpade = 0.40
-                posXHeart = 0.27
                 fontMedium.textSurface = fontMedium.render('{medium}',False,RED)
                 fontEasy.textSurface = fontEasy.render('{easy}',False,BLACK)
                 fontHard.textSurface = fontEasy.render('{hard}',False,BLACK)
-                animation(posXSpade,turnSize,suitSpade)
-                animation(posXHeart,turnSize,suitHeart)
+                animation(distanceSpade,turnSize,suitSpade)
+                animation(distanceHeart,turnSize,suitHeart)
             elif fontHard.position.collidepoint(eventX,eventY):
-                posXSpade = 0.40
-                posXHeart = 0.27
-                posXDiamond = 0.53
-                posXClub = 0.14
                 fontHard.textSurface = fontHard.render('{hard}',False,RED)
                 fontMedium.textSurface = fontEasy.render('{medium}',False,BLACK)
-                animation(posXSpade,turnSize,suitSpade)
-                animation(posXHeart,turnSize,suitHeart)
-                animation(posXDiamond,turnSize,suitDiamond)
-                animation(posXClub,turnSize,suitClub)  
+                animation(distanceSpade,turnSize,suitSpade)
+                animation(distanceHeart,turnSize,suitHeart)
+                animation(distanceDiamond,turnSize,suitDiamond)
+                animation(distanceClub,turnSize,suitClub)  
             #otherwise we set the text to its default color
             else:
                 fontEasy.textSurface = fontEasy.render('{easy}',False,BLACK)
