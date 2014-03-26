@@ -633,10 +633,10 @@ def getDifficulty():
     
 # use:  StoreScore(name, file='highscores.txt')
 # pre:  name is the name of the player, file is an optional input for where the file is saved
-def StoreScore(name, score, file='highscores.txt'):
+def StoreScore(name, score, filename='highscores.txt'):
     newScore = (name, score, getDifficulty())
     hiscores.append(newScore)
-    output = open(file, 'w')
+    output = open(filename, 'w')
     for s in hiscores:
         output.write(StoreScoreHelp(s))
 
@@ -644,10 +644,10 @@ def StoreScoreHelp(score):
     outputString = score[0] + ' ' + str(score[1]) + ' ' + score[2]
     return outputString
     
-def LoadScores(file='highscores.txt'):
+def LoadScores(filename='highscores.txt'):
     scorelist = []
     try:
-        for line in open(file):
+        for line in open(filename):
             args = line.split()
             scorelist = scorelist + [(args[0], int(args[1]), args[2])]
     except Exception:
