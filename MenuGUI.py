@@ -40,7 +40,7 @@ def main():
     BLACK = (0,0,0)
     LIGHTGREEN = (185,255,185)
     RED = (255,0,0)
-    FPS = 30 #FPS controls the framerate of our display
+    FPS = 60 #FPS controls the framerate of our display
         
     #graphics
     suits = pygame.image.load('images/suits.png').convert()
