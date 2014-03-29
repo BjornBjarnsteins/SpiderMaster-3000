@@ -23,11 +23,13 @@ def main():
     windowY = 30
     os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (windowX,windowY)
     
+    sizeOfWindowsBar = 38
+
     #screen dimensions:
     systemWidth = GetSystemMetrics(0)
-    systemHeight = GetSystemMetrics(1)
+    systemHeight = GetSystemMetrics(1)-sizeOfWindowsBar
     windowWidth = min(systemWidth, 1500)
-    windowHeight = min(systemHeight, 850)
+    windowHeight = min(systemHeight, 850)-sizeOfWindowsBar
     
     pygame.init()
     screen = pygame.display.set_mode((windowWidth, windowHeight))

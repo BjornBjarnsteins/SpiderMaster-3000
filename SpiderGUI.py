@@ -13,9 +13,10 @@ from HighscoreGUI import *
 #Note: If fullscreen and/or resizable will be implemented, some of these will not be kept constant.
 #screen dimensions:
 systemWidth = GetSystemMetrics(0)
-systemHeight = GetSystemMetrics(1)
+sizeOfWindowsBar = 38
+systemHeight = GetSystemMetrics(1)-sizeOfWindowsBar
 windowWidth = min(systemWidth, 1500)
-windowHeight = min(systemHeight, 850)
+windowHeight = min(systemHeight, 850)-sizeOfWindowsBar
 #windowWidth = 1500
 #windowHeight = 850
 
@@ -29,16 +30,19 @@ hiddenGap = 10 #the gap from a hidden card to the next card on top.
 revealedGap = 30 #the gap from a revealed card to the next card on top.
 #Coordinates of the deck.
 deck_x = windowWidth - 200
-deck_y = windowHeight - 200
+deck_y = windowHeight - 150
 #Coordinates of the full suits (='a pile') the user has collected.
 pile_x = 30
-pile_y = windowHeight - 200
+pile_y = windowHeight - 150
 #Coordinates of the timer
-timer_x = windowWidth - 200
-timer_y = windowHeight - 50
+timer_x = windowWidth/2 + 40
+timer_y = 4
 #Coordinates of the score
-score_x = windowWidth - 500
-score_y = windowHeight - 50
+score_x = windowWidth/2 - 60
+score_y = 4
+#coordinates of instructions
+instr_x = windowWidth-297
+instr_y = 4
 #number of stacks in game:
 colNum = 10
 #image of the back of a card
@@ -308,7 +312,7 @@ def initialize(surface, suitNo):
     stacks = game.getStacks()
     deal = 5
     helpOn = False
-    font = pygame.font.Font(None, 30)
+    font = pygame.font.Font(None, 18)
     hiscores = LoadScores()
     
     createHelp()
@@ -344,7 +348,12 @@ def initialize(surface, suitNo):
     displayStacks(surface, stacks, x, y)
     displayDeck(surface)
     displayScore(surface, font)
-
+    
+    normal_font = pygame.font.SysFont(None, 18)
+    gray = (200,200,200)
+    instructions = normal_font.render("Press h for help and f for fullscreen mode", True,gray)
+    
+    surface.blit(instructions,(instr_x,instr_y))
     background = surface.copy()
 
 #use: createHelp()
@@ -513,7 +522,7 @@ def displayDeck(surface):
 # Post: game.score has been updated
 def displayScore(surface, font):
     # Todo: change the background color scheme to fit the background
-    surface.blit(mainBack, (score_x,score_y),pygame.Rect(score_x, score_y, 150, 30))
+    surface.blit(mainBack, (score_x,score_y),pygame.Rect(score_x, score_y, 150, 15))
     surface.blit(font.render('Score: ' + str(game.score), True, (255,255,255)), (score_x, score_y))
 
 # Use:  displayTime(surf, font)
@@ -521,7 +530,7 @@ def displayScore(surface, font):
 # Post: The game timer has been updated
 def displayTime(surface, font):
     if not helpOn:
-        surface.blit(mainBack, (timer_x,timer_y),pygame.Rect(timer_x, timer_y, 100, 30))
+        surface.blit(mainBack, (timer_x,timer_y),pygame.Rect(timer_x, timer_y, 100, 15))
         surface.blit(font.render(str(time) + 's', True, (255,255,255)), (timer_x, timer_y))
 
         
