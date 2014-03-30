@@ -85,7 +85,7 @@ mouse = (0,0)
 offset = (0,0)
 #image to update the background while moving cards:
 background = 0
-mainBack = pygame.image.load('Backgrounds/Dark_background.jpg')
+mainBack = pygame.image.load('Backgrounds/Vintage_background.jpg')
 #for help on/off:
 helpOn = False
 #for the help itself:
@@ -464,7 +464,7 @@ def menu(surface):
     font = pygame.font.SysFont(None, 70)
     game = font.render('New Game', True, (248, 248, 255))
     gameSurf.blit(game, (0,0))
-    diff = font.render('Set difficulty', True, (248, 248, 255))
+    diff = font.render('Settings', True, (248, 248, 255))
     diffSurf.blit(diff, (0,0))
     score = font.render('Highscores', True, (248, 248, 255))
     scoreSurf.blit(score, (0,0))
