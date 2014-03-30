@@ -261,15 +261,7 @@ def play(spiderWindow):
                     pygame.quit()
                     sys.exit()
                 elif event.key == K_h:
-                    if helpOn:
-                        spiderWindow.blit(background, (0,0))
-                        pygame.display.flip()
-                        helpOn = False
-                    else: 
-                        background = spiderWindow.copy()                           
-                        spiderWindow.blit(helpScreen, (0,0))
-                        pygame.display.flip()
-                        helpOn = True
+                    toggleHelp(spiderWindow)
             if event.type == SEC_EVENT and not (helpOn or menuOn) :
                 time += 1
                 displayTime(spiderWindow, font)
@@ -377,7 +369,26 @@ def changeBackground(path, surface):
     instructions = normal_font.render("Press h for help and f for fullscreen mode", True,gray)
     surface.blit(instructions,(instr_x,instr_y))
     
-    
+def toggleHelp(surface):
+    global background
+    global helpOn
+    if helpOn:
+        surface.blit(background, (0,0))
+        pygame.display.flip()
+        helpOn = False
+    else: 
+        background = surface.copy()                           
+        surface.blit(helpScreen, (0,0))
+        pygame.display.flip()
+        helpOn = True
+        while helpOn:
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == KEYDOWN:
+                    if event.key in (K_h,K_ESCAPE):
+                        toggleHelp(surface)
 
 #use: createHelp()
 #post: creates the Help screen for the game
@@ -433,8 +444,8 @@ def toggleMenu(surface):
     global background
     if not menuOn:
         background = surface.copy()
-        menu(surface)
         menuOn = True
+        menu(surface)
     else:
         menuOn = False
         surface.blit(background, (0,0))
@@ -446,6 +457,7 @@ def toggleMenu(surface):
 def menu(surface):
     global menuScreen
     global menuButtons
+    global menuOn
     menuScreen = pygame.Surface((windowWidth, windowHeight))
     menuScreen.set_alpha(200)
     menuScreen.fill(pygame.Color(0,0,0))
@@ -482,7 +494,8 @@ def menu(surface):
     helpButton = helpSurf.get_rect()
     helpButton.x,helpButton.y = (x_loc,y_locs[3])
     menuButtons = [gameButton, diffButton, scoreButton, helpButton]
-    
+    message = ["New Game","Settings","Highscores","HELP!"]
+                
     surface.blit(menuScreen, (0,0))
     for i in range(0,len(menuSurfaces)):
         menuSurfaces[i].set_colorkey(pygame.Color(0,0,0))
@@ -490,6 +503,22 @@ def menu(surface):
         createMenuButton(surface)
     
     pygame.display.flip()
+    
+    while menuOn:
+        for event in pygame.event.get():
+            if event.type == QUIT: 
+                pygame.quit()
+                sys.exit()
+            elif event.type == MOUSEBUTTONDOWN:
+                i = detectMenuCol()
+                if detectSettingsCol():
+                    toggleMenu(surface)
+                elif i==0:
+                    #toggleMenu(surface)
+                    menuOn = False
+                    initialize(surface,NoSuits)
+                    
+            
     
 
 #use: displayStacks(surface, s, x, y)
@@ -713,7 +742,7 @@ def detectSettingsCol():
 def detectMenuCol():
     mouse = pygame.mouse.get_pos()
     for i in range(0,len(menuButtons)):
-        if button.collidepoint(mouse):
+        if menuButtons[i].collidepoint(mouse):
             return i
     
     return -1
