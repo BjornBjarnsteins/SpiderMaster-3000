@@ -270,7 +270,9 @@ def play(spiderWindow):
                         spiderWindow.blit(helpScreen, (0,0))
                         pygame.display.flip()
                         helpOn = True
-            elif event.type == SEC_EVENT and not (helpOn or menuOn) :
+                elif event.key == K_RETURN:
+                    initialize(spiderWindow,1)
+            if event.type == SEC_EVENT and not (helpOn or menuOn) :
                 time += 1
                 displayTime(spiderWindow, font)
                 pygame.display.update()
@@ -307,7 +309,9 @@ def initialize(surface, suitNo):
     global helpScreen
     global hiscores
     global winScreen
+    global time
     
+    surface.blit(mainBack,(0,0))
     game = SpiderSolitaire(suitNo)
     stacks = game.getStacks()
     deal = 5
@@ -354,6 +358,7 @@ def initialize(surface, suitNo):
     instructions = normal_font.render("Press h for help and f for fullscreen mode", True,gray)
     
     surface.blit(instructions,(instr_x,instr_y))
+    time = 0
     background = surface.copy()
     
 #use: changeBackground(path, surface)
