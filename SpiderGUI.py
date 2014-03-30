@@ -257,10 +257,10 @@ def play(spiderWindow):
                         pygame.display.flip()
                     fullscreenOn = not fullscreenOn
                 #check if input is alt+f4
-                if (event.key == K_F4 and bool(event.mod & KMOD_ALT)):
+                elif (event.key == K_F4 and bool(event.mod & KMOD_ALT)):
                     pygame.quit()
                     sys.exit()
-                if event.key == K_h:
+                elif event.key == K_h:
                     if helpOn:
                         spiderWindow.blit(background, (0,0))
                         pygame.display.flip()
@@ -355,6 +355,26 @@ def initialize(surface, suitNo):
     
     surface.blit(instructions,(instr_x,instr_y))
     background = surface.copy()
+    
+#use: changeBackground(path, surface)
+#pre: path is a legal path to an image file and surface is a pygame surface
+#post: The game now displays the image at path as it's background
+def changeBackground(path, surface):
+    global mainBack
+    mainBack = pygame.image.load(path).convert()
+    mainBack = pygame.transform.smoothscale(mainBack,(windowWidth, windowHeight))
+    surface.blit(mainBack,(0,0))
+    displayDeck(surface)
+    displayPiles(surface)
+    displayScore(surface,font)
+    createMenuButton(surface)
+    displayStacks(surface, stacks, x, y)
+    normal_font = pygame.font.SysFont(None, 18)
+    gray = (200,200,200)
+    instructions = normal_font.render("Press h for help and f for fullscreen mode", True,gray)
+    surface.blit(instructions,(instr_x,instr_y))
+    
+    
 
 #use: createHelp()
 #post: creates the Help screen for the game
