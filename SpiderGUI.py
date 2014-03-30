@@ -85,7 +85,7 @@ mouse = (0,0)
 offset = (0,0)
 #image to update the background while moving cards:
 background = 0
-mainBack = pygame.image.load('Backgrounds\grumpy_background.jpg')
+mainBack = pygame.image.load('Backgrounds/Dark_background.jpg')
 #for help on/off:
 helpOn = False
 #for the help itself:
@@ -270,8 +270,6 @@ def play(spiderWindow):
                         spiderWindow.blit(helpScreen, (0,0))
                         pygame.display.flip()
                         helpOn = True
-                elif event.key == K_RETURN:
-                    initialize(spiderWindow,1)
             if event.type == SEC_EVENT and not (helpOn or menuOn) :
                 time += 1
                 displayTime(spiderWindow, font)
