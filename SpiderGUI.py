@@ -85,7 +85,7 @@ mouse = (0,0)
 offset = (0,0)
 #image to update the background while moving cards:
 background = 0
-mainBack = pygame.image.load('Backgrounds/Vintage_background.jpg')
+mainBack = pygame.image.load('Backgrounds/vintage.jpg')
 #for help on/off:
 helpOn = False
 #for highscore screen on/off:
@@ -364,10 +364,6 @@ def changeBackground(path, surface):
     displayScore(surface,font)
     createMenuButton(surface)
     displayStacks(surface, stacks, x, y)
-    normal_font = pygame.font.SysFont(None, 18)
-    gray = (200,200,200)
-    instructions = normal_font.render("Press h for help and f for fullscreen mode", True,gray)
-    surface.blit(instructions,(instr_x,instr_y))
     
 
 
@@ -475,7 +471,7 @@ def menu(surface):
                     initialize(surface,NoSuits)
                 # Settings
                 elif i==1:
-                    pass
+                    settingsMenu(surface)
                 # Highscores
                 elif i==2:
                     menuOn = False
@@ -956,7 +952,59 @@ def isHighScore(n):
 def winCond():
     return len(piles) == 8
 
-if __name__ == '__main__':
-    main()
-     
+#use: selectBackgroundMenu():
+#post: The user has been given a graphical menu to choose a background and mainBack is his background of choice
+def settingsMenu(surface):
+    global mainBack
+    global BackgroundMenuOn
+    global background
+    surface.blit(background,(0,0))
+    surface.blit(overlay,(0,0))
+    #We want 4 thumbnails per line
+    thumbWidth = windowWidth/5
+    thumbHeight = int(thumbWidth*(float(windowHeight)/windowWidth))
+    spaceBetween = (windowWidth-4*thumbWidth)/5
+    backgroundFolder = 'Backgrounds/'
+    backgroundFile = ['grumpy.jpg','nes.jpg','panda.jpg','pandaprogrammer.jpg','pandasuit.jpg','pulp_star.jpg','vintage.jpg']
+    thumbnails = []
+    for image in backgroundFile:
+        tempSurf = pygame.image.load(backgroundFolder+image).convert()
+        tempSurf = pygame.transform.smoothscale(tempSurf,(thumbWidth,thumbHeight))
+        thumbnails.append(tempSurf)
+    thumbX = spaceBetween
+    thumbY = thumbHeight
+    selection = []
+    for thumbnail in thumbnails:
+        if thumbX+thumbWidth>windowWidth:
+            thumbX = spaceBetween
+            thumbY = 2*thumbHeight+spaceBetween
+        surface.blit(thumbnail,(thumbX,thumbY))
+        tempRect = pygame.Rect(thumbX,thumbY,thumbWidth,thumbHeight)
+        selection.append(tempRect)
+        thumbX += thumbWidth+spaceBetween
+    createMenuButton(surface)
+    pygame.display.flip()
+    BackgroundMenuOn = True
+    while BackgroundMenuOn:
+        mousePos = pygame.mouse.get_pos()
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == MOUSEBUTTONDOWN:
+                overBackgroundNr = -1
+                for i in range(0,len(selection)):
+                    if selection[i].collidepoint(mousePos):
+                        overBackgroundNr = i
+                print overBackgroundNr
+                if overBackgroundNr >= 0:
+                    print 'changing background to '+backgroundFolder+backgroundFile[overBackgroundNr]
+                    changeBackground(backgroundFolder+backgroundFile[overBackgroundNr],surface)
+                    background = surface.copy()
+                    toggleMenu(surface)
+                    return
+                elif detectMenuCol():
+                    toggleMenu(surface)
+                    return
+
 pygame.quit()
