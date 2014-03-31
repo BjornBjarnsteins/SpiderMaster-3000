@@ -513,10 +513,11 @@ def createHighscores(surface):
     back_y = windowHeight - 100
     back_width = 100
     back_height = 50
-    font = pygame.font.SysFont(None, 50)
+    font = pygame.font.Font('fonts/FancyCardText.ttf', 75)
+    backfont = pygame.font.Font('fonts/FancyCardText.ttf', 50)
     
     backSurf = pygame.Surface((back_width, back_height))
-    back = font.render('Back', True, (248, 248, 255))
+    back = backfont.render('Back', True, (248, 248, 255))
     backSurf.blit(back, (0,0))
     
     labels_y = 100
@@ -535,7 +536,7 @@ def createHighscores(surface):
     scorefont = pygame.font.SysFont(None, 24)
     top_scores = LoadScores()
     
-    scores_y = 155
+    scores_y = 200
     max_scores = 15 #specify max number of high scores to be displayed
     score_cnt = 0
     
