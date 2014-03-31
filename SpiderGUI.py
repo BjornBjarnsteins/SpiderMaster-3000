@@ -161,7 +161,7 @@ def play(spiderWindow):
             if event.type == QUIT: 
                 pygame.quit()
                 sys.exit()
-            elif event.type == MOUSEBUTTONDOWN and not helpOn:
+            elif event.type == MOUSEBUTTONDOWN and not helpOn and not hsOn:
                 mouseDown = True
                 updateHitboxes()
                 #loc_i is number of stack, loc_j is number of card in that stack (both counted from 0) or (-1,-1) if it is not above any stack.
@@ -204,9 +204,9 @@ def play(spiderWindow):
                         print 'You cant do this'
                     updateStack(spiderWindow, loc_i) 
                     background = spiderWindow.copy()      
-            elif event.type == MOUSEMOTION and not helpOn:
+            elif event.type == MOUSEMOTION and not helpOn and not hsOn:
                 mouse = pygame.mouse.get_pos()
-            elif event.type == MOUSEBUTTONUP and not helpOn:
+            elif event.type == MOUSEBUTTONUP and not helpOn and not hsOn:
                 mouseDown = False
                 updateHitboxes()
                 #loc_i is number of stack, loc_j is number of card in that stack (both counted from 0) or (-1,-1) if it is not above any stack.
@@ -261,10 +261,11 @@ def play(spiderWindow):
                     sys.exit()
                 elif event.key == K_h:
                     toggleHelp(spiderWindow)
-            if event.type == SEC_EVENT and not (helpOn or menuOn) :
+            if event.type == SEC_EVENT and not (helpOn or menuOn):
                 time += 1
                 displayTime(spiderWindow, font)
                 pygame.display.update()
+                    
     if isHighScore(game.score) or True:
         gettext.install("highscore")
         dialog = HSDialog(0)
@@ -495,13 +496,14 @@ def toggleHighscores(surface):
     else: 
         background = surface.copy()                           
         createHighscores(surface)
-        hsOn = True
 
 
 def createHighscores(surface):
     global hsScreen
     global backButton
     global hsOn
+    
+    hsOn = True
     
     hsScreen = pygame.Surface((windowWidth, windowHeight))
     hsScreen.set_alpha(200)
@@ -516,7 +518,6 @@ def createHighscores(surface):
     
     backSurf = pygame.Surface((back_width, back_height))
     back = font.render('Back', True, (248, 248, 255))
-    
     backSurf.blit(back, (0,0))
     
     labels_y = 100
@@ -533,15 +534,21 @@ def createHighscores(surface):
     surface.blit(name_label, (name_label_x, labels_y))
     surface.blit(score_label, (score_label_x, labels_y))
     surface.blit(diff_label, (diff_label_x, labels_y))
+    pygame.display.update()
     
     while hsOn:
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
-            if event.type == KEYDOWN:
+            elif event.type == MOUSEBUTTONDOWN:
+                mouseXY = pygame.mouse.get_pos()
+                back_rect = pygame.Rect(back_x, back_y, back_width, back_height)
+                if back_rect.collidepoint(mouseXY):
+                    toggleHighscores(surface)
+            elif event.type == KEYDOWN:
                 if event.key in (K_h, K_ESCAPE):
-                    toggleHelp(surface)        
+                    toggleHelp(surface)   
 
 
 def toggleHelp(surface):
