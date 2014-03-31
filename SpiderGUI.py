@@ -965,9 +965,10 @@ def settingsMenu(surface):
     thumbHeight = int(thumbWidth*(float(windowHeight)/windowWidth))
     spaceBetween = (windowWidth-4*thumbWidth)/5
     backgroundFolder = 'Backgrounds/'
+    thumbfile = ['grumpy_thumb.jpg','nes_thumb.jpg','panda_thumb.jpg','pandaprogrammer_thumb.jpg','pandasuit_thumb.jpg','pulp_star_thumb.jpg','vintage_thumb.jpg']
     backgroundFile = ['grumpy.jpg','nes.jpg','panda.jpg','pandaprogrammer.jpg','pandasuit.jpg','pulp_star.jpg','vintage.jpg']
     thumbnails = []
-    for image in backgroundFile:
+    for image in thumbfile:
         tempSurf = pygame.image.load(backgroundFolder+image).convert()
         tempSurf = pygame.transform.smoothscale(tempSurf,(thumbWidth,thumbHeight))
         thumbnails.append(tempSurf)
