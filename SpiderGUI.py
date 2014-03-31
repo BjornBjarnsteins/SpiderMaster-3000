@@ -161,7 +161,7 @@ def play(spiderWindow):
             if event.type == QUIT: 
                 pygame.quit()
                 sys.exit()
-            elif event.type == MOUSEBUTTONDOWN and not helpOn and not hsOn:
+            elif event.type == MOUSEBUTTONDOWN and not helpOn and not hsOn and not mouseDown:
                 mouseDown = True
                 updateHitboxes()
                 #loc_i is number of stack, loc_j is number of card in that stack (both counted from 0) or (-1,-1) if it is not above any stack.
