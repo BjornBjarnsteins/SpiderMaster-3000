@@ -828,7 +828,7 @@ def StoreScore(name, score, filename='highscores.txt'):
     else:
         hiscores.append(newScore)
     hiscores.sort()
-    #resetFile(filename)
+    resetFile(filename)
     for s in range(0, len(hiscores)):
         AddScoreToFile(hiscores[s])
 

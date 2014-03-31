@@ -5,7 +5,7 @@
 #
 
 import wx
-from SpiderGUI import *
+import SpiderGUI
 
 # begin wxGlade: dependencies
 import gettext
@@ -51,7 +51,7 @@ class NameDialog(wx.Dialog):
 
     def GetName(self, event):  # wxGlade: NameDialog.<event_handler>
         currentName = self.text_ctrl_1.GetValue()
-        StoreScore(currentName, game.score)
+        SpiderGUI.StoreScore(currentName, SpiderGUI.game.score)
         self.Destroy()
 
 # end of class NameDialog
