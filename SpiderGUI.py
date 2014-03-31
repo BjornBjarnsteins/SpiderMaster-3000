@@ -88,14 +88,13 @@ background = 0
 mainBack = pygame.image.load('Backgrounds/Vintage_background.jpg')
 #for help on/off:
 helpOn = False
-#for the help itself:
-helpScreen = 0
+#for highscore screen on/off:
+hsOn = False
+#for all option screens we create a dark overlay:
+overlay = 0
 #for settings:
 menuOn = False
-#win message:
-winScreen = 0
-#for the settings window (high scores, difficulty, help)
-menuScreen = 0
+
 fullscreenOn = False
 
 # Initializes the game timer
@@ -230,7 +229,7 @@ def play(spiderWindow):
                             game.changeScore(setBonus)
                             displayScore(spiderWindow, font)
                             if(winCond()):
-                                spiderWindow.blit(winScreen, (0,0))
+                                createWin(spiderWindow)
                         else:
                             updateHitbox(loc_i)
                             spiderWindow.blit(background, (0,0)) 
@@ -296,10 +295,13 @@ def initialize(surface, suitNo):
     global aces
     global font
     global helpOn
-    global helpScreen
+    global overlay
     global hiscores
-    global winScreen
     global time
+    
+    overlay = pygame.Surface((windowWidth, windowHeight))
+    overlay.set_alpha(200)
+    overlay.fill(pygame.Color(0,0,0))
     
     surface.blit(mainBack,(0,0))
     game = SpiderSolitaire(suitNo)
@@ -309,9 +311,7 @@ def initialize(surface, suitNo):
     font = pygame.font.Font(None, 18)
     hiscores = LoadScores()
     
-    createHelp()
     createMenuButton(surface)
-    createWin()
     
     #calculate space between stacks and coordinates of the stacks.
     m = (windowWidth-10*cardWidth)/11
@@ -369,66 +369,20 @@ def changeBackground(path, surface):
     instructions = normal_font.render("Press h for help and f for fullscreen mode", True,gray)
     surface.blit(instructions,(instr_x,instr_y))
     
-def toggleHelp(surface):
-    global background
-    global helpOn
-    if helpOn:
-        surface.blit(background, (0,0))
-        pygame.display.flip()
-        helpOn = False
-    else: 
-        background = surface.copy()                           
-        surface.blit(helpScreen, (0,0))
-        pygame.display.flip()
-        helpOn = True
-        while helpOn:
-            for event in pygame.event.get():
-                if event.type == QUIT:
-                    pygame.quit()
-                    sys.exit()
-                if event.type == KEYDOWN:
-                    if event.key in (K_h,K_ESCAPE):
-                        toggleHelp(surface)
 
-#use: createHelp()
-#post: creates the Help screen for the game
-def createHelp():
-    global helpScreen
-    headfont = pygame.font.SysFont(None, 70)
-    basicfont = pygame.font.SysFont(None, 30)
-    littlefont = pygame.font.SysFont(None, 20)
-    text1 = headfont.render('Welcome to Spider Solitaire!', True, (248, 248, 255))
-    text2 = basicfont.render('Your objective is to collect 8 full suits. You can put a card down on', True, (248, 248, 255))
-    text3 = basicfont.render(' another card if it is one below it in rank. You can only pick up cards', True, (248, 248, 255))
-    text4 = basicfont.render(' in rank order of the same suit. Down in the right corner is your deck of', True, (248, 248, 255))
-    text5 = basicfont.render('50 cards. You can deal a new row 5 times. Down in the left corner is your', True, (248, 248, 255))
-    text6 = basicfont.render('collection of full suits.', True, (248, 248, 255))
-    text7 = headfont.render('Good luck and may the odds be ever in your favor!', True, (248, 248, 255))
-    text8 = littlefont.render('Press F for fullscreen and H if you would like to see this help again.', True, (248, 248, 255))
-    
-    helpScreen = pygame.Surface((windowWidth, windowHeight))
-    helpScreen.set_alpha(200)
-    helpScreen.fill(pygame.Color(0,0,0))
-    helpScreen.blit(text1, (windowWidth/2-350,windowHeight/2-200))
-    helpScreen.blit(text2, (windowWidth/2-350,windowHeight/2-120))
-    helpScreen.blit(text3, (windowWidth/2-350,windowHeight/2-95))
-    helpScreen.blit(text4, (windowWidth/2-360,windowHeight/2-70))
-    helpScreen.blit(text5, (windowWidth/2-360,windowHeight/2-45))
-    helpScreen.blit(text6, (windowWidth/2-350,windowHeight/2-20))
-    helpScreen.blit(text7, (windowWidth/2-600,windowHeight/2+150))
-    helpScreen.blit(text8, (windowWidth/2-225,windowHeight/2+300))
 
 #use: createHelp()
 #post: creates the win screen for the game
-def createWin():
-    global winScreen
+def createWin(surface):
+    global overlay
     winfont = pygame.font.SysFont(None, 70)
     text9 = winfont.render('You won!', True, (248, 248, 255))
-    winScreen = pygame.Surface((windowWidth, windowHeight))
-    winScreen.set_alpha(200)
-    winScreen.fill(pygame.Color(0,0,0))
-    winScreen.blit(text9, (windowWidth/2-50, windowHeight/2-150))
+    surface.blit(overlay, (0,0))
+    surface.blit(text9, (windowWidth/2-100, windowHeight/2-150))
 
+#use: createMenuButton(window)
+#pre: window is a pygame surface
+#post: creates a menu button in the down right corner that looks like a spider.
 def createMenuButton(surface):
     global spiderBox
     spiderW = 60
@@ -451,16 +405,15 @@ def toggleMenu(surface):
         surface.blit(background, (0,0))
         pygame.display.flip()
 
-#use: 
-#pre:
-#post:        
+#use: menu(surface)
+#pre: surface is a pygame surface
+#post: creates a menu screen with it's own loop over the game with various options.
 def menu(surface):
-    global menuScreen
+    global overlay
     global menuButtons
     global menuOn
-    menuScreen = pygame.Surface((windowWidth, windowHeight))
-    menuScreen.set_alpha(200)
-    menuScreen.fill(pygame.Color(0,0,0))
+    global background
+    
     
     bWidth = 300
     bHeight = 100
@@ -496,13 +449,14 @@ def menu(surface):
     menuButtons = [gameButton, diffButton, scoreButton, helpButton]
     message = ["New Game","Settings","Highscores","HELP!"]
                 
-    surface.blit(menuScreen, (0,0))
+    surface.blit(overlay, (0,0))
     for i in range(0,len(menuSurfaces)):
         menuSurfaces[i].set_colorkey(pygame.Color(0,0,0))
         surface.blit(menuSurfaces[i], (x_loc, y_locs[i]))
         createMenuButton(surface)
     
     pygame.display.flip()
+    
     
     while menuOn:
         for event in pygame.event.get():
@@ -513,9 +467,10 @@ def menu(surface):
                 i = detectMenuCol()
                 if detectSettingsCol():
                     toggleMenu(surface)
+                    menuOn = False
                 # New game
                 elif i==0:
-                    #toggleMenu(surface)
+                    toggleMenu(surface)
                     menuOn = False
                     initialize(surface,NoSuits)
                 # Settings
@@ -524,13 +479,30 @@ def menu(surface):
                 # Highscores
                 elif i==2:
                     menuOn = False
-                    displayHighScores(surface)
+                    surface.blit(background, (0,0))
+                    toggleHighscores(surface)
                 # Help
                 elif i==3:
-                    pass
+                    menuOn = False
+                    surface.blit(background, (0,0))
+                    toggleHelp(surface)
                     
-            
-def displayHighScores(surface):
+def toggleHighscores(surface):
+    global background
+    global hsOn
+    global hsScreen
+    
+    if hsOn:
+        surface.blit(background, (0,0))
+        pygame.display.flip()
+        hsOn = False
+    else: 
+        background = surface.copy()                           
+        createHighscores(surface)
+        hsOn = True
+
+
+def createHighscores(surface):
     global hsScreen
     global backButton
     global hsOn
@@ -538,7 +510,7 @@ def displayHighScores(surface):
     hsScreen = pygame.Surface((windowWidth, windowHeight))
     hsScreen.set_alpha(200)
     hsScreen.fill(pygame.Color(0,0,0))
-    surface.blit(hsScreen, (0, 0))
+    surface.blit(hsScreen, (0,0))
     
     back_x = 50
     back_y = windowHeight - 100
@@ -565,6 +537,66 @@ def displayHighScores(surface):
     surface.blit(name_label, (name_label_x, labels_y))
     surface.blit(score_label, (score_label_x, labels_y))
     surface.blit(diff_label, (diff_label_x, labels_y))
+    
+    while hsOn:
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == KEYDOWN:
+                if event.key in (K_h, K_ESCAPE):
+                    toggleHelp(surface)        
+
+
+def toggleHelp(surface):
+    global background
+    global helpOn
+    if helpOn:
+        surface.blit(background, (0,0))
+        pygame.display.flip()
+        helpOn = False
+    else: 
+        background = surface.copy()                           
+        createHelp(surface)
+        helpOn = True
+
+
+#use: createHelp()
+#pre: surface is a pygame surface
+#post: creates the Help screen for the game
+def createHelp(surface):
+    global overlay
+    headfont = pygame.font.SysFont(None, 70)
+    basicfont = pygame.font.SysFont(None, 30)
+    littlefont = pygame.font.SysFont(None, 20)
+    text1 = headfont.render('Welcome to Spider Solitaire!', True, (248, 248, 255))
+    text2 = basicfont.render('Your objective is to collect 8 full suits. You can put a card down on', True, (248, 248, 255))
+    text3 = basicfont.render(' another card if it is one below it in rank. You can only pick up cards', True, (248, 248, 255))
+    text4 = basicfont.render(' in rank order of the same suit. Down in the right corner is your deck of', True, (248, 248, 255))
+    text5 = basicfont.render('50 cards. You can deal a new row 5 times. Down in the left corner is your', True, (248, 248, 255))
+    text6 = basicfont.render('collection of full suits.', True, (248, 248, 255))
+    text7 = headfont.render('Good luck and may the odds be ever in your favor!', True, (248, 248, 255))
+    text8 = littlefont.render('Press F for fullscreen and H if you would like to see this help again.', True, (248, 248, 255))
+
+    surface.blit(overlay, (0,0))
+    surface.blit(text1, (windowWidth/2-350,windowHeight/2-200))
+    surface.blit(text2, (windowWidth/2-350,windowHeight/2-120))
+    surface.blit(text3, (windowWidth/2-350,windowHeight/2-95))
+    surface.blit(text4, (windowWidth/2-360,windowHeight/2-70))
+    surface.blit(text5, (windowWidth/2-360,windowHeight/2-45))
+    surface.blit(text6, (windowWidth/2-350,windowHeight/2-20))
+    surface.blit(text7, (windowWidth/2-600,windowHeight/2+150))
+    surface.blit(text8, (windowWidth/2-225,windowHeight/2+300))
+    pygame.display.flip()
+    
+    while helpOn:
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == KEYDOWN:
+                if event.key in (K_h,K_ESCAPE):
+                    toggleHelp(surface)
 
 #use: displayStacks(surface, s, x, y)
 #pre: surface is a pygame.Surface object, s an array of SpiderStack objects, x an array of positive integers
