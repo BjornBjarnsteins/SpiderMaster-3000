@@ -513,13 +513,58 @@ def menu(surface):
                 i = detectMenuCol()
                 if detectSettingsCol():
                     toggleMenu(surface)
+                # New game
                 elif i==0:
                     #toggleMenu(surface)
                     menuOn = False
                     initialize(surface,NoSuits)
+                # Settings
+                elif i==1:
+                    pass
+                # Highscores
+                elif i==2:
+                    menuOn = False
+                    displayHighScores(surface)
+                # Help
+                elif i==3:
+                    pass
                     
             
+def displayHighScores(surface):
+    global hsScreen
+    global backButton
+    global hsOn
     
+    hsScreen = pygame.Surface((windowWidth, windowHeight))
+    hsScreen.set_alpha(200)
+    hsScreen.fill(pygame.Color(0,0,0))
+    surface.blit(hsScreen, (0, 0))
+    
+    back_x = 50
+    back_y = windowHeight - 100
+    back_width = 100
+    back_height = 50
+    font = pygame.font.SysFont(None, 50)
+    
+    backSurf = pygame.Surface((back_width, back_height))
+    back = font.render('Back', True, (248, 248, 255))
+    
+    backSurf.blit(back, (0,0))
+    
+    labels_y = 100
+    
+    name_label_x = 300
+    score_label_x = 600
+    diff_label_x = 900
+    
+    name_label = font.render('Name', True, (248, 248, 255))
+    score_label = font.render('Score', True, (248, 248, 255))
+    diff_label = font.render('Difficulty', True, (248, 248, 255))
+    
+    surface.blit(backSurf, (back_x, back_y))
+    surface.blit(name_label, (name_label_x, labels_y))
+    surface.blit(score_label, (score_label_x, labels_y))
+    surface.blit(diff_label, (diff_label_x, labels_y))
 
 #use: displayStacks(surface, s, x, y)
 #pre: surface is a pygame.Surface object, s an array of SpiderStack objects, x an array of positive integers
