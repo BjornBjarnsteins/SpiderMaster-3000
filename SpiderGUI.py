@@ -338,16 +338,16 @@ def initialize(surface, suitNo):
     cardBack.set_colorkey(BLACK)
                           
 
-    updateHitboxes()     
-    displayStacks(surface, stacks, x, y)
+    updateHitboxes()
     displayDeck(surface)
-    displayScore(surface, font)
+    displayScore(surface, font)     
+    displayStacks(surface, stacks, x, y)
     
-    normal_font = pygame.font.SysFont(None, 18)
-    gray = (200,200,200)
-    instructions = normal_font.render("Press h for help and f for fullscreen mode", True,gray)
+    #normal_font = pygame.font.SysFont(None, 18)
+    #gray = (200,200,200)
+    #instructions = normal_font.render("Press h for help and f for fullscreen mode", True,gray)
     
-    surface.blit(instructions,(instr_x,instr_y))
+    #surface.blit(instructions,(instr_x,instr_y))
     time = 0
     background = surface.copy()
     
@@ -628,7 +628,7 @@ def displayScore(surface, font):
 def displayTime(surface, font):
     if not helpOn:
         surface.blit(mainBack, (timer_x,timer_y),pygame.Rect(timer_x, timer_y, 100, 15))
-        surface.blit(font.render(str(time) + 's', True, (255,255,255)), (timer_x, timer_y))
+        surface.blit(font.render('Time: '+str(time) + 's', True, (255,255,255)), (timer_x, timer_y))
 
         
 #use: updateStack(surf, num)
@@ -701,16 +701,15 @@ def displayStackHitboxes(surface):
 #post: deckBox is up to date
 def updateDeckHitbox():
     global deckhboxes
-    
+    deckhboxes = []
     for i in range(0,deal):
         deckBox = pygame.Rect(deck_x-i*hiddenGap,deck_y, cardWidth, cardHeight)
-        deckhboxes[i] = deckBox
+        deckhboxes.append(deckBox)
 
 #use: updateDeck(surf)
 #pre: surf is a pygame.Surface object
 #post: images of decks have been updated
 def updateDeck(surface):
-    updateDeckHitbox()
     deckBox = pygame.Rect(deck_x-deal*hiddenGap, deck_y, cardWidth+deal*hiddenGap, cardHeight)
     #surface.fill(backgroundColor, deckBox)
     for rect in deckhboxes:
@@ -718,6 +717,7 @@ def updateDeck(surface):
         surface.blit(mainBack,pos,rect)
     displayDeck(surface)
     pygame.display.update(deckBox) 
+    updateDeckHitbox()
 
 #use: dealNew(surf)
 #pre: surf is a pygame.Surface object
@@ -730,7 +730,6 @@ def dealNew(surface):
         game.deal()
         updateHitboxes()
         updateStacks(surface)
-        updateDeckHitbox()
         updateDeck(surface)
         deal -= 1
     else:
