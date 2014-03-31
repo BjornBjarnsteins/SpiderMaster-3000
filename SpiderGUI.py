@@ -530,7 +530,7 @@ def createHighscores(surface):
     diff_label = font.render('Difficulty', True, (248, 248, 255))
     
     medal = pygame.image.load('images/pandamedal.png').convert_alpha()
-    medal_pos = (windowWidth-220,windowHeight-210)
+    medal_pos = (windowWidth-230,windowHeight-275)
     
     scorefont = pygame.font.SysFont(None, 24)
     top_scores = LoadScores()
