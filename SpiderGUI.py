@@ -838,14 +838,24 @@ def StoreScore(name, score, filename='highscores.txt'):
 def resetFile(filename):
     open(filename, 'w')
 
+# Use:  AddScoreToFile(score, filename)
+# Pre:  score is a score tuple. filename is the name of the file to store it in
+# Post: score has been added at the bottom of the file filename
 def AddScoreToFile(score, filename='highscores.txt'):
     output = open(filename, 'a')
     output.write(StoreScoreHelp(score))
 
+# Use:  s = StoreScoreHelp(score)
+# Pre:  score is a score tuple
+# Post: s is a string containing the formatted version of score
 def StoreScoreHelp(score):
     outputString = score[0] + ' ' + str(score[1]) + ' ' + score[2] + '\n'
     return outputString
     
+# Use:  scores = LoadScores()
+#       Optional input: filename
+# Pre:  filename is the name of the file to retrieve the scores from
+# Post: scores contains the scores in file filename
 def LoadScores(filename='highscores.txt'):
     scorelist = []
     try:
