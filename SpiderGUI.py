@@ -311,7 +311,6 @@ def initialize(surface, suitNo):
     helpOn = False
     font = pygame.font.Font(None, 18)
     hiscores = LoadScores()
-    
     createMenuButton(surface)
     
     #calculate space between stacks and coordinates of the stacks.
@@ -423,12 +422,12 @@ def menu(surface):
     scoreSurf =  pygame.Surface((bWidth, bHeight))
     helpSurf = pygame.Surface((bWidth,bHeight))
     
-    font = pygame.font.SysFont(None, 70)
+    font = pygame.font.Font('fonts/FancyCardText.ttf', 72)
     game = font.render('New Game', True, (248, 248, 255))
     gameSurf.blit(game, (0,0))
     diff = font.render('Settings', True, (248, 248, 255))
     diffSurf.blit(diff, (0,0))
-    score = font.render('Highscores', True, (248, 248, 255))
+    score = font.render('High Scores', True, (248, 248, 255))
     scoreSurf.blit(score, (0,0))
     help = font.render('Help', True, (248, 248, 255))
     helpSurf.blit(help, (0,0))
@@ -530,10 +529,37 @@ def createHighscores(surface):
     score_label = font.render('Score', True, (248, 248, 255))
     diff_label = font.render('Difficulty', True, (248, 248, 255))
     
+    medal = pygame.image.load('images/pandamedal.png').convert_alpha()
+    medal_pos = (windowWidth-220,windowHeight-210)
+    
+    scorefont = pygame.font.SysFont(None, 24)
+    top_scores = LoadScores()
+    
+    scores_y = 155
+    max_scores = 15 #specify max number of high scores to be displayed
+    score_cnt = 0
+    
+    for score in top_scores:
+        if score_cnt > max_scores:
+            break
+        name_val = score[0]
+        score_val = str(score[1])
+        level_val = score[2]
+        name = scorefont.render(name_val, True, (248, 248, 255))
+        score = scorefont.render(score_val, True, (248, 248, 255))
+        diff = scorefont.render(level_val, True, (248, 248, 255))
+        surface.blit(name, (name_label_x, scores_y))
+        surface.blit(score, (score_label_x, scores_y))
+        surface.blit(diff, (diff_label_x, scores_y))                
+        score_cnt += 1
+        scores_y += 30
+
     surface.blit(backSurf, (back_x, back_y))
     surface.blit(name_label, (name_label_x, labels_y))
     surface.blit(score_label, (score_label_x, labels_y))
     surface.blit(diff_label, (diff_label_x, labels_y))
+    
+    surface.blit(medal,medal_pos)
     pygame.display.update()
     
     while hsOn:
@@ -943,7 +969,7 @@ def LoadScores(filename='highscores.txt'):
             scorelist = scorelist + [(args[0], int(args[1]), args[2])]
     except Exception:
         scorelist = []
-    return sorted(scorelist)
+    return sorted(scorelist, key=lambda x: -x[1])
 
 # use:  isHighScore(n)
 # pre:  n is a positive integer
