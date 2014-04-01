@@ -520,23 +520,33 @@ def createHighscores(surface):
     back = backfont.render('Back', True, (248, 248, 255))
     backSurf.blit(back, (0,0))
     
-    labels_y = 100
-    
-    name_label_x = 300
-    score_label_x = 600
-    diff_label_x = 900
-    
+    if windowWidth > 1024:
+        labels_y = 100
+        name_label_x = 300
+        score_label_x = 600
+        diff_label_x = 900
+        medal_pos = (windowWidth-230,windowHeight-275)
+        scores_y = labels_y + 100
+        medal = pygame.image.load('images/pandamedal.png').convert_alpha()
+    else:
+        labels_y = 20
+        name_label_x = 100
+        score_label_x = 400
+        diff_label_x = 700
+        medal_pos = (windowWidth-200,windowHeight-285)
+        scores_y = labels_y + 100
+        medal = pygame.image.load('images/pandamedal.png').convert_alpha()
+        medal = pygame.transform.smoothscale(medal,(160,230))
+        
     name_label = font.render('Name', True, (248, 248, 255))
     score_label = font.render('Score', True, (248, 248, 255))
     diff_label = font.render('Difficulty', True, (248, 248, 255))
     
-    medal = pygame.image.load('images/pandamedal.png').convert_alpha()
-    medal_pos = (windowWidth-230,windowHeight-275)
+    
     
     scorefont = pygame.font.SysFont(None, 24)
     top_scores = LoadScores()
     
-    scores_y = 200
     max_scores = 15 #specify max number of high scores to be displayed
     score_cnt = 0
     
