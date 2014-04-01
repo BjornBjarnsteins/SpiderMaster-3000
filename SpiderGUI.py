@@ -515,8 +515,8 @@ def createHighscores(surface):
     font = pygame.font.Font('fonts/FancyCardText.ttf', 75)
     backfont = pygame.font.Font('fonts/FancyCardText.ttf', 50)
     
-    back_rect = pygame.Rect(back_x, back_y, back_width, back_height)
-    backSurf = surface.subsurface(back_rect).copy()
+    backSurf = pygame.Surface((back_width, back_height))
+    backSurf.set_colorkey(pygame.Color(0,0,0))
     back = backfont.render('Back', True, (248, 248, 255))
     backSurf.blit(back, (0,0))
     
@@ -580,6 +580,7 @@ def createHighscores(surface):
                 sys.exit()
             elif event.type == MOUSEBUTTONDOWN:
                 mouseXY = pygame.mouse.get_pos()
+                back_rect = pygame.Rect(back_x, back_y, back_width, back_height)
                 if back_rect.collidepoint(mouseXY):
                     toggleHighscores(surface)
             elif event.type == KEYDOWN:
