@@ -443,7 +443,6 @@ def menu(surface):
     helpButton = helpSurf.get_rect()
     helpButton.x,helpButton.y = (x_loc,y_locs[3])
     menuButtons = [gameButton, diffButton, scoreButton, helpButton]
-    message = ["New Game","Settings","Highscores","HELP!"]
                 
     surface.blit(overlay, (0,0))
     for i in range(0,len(menuSurfaces)):
@@ -516,7 +515,8 @@ def createHighscores(surface):
     font = pygame.font.Font('fonts/FancyCardText.ttf', 75)
     backfont = pygame.font.Font('fonts/FancyCardText.ttf', 50)
     
-    backSurf = pygame.Surface((back_width, back_height))
+    back_rect = pygame.Rect(back_x, back_y, back_width, back_height)
+    backSurf = surface.subsurface(back_rect).copy()
     back = backfont.render('Back', True, (248, 248, 255))
     backSurf.blit(back, (0,0))
     
@@ -580,7 +580,6 @@ def createHighscores(surface):
                 sys.exit()
             elif event.type == MOUSEBUTTONDOWN:
                 mouseXY = pygame.mouse.get_pos()
-                back_rect = pygame.Rect(back_x, back_y, back_width, back_height)
                 if back_rect.collidepoint(mouseXY):
                     toggleHighscores(surface)
             elif event.type == KEYDOWN:
