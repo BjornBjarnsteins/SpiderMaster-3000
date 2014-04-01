@@ -28,6 +28,7 @@ NoSuits = 1
 #gap settings
 hiddenGap = 10 #the gap from a hidden card to the next card on top.
 revealedGap = 30 #the gap from a revealed card to the next card on top.
+revealedGapByStack = []
 #Coordinates of the deck.
 deck_x = windowWidth - 200
 deck_y = windowHeight - 150
@@ -299,6 +300,7 @@ def initialize(surface, suitNo):
     global overlay
     global hiscores
     global time
+    global revealedGapByStack
     
     overlay = pygame.Surface((windowWidth, windowHeight))
     overlay.set_alpha(200)
@@ -307,6 +309,7 @@ def initialize(surface, suitNo):
     surface.blit(mainBack,(0,0))
     game = SpiderSolitaire(suitNo)
     stacks = game.getStacks()
+    revealedGapByStack = [revealedGap]*len(stacks)
     deal = 5
     helpOn = False
     font = pygame.font.Font(None, 18)
@@ -645,29 +648,29 @@ def createHelp(surface):
 def displayStacks(surface, Stacks, x, y):
     n = len(Stacks)
     for i in range(0,n):
-        displayStack(surface, Stacks[i], x[i], y)
+        displayStack(surface, i, x[i], y)
     pygame.display.update()
 
 
-#use: displayStack(surface, s, x, y)
-#pre: surface is a pygame.Surface object, s is a SpiderStack object, (x,y) are positive coordinates.
+#use: displayStack(surface, i, x, y)
+#pre: surface is a pygame.Surface object, i is a legal index to stacks, (x,y) are positive coordinates.
 #post:draws stack s on surface. Top left corner of s is at (x,y)
-def displayStack(surface, Stack, stack_x,stack_y):
+def displayStack(surface, i, stack_x,stack_y):
         
-    cards,hiddenNo = Stack.getStack()
+    cards,hiddenNo = stacks[i].getStack()
     
     n = len(cards)
     gap = 0
     card_x,card_y = stack_x,stack_y
-    for i in range(0,n):
+    for j in range(0,n):
         #determines wheter to use a hidden gap or revealed gap:
-        if(i < hiddenNo):
+        if(j < hiddenNo):
             isHidden=True
             gap = hiddenGap
         else:
             isHidden=False
-            gap = revealedGap     
-        displayCard(surface,cards[i],isHidden,card_x,card_y,deck_graphic)
+            gap = revealedGapByStack[i]     
+        displayCard(surface,cards[j],isHidden,card_x,card_y,deck_graphic)
         card_y += gap
 
 #use: displayCard(surf, card, hidden, x, y)
@@ -708,11 +711,20 @@ def displayTime(surface, font):
 #post: the image of stacks[num] has been updated
 def updateStack(surface, i):
     top_x,top_y = getCardLoc(i,0) #loc of top card so we can display Stack in same place
+    maxHeight = deck_y-y
     stack = stacks[i]
+    noHidden = stack.hidden
+    noVisible = len(stack)-noHidden
+    stackHeight = noHidden*hiddenGap+(noVisible-1)*revealedGap+cardHeight
+    if stackHeight > maxHeight:
+        revealedGapByStack[i] = (maxHeight-cardHeight-noHidden*hiddenGap)/(noVisible-1)
+    else:
+        revealedGapByStack[i] = revealedGap
+    
     StackBox = stackhboxes[i]
     #surface.fill(backgroundColor, StackBox)
     surface.blit(mainBack, (x[i],y), StackBox)
-    displayStack(surface,stack,top_x,top_y)
+    displayStack(surface,i,top_x,top_y)
     pygame.display.update() 
 
 #use: updateStacks(surf)
@@ -817,7 +829,7 @@ def getCardLoc(i,j):
     if j <= hidden:
         card_y += j*hiddenGap
     else:
-        card_y = (hidden-1)*hiddenGap+((j+1)-hidden)*revealedGap
+        card_y = (hidden-1)*hiddenGap+((j+1)-hidden)*revealedGapByStack[i]
     return (card_x,card_y)
 
 #use: x,y = detectCol()
