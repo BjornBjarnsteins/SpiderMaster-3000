@@ -711,7 +711,7 @@ def displayTime(surface, font):
 #post: the image of stacks[num] has been updated
 def updateStack(surface, i):
     top_x,top_y = getCardLoc(i,0) #loc of top card so we can display Stack in same place
-    maxHeight = deck_y-y
+    maxHeight = deck_y-y-20
     stack = stacks[i]
     noHidden = stack.hidden
     noVisible = len(stack)-noHidden
@@ -768,8 +768,8 @@ def updateHitbox(i):
         hitbox = pygame.Rect(cardLoc[0],cardLoc[1],cardWidth,cardHeight)
         hitstack.append(hitbox)
     hitboxes[i] = hitstack
-    stackHeight[i] = getCardLoc(i,len(cards)-1)[1]+cardHeight
-    stackhbox = pygame.Rect(x[i],y,cardWidth,stackHeight[i])
+    stackHeight[i] = hitstack[-1].y-hitstack[0].y+cardHeight
+    stackhbox = pygame.Rect(x[i],y,cardWidth,stackHeight[i]+10)
     stackhboxes[i] = stackhbox
 
 #Should only be used for debugging purposes!!!
@@ -779,7 +779,7 @@ def updateHitbox(i):
 def displayStackHitboxes(surface):
     black = pygame.Color(0,0,0)
     for hitbox in stackhboxes:
-        pygame.draw.rect(surface, black, hitbox, 2)
+        pygame.draw.rect(surface, black, hitbox, 4)
     
 #use: updateDeckHitbox()
 #post: deckBox is up to date
@@ -844,6 +844,7 @@ def detectCol():
                 h = -(j+1)
                 h = len(hitboxes[i])+h
                 if hitboxes[i][h].collidepoint(mouse):
+                    print (i,h)
                     return (i,h)
     else:
         #print "inHandRect at (%d,%d) w = %d, h = %d"%(inHandRect.x,inHandRect.y,inHandRect.w,inHandRect.h)
@@ -886,7 +887,7 @@ def pickupCards(surface,(i,j)):
     global stacks
     global last_i,last_j
     card_x,card_y = getCardLoc(i,j)
-    toCopy = pygame.Rect(card_x,card_y,cardWidth,stackHeight[i]-card_y)
+    toCopy = pygame.Rect(card_x,card_y,cardWidth,stackHeight[i]-card_y+y)
     inHandSurf = surface.subsurface(toCopy).copy()
     inHandRect = inHandSurf.get_rect()
     inHand = stacks[i].remove(len(stacks[i])-j)
