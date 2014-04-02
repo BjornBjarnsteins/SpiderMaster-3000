@@ -274,7 +274,7 @@ def play(spiderWindow):
                 #displayTime(spiderWindow, font)
                 #pygame.display.update()
                     
-    if isHighScore(game.score) or True:
+    if isHighScore(game.score):
         gettext.install("highscore")
         dialog = HSDialog(0)
         dialog.MainLoop()
@@ -343,9 +343,11 @@ def initialize(surface, suitNo):
         cardSurface = pygame.transform.smoothscale(cardSurface, (cardWidth, cardHeight))
         aces.append(cardSurface)
     #get image for the back of card:    
-    cardBack = SpiderCard('S',1).getImage(deck_graphic,True)
-    cardBack = pygame.transform.smoothscale(cardBack, (cardWidth, cardHeight))
-    cardBack.set_colorkey(BLACK)
+    #cardBack = SpiderCard('S',1).getImage(deck_graphic,True)
+    #cardBack = pygame.transform.smoothscale(cardBack, (cardWidth, cardHeight))
+    #cardBack.set_colorkey(BLACK)
+    
+    changeCardback('Cardbacks/standard_back.png', surface)
                           
 
     updateHitboxes()
@@ -361,6 +363,9 @@ def initialize(surface, suitNo):
     time = 0
     background = surface.copy()
   
+  
+
+
 #use: displayStacks(surface, s, x, y)
 #pre: surface is a pygame.Surface object, s an array of SpiderStack objects, x an array of positive integers
 #     len(x) = len(s) and y is an integer.
@@ -376,7 +381,7 @@ def displayStacks(surface, Stacks, x, y):
 # post: s is the slope of the path that the card should follow in the deal animation
 def getDealSlope(n):
     destination = getCardLoc(n, len(stacks[n]))
-    slope =  (destination[1]-deck_y)/(destination[0]-deck_x)
+    slope = float((deck_y-destination[1]))/(destination[0]-deck_x)
     return slope
 
 # use:  v = getDealVector(n, s)
@@ -384,6 +389,21 @@ def getDealSlope(n):
 # post: v[0] is how far along the x axis the card should go, v[1] is how far along the y axis
 def getDealVector(n, p):
     return (getDealSlope(n)*p, getDealSlope(n)*p)
+
+def getAllDealVectors(p):
+    v = []
+    for n in range(0, colNum):
+        v = v + [getDealVector(n, p)]
+    return v
+
+def playDealAnimation(surface, p):
+    vectors = getAllDealVectors(p)
+    for n in range(0, colNum):
+        # the animation for the first n cards has been played
+        pos_x_start = deck_x
+        pos_y_start = deck_y
+        
+        #displayCard(surface, )
 
 #use: displayStack(surface, i, x, y)
 #pre: surface is a pygame.Surface object, i is a legal index to stacks, (x,y) are positive coordinates.
@@ -410,10 +430,14 @@ def displayStack(surface, i, stack_x,stack_y):
 #pre: surf is a pygame.Surface object, card is a SpiderCard object, hidden is boolean,  x,y are positive integers
 #post: the image of card has been drawn onto surf, face down if hidden, at (x,y)
 def displayCard(surface, card, isHidden, card_x, card_y, deck_graphic):
-    cardSurf = card.getImage(deck_graphic,isHidden)
-    cardSurf = pygame.transform.smoothscale(cardSurf,(cardWidth,cardHeight))
-    cardSurf.set_colorkey(BLACK)
+    if not isHidden:
+        cardSurf = card.getImage(deck_graphic)
+        cardSurf = pygame.transform.smoothscale(cardSurf,(cardWidth,cardHeight))
+        cardSurf.set_colorkey(BLACK)
+    else:
+        cardSurf = cardBack
     surface.blit(cardSurf, (card_x,card_y))
+
 
 #use: displayDeck(surf)
 #pre: surf is a pygame.Surface object
@@ -1090,6 +1114,20 @@ def changeBackground(path, surface):
     mainBack = pygame.image.load(path).convert()
     mainBack = pygame.transform.smoothscale(mainBack,(windowWidth, windowHeight))
     surface.blit(mainBack,(0,0))
+    displayDeck(surface)
+    displayPiles(surface)
+    displayScore(surface,font)
+    createMenuButton(surface)
+    displayStacks(surface, stacks, x, y)
+    
+# use:  changeCardback(path, surface, colorkey)
+# pre:  path is a legal path to an image file, surface is a pygame surface, colorkey is a color
+# post: the cardback has been changed to the image at path    
+def changeCardback(path, surface, colorkey=BLACK):
+    global cardBack
+    cardBack = pygame.image.load(path).convert()
+    cardBack = pygame.transform.smoothscale(cardBack, (cardWidth, cardHeight))
+    cardBack.set_colorkey(BLACK)
     displayDeck(surface)
     displayPiles(surface)
     displayScore(surface,font)
