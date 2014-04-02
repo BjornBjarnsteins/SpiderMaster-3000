@@ -362,6 +362,8 @@ def initialize(surface, suitNo):
     #surface.blit(instructions,(instr_x,instr_y))
     time = 0
     background = surface.copy()
+    
+    playDealAnimation(surface, 100)
   
   
 
@@ -376,19 +378,19 @@ def displayStacks(surface, Stacks, x, y):
         displayStack(surface, i, x[i], y)
     pygame.display.update()
 
-# use:  s = getDealSlope(n)
+# use:  s = getDealSlope(n, p)
 # pre:  n is the number of the stack where the card should go
 # post: s is the slope of the path that the card should follow in the deal animation
 def getDealSlope(n):
     destination = getCardLoc(n, len(stacks[n]))
-    slope = float((deck_y-destination[1]))/(destination[0]-deck_x)
+    slope = (destination[0]-deck_x, destination[1]-deck_y)
     return slope
 
 # use:  v = getDealVector(n, s)
-# pre:  n is the number of the target stack, s is the desired speed of the card
+# pre:  n is the number of the target stack, s indicates how many parts the the vector is split into
 # post: v[0] is how far along the x axis the card should go, v[1] is how far along the y axis
 def getDealVector(n, p):
-    return (getDealSlope(n)*p, getDealSlope(n)*p)
+    return (float(getDealSlope(n)[0])/p, float(getDealSlope(n)[1])/p)
 
 def getAllDealVectors(p):
     v = []
@@ -399,17 +401,19 @@ def getAllDealVectors(p):
 def playDealAnimation(surface, p):
     vectors = getAllDealVectors(p)
     tempCard = SpiderCard('H', 1)
+    print vectors
     for n in range(0, colNum):
         # the animation for the first n-1 cards has been played
         current_pos_x = deck_x
         current_pos_y = deck_y
         
-        TOLERANCE = 10
+        TOLERANCE = 0.5
         while not current_pos_x - getCardLoc(n, len(stacks[n]))[0] <= TOLERANCE:
             displayCard(surface, tempCard, True, current_pos_x, current_pos_y, deck_graphic)
             current_pos_x += vectors[n][0]
             current_pos_y += vectors[n][1]
-            print current_pos_x, current_pos_y
+            pygame.display.update()
+            #print current_pos_x, current_pos_y
 
 #use: displayStack(surface, i, x, y)
 #pre: surface is a pygame.Surface object, i is a legal index to stacks, (x,y) are positive coordinates.
