@@ -101,7 +101,7 @@ fullscreenOn = False
 # Initializes the game timer
 time = 0
 SEC_EVENT = USEREVENT + 1
-pygame.time.set_timer(SEC_EVENT, 50)
+pygame.time.set_timer(SEC_EVENT, 1000)
 
 hiscores = []
 
@@ -530,7 +530,6 @@ def createHighscores(surface):
         diff_label_x = 900
         medal_pos = (windowWidth-230,windowHeight-275)
         scores_y = labels_y + 100
-        medal = pygame.image.load('images/pandamedal.png').convert_alpha()
     else:
         labels_y = 20
         name_label_x = 100
@@ -538,8 +537,6 @@ def createHighscores(surface):
         diff_label_x = 700
         medal_pos = (windowWidth-200,windowHeight-285)
         scores_y = labels_y + 100
-        medal = pygame.image.load('images/pandamedal.png').convert_alpha()
-        medal = pygame.transform.smoothscale(medal,(160,230))
         
     name_label = font.render('Name', True, (248, 248, 255))
     score_label = font.render('Score', True, (248, 248, 255))
@@ -567,13 +564,11 @@ def createHighscores(surface):
         surface.blit(diff, (diff_label_x, scores_y))                
         score_cnt += 1
         scores_y += 30
-
     surface.blit(backSurf, (back_x, back_y))
     surface.blit(name_label, (name_label_x, labels_y))
     surface.blit(score_label, (score_label_x, labels_y))
     surface.blit(diff_label, (diff_label_x, labels_y))
     
-    surface.blit(medal,medal_pos)
     pygame.display.update()
     
     while hsOn:
@@ -703,7 +698,7 @@ def displayScore(surface, font):
 def displayTime(surface, font):
     if not helpOn:
         surface.blit(mainBack, (timer_x,timer_y),pygame.Rect(timer_x, timer_y, 100, 15))
-        surface.blit(font.render('Time: '+str(int(math.ceil(time*0.05))) + 's', True, (255,255,255)), (timer_x, timer_y))
+        surface.blit(font.render('Time: '+str(time) + 's', True, (255,255,255)), (timer_x, timer_y))
 
         
 #use: updateStack(surf, num)
@@ -725,7 +720,7 @@ def updateStack(surface, i):
     #surface.fill(backgroundColor, StackBox)
     surface.blit(mainBack, (x[i],y), StackBox)
     displayStack(surface,i,top_x,top_y)
-    #pygame.display.update() unnecessary display call ????
+    pygame.display.update()
 
 #use: updateStacks(surf)
 #pre: surf is a pygame.Surface object
@@ -887,8 +882,10 @@ def pickupCards(surface,(i,j)):
     global stacks
     global last_i,last_j
     card_x,card_y = getCardLoc(i,j)
+    #toCopy = pygame.Rect(card_x,card_y,cardWidth,stackHeight[i]-card_y+y)
     offsetGap = 30-revealedGapByStack[i]
     toCopy = pygame.Rect(card_x,card_y+offsetGap,cardWidth,stackHeight[i]-card_y+y)
+
     inHandSurf = surface.subsurface(toCopy).copy()
     inHandRect = inHandSurf.get_rect()
     inHand = stacks[i].remove(len(stacks[i])-j)
