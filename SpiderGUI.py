@@ -484,6 +484,97 @@ def menu(surface):
                     menuOn = False
                     surface.blit(background, (0,0))
                     toggleHelp(surface)
+
+def toggleSettings(surface):
+    global background
+    global hsOn
+    global hsScreen
+    
+    if hsOn:
+        surface.blit(background, (0,0))
+        pygame.display.flip()
+        hsOn = False
+    else: 
+        background = surface.copy()                           
+        highscoresMenu(surface)
+                    
+#use: selectBackgroundMenu():
+#post: The user has been given a graphical menu to choose a background and mainBack is his background of choice
+def settingsMenu(surface):
+    global mainBack
+    global BackgroundMenuOn
+    global background
+    surface.blit(background,(0,0))
+    surface.blit(overlay,(0,0))
+    
+    back_x = 50
+    back_y = windowHeight - 100
+    back_width = 100
+    back_height = 50
+    font = pygame.font.Font('fonts/FancyCardText.ttf', 75)
+    backfont = pygame.font.Font('fonts/FancyCardText.ttf', 50)
+    
+    backSurf = pygame.Surface((back_width, back_height))
+    backSurf.set_colorkey(pygame.Color(0,0,0))
+    back = backfont.render('Back', True, (248, 248, 255))
+    backSurf.blit(back, (0,0))
+    
+    #We want 4 thumbnails per line
+    thumbWidth = windowWidth/5
+    thumbHeight = int(thumbWidth*(float(windowHeight)/windowWidth))
+    spaceBetween = (windowWidth-4*thumbWidth)/5
+    backgroundFolder = 'Backgrounds/'
+    thumbfile = ['grumpy_thumb.jpg','nes_thumb.jpg','panda_thumb.jpg','pandaprogrammer_thumb.jpg','pandasuit_thumb.jpg','pulp_star_thumb.jpg','vintage_thumb.jpg']
+    backgroundFile = ['grumpy.jpg','nes.jpg','panda.jpg','pandaprogrammer.jpg','pandasuit.jpg','pulp_star.jpg','vintage.jpg']
+    thumbnails = []
+    for image in thumbfile:
+        tempSurf = pygame.image.load(backgroundFolder+image).convert()
+        tempSurf = pygame.transform.smoothscale(tempSurf,(thumbWidth,thumbHeight))
+        thumbnails.append(tempSurf)
+    thumbX = spaceBetween
+    thumbY = thumbHeight
+    selection = []
+    for thumbnail in thumbnails:
+        if thumbX+thumbWidth>windowWidth:
+            thumbX = spaceBetween
+            thumbY = 2*thumbHeight+spaceBetween
+        surface.blit(thumbnail,(thumbX,thumbY))
+        tempRect = pygame.Rect(thumbX,thumbY,thumbWidth,thumbHeight)
+        selection.append(tempRect)
+        thumbX += thumbWidth+spaceBetween
+    surface.blit(backSurf, (back_x, back_y))
+    createMenuButton(surface)
+    pygame.display.flip()
+    BackgroundMenuOn = True
+    while BackgroundMenuOn:
+        mousePos = pygame.mouse.get_pos()
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == MOUSEBUTTONDOWN:
+                overBackgroundNr = -1
+                for i in range(0,len(selection)):
+                    if selection[i].collidepoint(mousePos):
+                        overBackgroundNr = i
+                print overBackgroundNr
+                if overBackgroundNr >= 0:
+                    print 'changing background to '+backgroundFolder+backgroundFile[overBackgroundNr]
+                    changeBackground(backgroundFolder+backgroundFile[overBackgroundNr],surface)
+                    background = surface.copy()
+                    toggleMenu(surface)
+                    return
+                elif event.type == MOUSEBUTTONDOWN:
+                    mouseXY = pygame.mouse.get_pos()
+                    back_rect = pygame.Rect(back_x, back_y, back_width, back_height)
+                    if back_rect.collidepoint(mouseXY):
+                        toggleHighscores(surface)
+                elif detectMenuCol():
+                    toggleMenu(surface)
+                    return
+
+pygame.quit()
+
                     
 def toggleHighscores(surface):
     global background
@@ -496,10 +587,9 @@ def toggleHighscores(surface):
         hsOn = False
     else: 
         background = surface.copy()                           
-        createHighscores(surface)
+        highscoresMenu(surface)
 
-
-def createHighscores(surface):
+def highscoresMenu(surface):
     global hsScreen
     global backButton
     global hsOn
@@ -528,7 +618,6 @@ def createHighscores(surface):
         name_label_x = 300
         score_label_x = 600
         diff_label_x = 900
-        medal_pos = (windowWidth-230,windowHeight-275)
         scores_y = labels_y + 100
     else:
         labels_y = 20
@@ -564,6 +653,7 @@ def createHighscores(surface):
         surface.blit(diff, (diff_label_x, scores_y))                
         score_cnt += 1
         scores_y += 30
+
     surface.blit(backSurf, (back_x, back_y))
     surface.blit(name_label, (name_label_x, labels_y))
     surface.blit(score_label, (score_label_x, labels_y))
@@ -581,9 +671,11 @@ def createHighscores(surface):
                 back_rect = pygame.Rect(back_x, back_y, back_width, back_height)
                 if back_rect.collidepoint(mouseXY):
                     toggleHighscores(surface)
+                    toggleMenu(surface)
             elif event.type == KEYDOWN:
-                if event.key in (K_h, K_ESCAPE):
-                    toggleHelp(surface)   
+                if event.key in (K_s, K_ESCAPE):
+                    toggleHighscores(surface)
+                    toggleMenu(surface)   
 
 
 def toggleHelp(surface):
@@ -595,15 +687,30 @@ def toggleHelp(surface):
         helpOn = False
     else: 
         background = surface.copy()                           
-        createHelp(surface)
-        helpOn = True
+        helpMenu(surface)
 
 
-#use: createHelp()
+#use: helpMenu()
 #pre: surface is a pygame surface
 #post: creates the Help screen for the game
-def createHelp(surface):
+def helpMenu(surface):
     global overlay
+    global helpOn
+    
+    helpOn = True
+    
+    back_x = 50
+    back_y = windowHeight - 100
+    back_width = 100
+    back_height = 50
+    font = pygame.font.Font('fonts/FancyCardText.ttf', 75)
+    backfont = pygame.font.Font('fonts/FancyCardText.ttf', 50)
+    
+    backSurf = pygame.Surface((back_width, back_height))
+    backSurf.set_colorkey(pygame.Color(0,0,0))
+    back = backfont.render('Back', True, (248, 248, 255))
+    backSurf.blit(back, (0,0))
+    
     headfont = pygame.font.SysFont(None, 70)
     basicfont = pygame.font.SysFont(None, 30)
     littlefont = pygame.font.SysFont(None, 20)
@@ -625,6 +732,9 @@ def createHelp(surface):
     surface.blit(text6, (windowWidth/2-350,windowHeight/2-20))
     surface.blit(text7, (windowWidth/2-600,windowHeight/2+150))
     surface.blit(text8, (windowWidth/2-225,windowHeight/2+300))
+    
+    surface.blit(backSurf, (back_x, back_y))
+    
     pygame.display.flip()
     
     while helpOn:
@@ -632,9 +742,17 @@ def createHelp(surface):
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
-            if event.type == KEYDOWN:
+            elif event.type == MOUSEBUTTONDOWN:
+                mouseXY = pygame.mouse.get_pos()
+                back_rect = pygame.Rect(back_x, back_y, back_width, back_height)
+                if back_rect.collidepoint(mouseXY):
+                    toggleHelp(surface)
+                    toggleMenu(surface)
+            elif event.type == KEYDOWN:
                 if event.key in (K_h,K_ESCAPE):
                     toggleHelp(surface)
+                    toggleMenu(surface)
+                    
 
 #use: displayStacks(surface, s, x, y)
 #pre: surface is a pygame.Surface object, s an array of SpiderStack objects, x an array of positive integers
