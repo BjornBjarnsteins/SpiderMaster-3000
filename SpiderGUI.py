@@ -107,6 +107,9 @@ hiscores = []
 
 #colors
 BLACK = (0,0,0)
+
+#-------------------------------------------------------------------------------
+#Main game loop:
 def play(spiderWindow):
     pygame.init()
     fpsClock = pygame.time.Clock()
@@ -353,31 +356,321 @@ def initialize(surface, suitNo):
     #surface.blit(instructions,(instr_x,instr_y))
     time = 0
     background = surface.copy()
+  
+#use: displayStacks(surface, s, x, y)
+#pre: surface is a pygame.Surface object, s an array of SpiderStack objects, x an array of positive integers
+#     len(x) = len(s) and y is an integer.
+#post:draws stacks in s on surface. Top left corner of s[i] is at (x[i],y)
+def displayStacks(surface, Stacks, x, y):
+    n = len(Stacks)
+    for i in range(0,n):
+        displayStack(surface, i, x[i], y)
+    pygame.display.update()
+
+
+#use: displayStack(surface, i, x, y)
+#pre: surface is a pygame.Surface object, i is a legal index to stacks, (x,y) are positive coordinates.
+#post:draws stack s on surface. Top left corner of s is at (x,y)
+def displayStack(surface, i, stack_x,stack_y):
+        
+    cards,hiddenNo = stacks[i].getStack()
     
-#use: changeBackground(path, surface)
-#pre: path is a legal path to an image file and surface is a pygame surface
-#post: The game now displays the image at path as it's background
-def changeBackground(path, surface):
-    global mainBack
-    mainBack = pygame.image.load(path).convert()
-    mainBack = pygame.transform.smoothscale(mainBack,(windowWidth, windowHeight))
-    surface.blit(mainBack,(0,0))
+    n = len(cards)
+    gap = 0
+    card_x,card_y = stack_x,stack_y
+    for j in range(0,n):
+        #determines wheter to use a hidden gap or revealed gap:
+        if(j < hiddenNo):
+            isHidden=True
+            gap = hiddenGap
+        else:
+            isHidden=False
+            gap = revealedGapByStack[i]     
+        displayCard(surface,cards[j],isHidden,card_x,card_y,deck_graphic)
+        card_y += gap
+        
+#use: displayCard(surf, card, hidden, x, y)
+#pre: surf is a pygame.Surface object, card is a SpiderCard object, hidden is boolean,  x,y are positive integers
+#post: the image of card has been drawn onto surf, face down if hidden, at (x,y)
+def displayCard(surface, card, isHidden, card_x, card_y, deck_graphic):
+    cardSurf = card.getImage(deck_graphic,isHidden)
+    cardSurf = pygame.transform.smoothscale(cardSurf,(cardWidth,cardHeight))
+    cardSurf.set_colorkey(BLACK)
+    surface.blit(cardSurf, (card_x,card_y))
+
+#use: displayDeck(surf)
+#pre: surf is a pygame.Surface object
+#post: All remaining deals have been drawn as face down cards on surf
+def displayDeck(surface):
+    for i in range(0,deal):
+        surface.blit(cardBack, (deck_x-i*hiddenGap,deck_y))
+
+# Use:  displayScore(surface, font)
+# Pre:  surface is a pygame.Surface object, font is a pygame.font.Font object
+# Post: game.score has been updated
+def displayScore(surface, font):
+    # Todo: change the background color scheme to fit the background
+    surface.blit(mainBack, (score_x,score_y),pygame.Rect(score_x, score_y, 150, 15))
+    surface.blit(font.render('Score: ' + str(game.score), True, (255,255,255)), (score_x, score_y))
+
+# Use:  displayTime(surf, font)
+# Pre:  surf is a Surface, font is a Font
+# Post: The game timer has been updated
+def displayTime(surface, font):
+    if not helpOn:
+        surface.blit(mainBack, (timer_x,timer_y),pygame.Rect(timer_x, timer_y, 100, 15))
+        surface.blit(font.render('Time: '+str(time) + 's', True, (255,255,255)), (timer_x, timer_y))
+
+        
+#use: updateStack(surf, num)
+#pre: surf is a pygame.Surface object and num is in range(0,len(stacks))
+#post: the image of stacks[num] has been updated
+def updateStack(surface, i):
+    top_x,top_y = getCardLoc(i,0) #loc of top card so we can display Stack in same place
+    maxHeight = deck_y-y-20
+    stack = stacks[i]
+    noHidden = stack.hidden
+    noVisible = len(stack)-noHidden
+    stackHeight = noHidden*hiddenGap+(noVisible-1)*revealedGap+cardHeight
+    if stackHeight > maxHeight:
+        revealedGapByStack[i] = (maxHeight-cardHeight-noHidden*hiddenGap)/(noVisible-1)
+    else:
+        revealedGapByStack[i] = revealedGap
+    
+    StackBox = stackhboxes[i]
+    #surface.fill(backgroundColor, StackBox)
+    surface.blit(mainBack, (x[i],y), StackBox)
+    displayStack(surface,i,top_x,top_y)
+    pygame.display.update()
+
+#use: updateStacks(surf)
+#pre: surf is a pygame.Surface object
+#post: hitboxes and stackhboxes have been updated, Stacks have been re-drawn on surf
+def updateStacks(surface):
+    for i in range(0,len(stacks)):
+        updateHitbox(i)
+        updateStack(surface, i)
+
+#use: updateHitboxes()
+#post: hitboxes and stackhboxes have been updated for all stacks
+def updateHitboxes():
+    for i in range(0,colNum):
+        updateHitbox(i)
+
+#use: updateHitbox(num)
+#pre: num is a valid index for stacks
+#post: hitboxes[i] and stackhboxes[i] have been updated.
+def updateHitbox(i):
+    global hitboxes
+    global stackhboxes
+    global stackHeight
+
+    stack = stacks[i]
+    
+    #if the stack is empty, this will create a hitbox to make it possible to add cards to the empty stack
+    if stack.isEmpty():
+        hitbox = pygame.Rect(x[i],y,cardWidth,cardHeight)
+        hitboxes[i] = [hitbox]
+        stackhboxes[i] = hitbox
+        stackHeight[i] = cardHeight
+        return
+        
+        
+    cards = stack.getStack()[0]
+    hitstack = []
+    
+    for j in range(0,len(cards)):
+        cardLoc = getCardLoc(i,j)
+        hitbox = pygame.Rect(cardLoc[0],cardLoc[1],cardWidth,cardHeight)
+        hitstack.append(hitbox)
+    hitboxes[i] = hitstack
+    stackHeight[i] = hitstack[-1].y-hitstack[0].y+cardHeight
+    stackhbox = pygame.Rect(x[i],y,cardWidth,stackHeight[i]+10)
+    stackhboxes[i] = stackhbox
+
+#Should only be used for debugging purposes!!!
+#use: displayStackHitboxes(surf)
+#pre: surf is a pygame.Surface object
+#post: all elements in stackhboxes have been drawn on surf
+def displayStackHitboxes(surface):
+    black = pygame.Color(0,0,0)
+    for hitbox in stackhboxes:
+        pygame.draw.rect(surface, black, hitbox, 4)
+    
+#use: updateDeckHitbox()
+#post: deckBox is up to date
+def updateDeckHitbox():
+    global deckhboxes
+    deckhboxes = []
+    for i in range(0,deal):
+        deckBox = pygame.Rect(deck_x-i*hiddenGap,deck_y, cardWidth, cardHeight)
+        deckhboxes.append(deckBox)
+
+#use: updateDeck(surf)
+#pre: surf is a pygame.Surface object
+#post: images of decks have been updated
+def updateDeck(surface):
+    deckBox = pygame.Rect(deck_x-deal*hiddenGap, deck_y, cardWidth+deal*hiddenGap, cardHeight)
+    #surface.fill(backgroundColor, deckBox)
+    for rect in deckhboxes:
+        pos = (rect.x,rect.y)
+        surface.blit(mainBack,pos,rect)
     displayDeck(surface)
-    displayPiles(surface)
-    displayScore(surface,font)
-    createMenuButton(surface)
-    displayStacks(surface, stacks, x, y)
+    pygame.display.update(deckBox) 
+    updateDeckHitbox()
+
+#use: dealNew(surf)
+#pre: surf is a pygame.Surface object
+#post: one card has been delt on top of each stack
+def dealNew(surface):
+    global game
+    global deal
+    
+    if(deal > 0):
+        game.deal()
+        updateHitboxes()
+        updateStacks(surface)
+        updateDeck(surface)
+        deal -= 1
+    else:
+        print 'You cant deal another'
+        
+#use: x,y = getCardLoc(stack_num, card_num)
+#pre: stack_num is a valid index of stacks, card_num is a valid index of stacks[stack_num]
+#post: (x,y) are the coordinates for the top left corner of stacks[stack_num].cards[card_num]
+def getCardLoc(i,j):
+    hidden = stacks[i].getStack()[1]
+    card_x = x[i]
+    card_y = y
+    if j <= hidden:
+        card_y += j*hiddenGap
+    else:
+        card_y = (hidden-1)*hiddenGap+((j+1)-hidden)*revealedGapByStack[i]
+    return (card_x,card_y)
+
+#use: x,y = detectCol()
+#post: stacks[x].cards[y] is the card that was pressed, if no card was pressed (x,y) = (-1,-1)
+def detectCol():
+    if inHand.isEmpty():
+        mouse = pygame.mouse.get_pos()
+        for i in range(0,len(stackhboxes)):
+            if not stackhboxes[i].collidepoint(mouse):
+                continue
+            for j in range(0,len(hitboxes[i])):
+                h = -(j+1)
+                h = len(hitboxes[i])+h
+                if hitboxes[i][h].collidepoint(mouse):
+                    #print (i,h)
+                    return (i,h)
+    else:
+        #print "inHandRect at (%d,%d) w = %d, h = %d"%(inHandRect.x,inHandRect.y,inHandRect.w,inHandRect.h)
+        for i in range(0,len(stackhboxes)):
+            if stackhboxes[i].colliderect(inHandRect):
+                if game.isLegalMove(inHand, stacks[i]):
+                    return (i,len(stacks[i])-1)
+               
+    return (-1,-1)
+
+#use: b = detectDeckCol()
+#post: b = True if mouse is over deckhboxes[-1], else False
+def detectDeckCol():
+    mouse = pygame.mouse.get_pos()
+    updateDeckHitbox()
+    return deckhboxes[-1].collidepoint(mouse)
+
+#use: b = detectSettingsCol()
+#post: b = True if mouse is over settings symbol, else false
+def detectSettingsCol():
+    mouse = pygame.mouse.get_pos()
+    return spiderBox.collidepoint(mouse)
+    
+def detectMenuCol():
+    mouse = pygame.mouse.get_pos()
+    for i in range(0,len(menuButtons)):
+        if menuButtons[i].collidepoint(mouse):
+            return i
+    
+    return -1
+#use: pickupCards(surf, (i,j))
+#pre: surf is a pygame.Surface object, (i,j) is a tuple, i is a legal index for stacks,
+#     and j is a legal index for stacks[i].cards
+#post: stacks[i].cards[j:] have been removed form stacks[i]
+#      and added to inHand and inHandSurf has been updated
+def pickupCards(surface,(i,j)):
+    global inHand
+    global inHandSurf
+    global inHandRect
+    global stacks
+    global last_i,last_j
+    card_x,card_y = getCardLoc(i,j)
+    #toCopy = pygame.Rect(card_x,card_y,cardWidth,stackHeight[i]-card_y+y)
+    offsetGap = 30-revealedGapByStack[i]
+    toCopy = pygame.Rect(card_x,card_y+offsetGap,cardWidth,stackHeight[i]-card_y+y)
+
+    inHandSurf = surface.subsurface(toCopy).copy()
+    inHandRect = inHandSurf.get_rect()
+    inHand = stacks[i].remove(len(stacks[i])-j)
+    last_i = i
+    last_j = j
+
+#use: putdownCards(num)
+#pre: num is a legal index for stacks
+#post: inHand has been added to stacks[i] and is now empty
+def putdownCards(i):
+    global inHand
+    global stacks
+    stacks[i].add(inHand)
+    clearHand()
+
+#use: clearHand()
+#post: inHand is empty and inHandSurf is no picture
+def clearHand():
+    global inHand
+    global inHandSurf
+    global inHandRect
+    inHand = SpiderStack([],0)
+    inHandSurf = pygame.Surface((0,0))
+    inHandRect = pygame.Rect(0,0,0,0)
+
+#use: b = checkPile(num)
+#pre: num is a legal index for stacks
+#post: b = True if the last 13 cards of stacks[i] are in order and of the same suit
+def checkPile(i):
+    if stacks[i].cards[-1].rank != 1 or len(stacks[i])<13:
+        return False
+    return game.inSuit(stacks[i], 13)
+
+#use: addToPiles(num)
+#pre: num is a legal index for stacks
+#post: The last  13 cards of stacks[i] have been removed and
+#      a pile of the corresponding suit has been added to piles
+def addToPiles(i):
+    global piles
+    piles.append(stacks[i].remove(13).cards[-1].getSuitNo())
+    
+#use: displayPiles(surf)
+#pre: surf is a pygame.Surface object
+#post: images of the collected piles have been drawn on surf
+def displayPiles(surface):
+    if len(piles) == 0:
+        return
+    for i in range(0,len(piles)):
+        surface.blit(aces[piles[i]],(pile_x+i*revealedGap,pile_y))
+
+# use:  getDifficulty()
+# post: returns the difficulty of the game
+def getDifficulty():
+    if NoSuits == 1:
+        return 'Easy'
+    elif NoSuits == 2:
+        return 'Medium'
+    elif NoSuits == 4:
+        return 'Hard'  
+    
+
     
 
 
-#use: createHelp()
-#post: creates the win screen for the game
-def createWin(surface):
-    global overlay
-    winfont = pygame.font.SysFont(None, 70)
-    text9 = winfont.render('You won!', True, (248, 248, 255))
-    surface.blit(overlay, (0,0))
-    surface.blit(text9, (windowWidth/2-100, windowHeight/2-150))
 
 #use: createMenuButton(window)
 #pre: window is a pygame surface
@@ -754,315 +1047,33 @@ def helpMenu(surface):
                     toggleMenu(surface)
                     
 
-#use: displayStacks(surface, s, x, y)
-#pre: surface is a pygame.Surface object, s an array of SpiderStack objects, x an array of positive integers
-#     len(x) = len(s) and y is an integer.
-#post:draws stacks in s on surface. Top left corner of s[i] is at (x[i],y)
-def displayStacks(surface, Stacks, x, y):
-    n = len(Stacks)
-    for i in range(0,n):
-        displayStack(surface, i, x[i], y)
-    pygame.display.update()
+#use: createWin()
+#post: creates the win screen for the game
+def createWin(surface):
+    global overlay
+    winfont = pygame.font.SysFont(None, 70)
+    text9 = winfont.render('You won!', True, (248, 248, 255))
+    surface.blit(overlay, (0,0))
+    surface.blit(text9, (windowWidth/2-100, windowHeight/2-150))
 
+#use: b = winCond()
+#post: b = True if the game is won, b = False otherwise.    
+def winCond():
+    return len(piles) == 8
 
-#use: displayStack(surface, i, x, y)
-#pre: surface is a pygame.Surface object, i is a legal index to stacks, (x,y) are positive coordinates.
-#post:draws stack s on surface. Top left corner of s is at (x,y)
-def displayStack(surface, i, stack_x,stack_y):
-        
-    cards,hiddenNo = stacks[i].getStack()
-    
-    n = len(cards)
-    gap = 0
-    card_x,card_y = stack_x,stack_y
-    for j in range(0,n):
-        #determines wheter to use a hidden gap or revealed gap:
-        if(j < hiddenNo):
-            isHidden=True
-            gap = hiddenGap
-        else:
-            isHidden=False
-            gap = revealedGapByStack[i]     
-        displayCard(surface,cards[j],isHidden,card_x,card_y,deck_graphic)
-        card_y += gap
-        
-#use: displayCard(surf, card, hidden, x, y)
-#pre: surf is a pygame.Surface object, card is a SpiderCard object, hidden is boolean,  x,y are positive integers
-#post: the image of card has been drawn onto surf, face down if hidden, at (x,y)
-def displayCard(surface, card, isHidden, card_x, card_y, deck_graphic):
-    cardSurf = card.getImage(deck_graphic,isHidden)
-    cardSurf = pygame.transform.smoothscale(cardSurf,(cardWidth,cardHeight))
-    cardSurf.set_colorkey(BLACK)
-    surface.blit(cardSurf, (card_x,card_y))
-
-#use: displayDeck(surf)
-#pre: surf is a pygame.Surface object
-#post: All remaining deals have been drawn as face down cards on surf
-def displayDeck(surface):
-    for i in range(0,deal):
-        surface.blit(cardBack, (deck_x-i*hiddenGap,deck_y))
-
-# Use:  displayScore(surface, font)
-# Pre:  surface is a pygame.Surface object, font is a pygame.font.Font object
-# Post: game.score has been updated
-def displayScore(surface, font):
-    # Todo: change the background color scheme to fit the background
-    surface.blit(mainBack, (score_x,score_y),pygame.Rect(score_x, score_y, 150, 15))
-    surface.blit(font.render('Score: ' + str(game.score), True, (255,255,255)), (score_x, score_y))
-
-# Use:  displayTime(surf, font)
-# Pre:  surf is a Surface, font is a Font
-# Post: The game timer has been updated
-def displayTime(surface, font):
-    if not helpOn:
-        surface.blit(mainBack, (timer_x,timer_y),pygame.Rect(timer_x, timer_y, 100, 15))
-        surface.blit(font.render('Time: '+str(time) + 's', True, (255,255,255)), (timer_x, timer_y))
-
-        
-#use: updateStack(surf, num)
-#pre: surf is a pygame.Surface object and num is in range(0,len(stacks))
-#post: the image of stacks[num] has been updated
-def updateStack(surface, i):
-    top_x,top_y = getCardLoc(i,0) #loc of top card so we can display Stack in same place
-    maxHeight = deck_y-y-20
-    stack = stacks[i]
-    noHidden = stack.hidden
-    noVisible = len(stack)-noHidden
-    stackHeight = noHidden*hiddenGap+(noVisible-1)*revealedGap+cardHeight
-    if stackHeight > maxHeight:
-        revealedGapByStack[i] = (maxHeight-cardHeight-noHidden*hiddenGap)/(noVisible-1)
-    else:
-        revealedGapByStack[i] = revealedGap
-    
-    StackBox = stackhboxes[i]
-    #surface.fill(backgroundColor, StackBox)
-    surface.blit(mainBack, (x[i],y), StackBox)
-    displayStack(surface,i,top_x,top_y)
-    pygame.display.update()
-
-#use: updateStacks(surf)
-#pre: surf is a pygame.Surface object
-#post: hitboxes and stackhboxes have been updated, Stacks have been re-drawn on surf
-def updateStacks(surface):
-    for i in range(0,len(stacks)):
-        updateHitbox(i)
-        updateStack(surface, i)
-
-#use: updateHitboxes()
-#post: hitboxes and stackhboxes have been updated for all stacks
-def updateHitboxes():
-    for i in range(0,colNum):
-        updateHitbox(i)
-
-#use: updateHitbox(num)
-#pre: num is a valid index for stacks
-#post: hitboxes[i] and stackhboxes[i] have been updated.
-def updateHitbox(i):
-    global hitboxes
-    global stackhboxes
-    global stackHeight
-
-    stack = stacks[i]
-    
-    #if the stack is empty, this will create a hitbox to make it possible to add cards to the empty stack
-    if stack.isEmpty():
-        hitbox = pygame.Rect(x[i],y,cardWidth,cardHeight)
-        hitboxes[i] = [hitbox]
-        stackhboxes[i] = hitbox
-        stackHeight[i] = cardHeight
-        return
-        
-        
-    cards = stack.getStack()[0]
-    hitstack = []
-    
-    for j in range(0,len(cards)):
-        cardLoc = getCardLoc(i,j)
-        hitbox = pygame.Rect(cardLoc[0],cardLoc[1],cardWidth,cardHeight)
-        hitstack.append(hitbox)
-    hitboxes[i] = hitstack
-    stackHeight[i] = hitstack[-1].y-hitstack[0].y+cardHeight
-    stackhbox = pygame.Rect(x[i],y,cardWidth,stackHeight[i]+10)
-    stackhboxes[i] = stackhbox
-
-#Should only be used for debugging purposes!!!
-#use: displayStackHitboxes(surf)
-#pre: surf is a pygame.Surface object
-#post: all elements in stackhboxes have been drawn on surf
-def displayStackHitboxes(surface):
-    black = pygame.Color(0,0,0)
-    for hitbox in stackhboxes:
-        pygame.draw.rect(surface, black, hitbox, 4)
-    
-#use: updateDeckHitbox()
-#post: deckBox is up to date
-def updateDeckHitbox():
-    global deckhboxes
-    deckhboxes = []
-    for i in range(0,deal):
-        deckBox = pygame.Rect(deck_x-i*hiddenGap,deck_y, cardWidth, cardHeight)
-        deckhboxes.append(deckBox)
-
-#use: updateDeck(surf)
-#pre: surf is a pygame.Surface object
-#post: images of decks have been updated
-def updateDeck(surface):
-    deckBox = pygame.Rect(deck_x-deal*hiddenGap, deck_y, cardWidth+deal*hiddenGap, cardHeight)
-    #surface.fill(backgroundColor, deckBox)
-    for rect in deckhboxes:
-        pos = (rect.x,rect.y)
-        surface.blit(mainBack,pos,rect)
+#use: changeBackground(path, surface)
+#pre: path is a legal path to an image file and surface is a pygame surface
+#post: The game now displays the image at path as it's background
+def changeBackground(path, surface):
+    global mainBack
+    mainBack = pygame.image.load(path).convert()
+    mainBack = pygame.transform.smoothscale(mainBack,(windowWidth, windowHeight))
+    surface.blit(mainBack,(0,0))
     displayDeck(surface)
-    pygame.display.update(deckBox) 
-    updateDeckHitbox()
-
-#use: dealNew(surf)
-#pre: surf is a pygame.Surface object
-#post: one card has been delt on top of each stack
-def dealNew(surface):
-    global game
-    global deal
-    
-    if(deal > 0):
-        game.deal()
-        updateHitboxes()
-        updateStacks(surface)
-        updateDeck(surface)
-        deal -= 1
-    else:
-        print 'You cant deal another'
-        
-#use: x,y = getCardLoc(stack_num, card_num)
-#pre: stack_num is a valid index of stacks, card_num is a valid index of stacks[stack_num]
-#post: (x,y) are the coordinates for the top left corner of stacks[stack_num].cards[card_num]
-def getCardLoc(i,j):
-    hidden = stacks[i].getStack()[1]
-    card_x = x[i]
-    card_y = y
-    if j <= hidden:
-        card_y += j*hiddenGap
-    else:
-        card_y = (hidden-1)*hiddenGap+((j+1)-hidden)*revealedGapByStack[i]
-    return (card_x,card_y)
-
-#use: x,y = detectCol()
-#post: stacks[x].cards[y] is the card that was pressed, if no card was pressed (x,y) = (-1,-1)
-def detectCol():
-    if inHand.isEmpty():
-        mouse = pygame.mouse.get_pos()
-        for i in range(0,len(stackhboxes)):
-            if not stackhboxes[i].collidepoint(mouse):
-                continue
-            for j in range(0,len(hitboxes[i])):
-                h = -(j+1)
-                h = len(hitboxes[i])+h
-                if hitboxes[i][h].collidepoint(mouse):
-                    #print (i,h)
-                    return (i,h)
-    else:
-        #print "inHandRect at (%d,%d) w = %d, h = %d"%(inHandRect.x,inHandRect.y,inHandRect.w,inHandRect.h)
-        for i in range(0,len(stackhboxes)):
-            if stackhboxes[i].colliderect(inHandRect):
-                if game.isLegalMove(inHand, stacks[i]):
-                    return (i,len(stacks[i])-1)
-               
-    return (-1,-1)
-
-#use: b = detectDeckCol()
-#post: b = True if mouse is over deckhboxes[-1], else False
-def detectDeckCol():
-    mouse = pygame.mouse.get_pos()
-    updateDeckHitbox()
-    return deckhboxes[-1].collidepoint(mouse)
-
-#use: b = detectSettingsCol()
-#post: b = True if mouse is over settings symbol, else false
-def detectSettingsCol():
-    mouse = pygame.mouse.get_pos()
-    return spiderBox.collidepoint(mouse)
-    
-def detectMenuCol():
-    mouse = pygame.mouse.get_pos()
-    for i in range(0,len(menuButtons)):
-        if menuButtons[i].collidepoint(mouse):
-            return i
-    
-    return -1
-#use: pickupCards(surf, (i,j))
-#pre: surf is a pygame.Surface object, (i,j) is a tuple, i is a legal index for stacks,
-#     and j is a legal index for stacks[i].cards
-#post: stacks[i].cards[j:] have been removed form stacks[i]
-#      and added to inHand and inHandSurf has been updated
-def pickupCards(surface,(i,j)):
-    global inHand
-    global inHandSurf
-    global inHandRect
-    global stacks
-    global last_i,last_j
-    card_x,card_y = getCardLoc(i,j)
-    #toCopy = pygame.Rect(card_x,card_y,cardWidth,stackHeight[i]-card_y+y)
-    offsetGap = 30-revealedGapByStack[i]
-    toCopy = pygame.Rect(card_x,card_y+offsetGap,cardWidth,stackHeight[i]-card_y+y)
-
-    inHandSurf = surface.subsurface(toCopy).copy()
-    inHandRect = inHandSurf.get_rect()
-    inHand = stacks[i].remove(len(stacks[i])-j)
-    last_i = i
-    last_j = j
-
-#use: putdownCards(num)
-#pre: num is a legal index for stacks
-#post: inHand has been added to stacks[i] and is now empty
-def putdownCards(i):
-    global inHand
-    global stacks
-    stacks[i].add(inHand)
-    clearHand()
-
-#use: clearHand()
-#post: inHand is empty and inHandSurf is no picture
-def clearHand():
-    global inHand
-    global inHandSurf
-    global inHandRect
-    inHand = SpiderStack([],0)
-    inHandSurf = pygame.Surface((0,0))
-    inHandRect = pygame.Rect(0,0,0,0)
-
-#use: b = checkPile(num)
-#pre: num is a legal index for stacks
-#post: b = True if the last 13 cards of stacks[i] are in order and of the same suit
-def checkPile(i):
-    if stacks[i].cards[-1].rank != 1 or len(stacks[i])<13:
-        return False
-    return game.inSuit(stacks[i], 13)
-
-#use: addToPiles(num)
-#pre: num is a legal index for stacks
-#post: The last  13 cards of stacks[i] have been removed and
-#      a pile of the corresponding suit has been added to piles
-def addToPiles(i):
-    global piles
-    piles.append(stacks[i].remove(13).cards[-1].getSuitNo())
-
-#use: displayPiles(surf)
-#pre: surf is a pygame.Surface object
-#post: images of the collected piles have been drawn on surf
-def displayPiles(surface):
-    if len(piles) == 0:
-        return
-    for i in range(0,len(piles)):
-        surface.blit(aces[piles[i]],(pile_x+i*revealedGap,pile_y))
-
-# use:  getDifficulty()
-# post: returns the difficulty of the game
-def getDifficulty():
-    if NoSuits == 1:
-        return 'Easy'
-    elif NoSuits == 2:
-        return 'Medium'
-    elif NoSuits == 4:
-        return 'Hard'
+    displayPiles(surface)
+    displayScore(surface,font)
+    createMenuButton(surface)
+    displayStacks(surface, stacks, x, y)
     
 # use:  StoreScore(name, file='highscores.txt')
 # pre:  name is the name of the player, file is an optional input for where the file is saved
@@ -1120,65 +1131,6 @@ def isHighScore(n):
     return n > hiscores[-1:][0]
 
 
-#use: b = winCond()
-#post: b = True if the game is won, b = False otherwise.    
-def winCond():
-    return len(piles) == 8
 
-#use: selectBackgroundMenu():
-#post: The user has been given a graphical menu to choose a background and mainBack is his background of choice
-def settingsMenu(surface):
-    global mainBack
-    global BackgroundMenuOn
-    global background
-    surface.blit(background,(0,0))
-    surface.blit(overlay,(0,0))
-    #We want 4 thumbnails per line
-    thumbWidth = windowWidth/5
-    thumbHeight = int(thumbWidth*(float(windowHeight)/windowWidth))
-    spaceBetween = (windowWidth-4*thumbWidth)/5
-    backgroundFolder = 'Backgrounds/'
-    thumbfile = ['grumpy_thumb.jpg','nes_thumb.jpg','panda_thumb.jpg','pandaprogrammer_thumb.jpg','pandasuit_thumb.jpg','pulp_star_thumb.jpg','vintage_thumb.jpg']
-    backgroundFile = ['grumpy.jpg','nes.jpg','panda.jpg','pandaprogrammer.jpg','pandasuit.jpg','pulp_star.jpg','vintage.jpg']
-    thumbnails = []
-    for image in thumbfile:
-        tempSurf = pygame.image.load(backgroundFolder+image).convert()
-        tempSurf = pygame.transform.smoothscale(tempSurf,(thumbWidth,thumbHeight))
-        thumbnails.append(tempSurf)
-    thumbX = spaceBetween
-    thumbY = thumbHeight
-    selection = []
-    for thumbnail in thumbnails:
-        if thumbX+thumbWidth>windowWidth:
-            thumbX = spaceBetween
-            thumbY = 2*thumbHeight+spaceBetween
-        surface.blit(thumbnail,(thumbX,thumbY))
-        tempRect = pygame.Rect(thumbX,thumbY,thumbWidth,thumbHeight)
-        selection.append(tempRect)
-        thumbX += thumbWidth+spaceBetween
-    createMenuButton(surface)
-    pygame.display.flip()
-    BackgroundMenuOn = True
-    while BackgroundMenuOn:
-        mousePos = pygame.mouse.get_pos()
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
-            elif event.type == MOUSEBUTTONDOWN:
-                overBackgroundNr = -1
-                for i in range(0,len(selection)):
-                    if selection[i].collidepoint(mousePos):
-                        overBackgroundNr = i
-                print overBackgroundNr
-                if overBackgroundNr >= 0:
-                    print 'changing background to '+backgroundFolder+backgroundFile[overBackgroundNr]
-                    changeBackground(backgroundFolder+backgroundFile[overBackgroundNr],surface)
-                    background = surface.copy()
-                    toggleMenu(surface)
-                    return
-                elif detectMenuCol():
-                    toggleMenu(surface)
-                    return
 
 pygame.quit()

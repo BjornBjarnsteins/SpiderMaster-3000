@@ -3,9 +3,6 @@ import pygame
 import sys
 from pygame.locals import *
 
-card_x = 0
-card_y = 0
-
 class SpiderCard:
     '''
     Data invariants:

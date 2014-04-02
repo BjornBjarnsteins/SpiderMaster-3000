@@ -6,7 +6,24 @@ from SpiderStack import *
 from SpiderDeck import *
 from SpiderSolitaire import *
 
+#------------------------------------------------------------------------------
+# Here we will test the main methods of the game SpiderSolitaire. 
+# Classes to be tested:
+#    SpiderCard
+#    SpiderDeck
+#    SpiderStack
+#    SpiderSolitaire
+#
+# We will also test relevant methods from the GUI for this game.
+# Modules to be tested:
+#    SpiderGUI
+#    HighscoreGUI
+#    kapall
+#------------------------------------------------------------------------------
 
+#Testclass: SpiderCard
+#Purpose: Try to create a SpiderCard object, see if it was given the correct
+#         suit number and if it's image has correct dimensions.
 class TestSpiderCard(unittest.TestCase):
 
     def setUp(self):
@@ -18,11 +35,46 @@ class TestSpiderCard(unittest.TestCase):
         self.assertEqual(suitNo, 2)
 
     def test_getImage(self):
+        deckGraphic = pygame.image.load('deck.png')
         pygame.init()
         pygame.display.set_mode((int(SpiderCard.card_size_x), SpiderCard.card_size_y))
-        self.testSurface = self.card1.getImage()
+        self.testSurface = self.card1.getImage(deckGraphic)
         self.assertEqual(self.testSurface.get_width(), int(self.card1.card_size_x))
 
+#Testclass: SpiderDeck
+#Purpose: try to create SpiderDeck objects, see if they are of correct length
+#         and whether they can be shuffled. Then see if a card can be removed
+#         from the deck.
+class TestSpiderDeck(unittest.TestCase):
+
+    deck1 = SpiderDeck(1)
+    deck2 = SpiderDeck(2)
+    deck4 = SpiderDeck(4)
+    
+    len1 = len(deck1.decklist)
+    len2 = len(deck2.decklist)
+    len3 = len(deck4.decklist)
+    
+    def test_init(self):
+        # Checks if all decks are equally long
+        self.assertEqual(self.len1, self.len2)
+        self.assertEqual(self.len2, self.len3)
+        self.assertEqual(self.len1, self.len3)
+    
+    def test_shuffle1(self):
+        self.deck1.shuffle()
+        self.assertEqual(len(self.deck1.decklist), self.len1)
+        
+    def test_shuffle2(self):
+        card1 = self.deck1.remove()
+        self.assertIsInstance(card1, SpiderCard)
+        self.assertEqual(len(self.deck1.decklist), self.len1-1)
+
+#Testclass: SpiderStack
+#Purpose:   Create a stack. Then see if it has a hidden card, if it
+#           whether it has a visible card or is empty. Try to flip 
+#           a card (= make a hidden card revealed, so long as a hidden
+#           card is on top). Try to add and remove cards from the stack.
 class TestSpiderStack(unittest.TestCase):
 
     #before we initialize the SpiderStack object for testing we need a 
@@ -64,7 +116,12 @@ class TestSpiderStack(unittest.TestCase):
         
     def test_getStack(self):
         pass
-        
+
+#Testclass: SpiderSolitaire
+#Purpose:   Create a game of spidersolitaire. Try to deal a new row,
+#           check whether a number of cards is of the same suit and
+#           in correct order. See if picking them up is legal and if 
+#           putting them down is.
 class TestSpiderSolitaire(unittest.TestCase):
     
     number_of_suits = 1
@@ -83,9 +140,6 @@ class TestSpiderSolitaire(unittest.TestCase):
     def test_getStacks(self):
         stacks = self.solitaire.getStacks()
         self.assertEqual(self.solitaire.stacks,stacks)
-        
-    def test_remove_n_functions(self):
-        pass 
     
     def test_miscellaneous(self):
         
@@ -105,32 +159,7 @@ class TestSpiderSolitaire(unittest.TestCase):
         self.assertTrue(self.solitaire.isLegalPickup(testStack, 3))
         self.assertFalse(self.solitaire.isLegalPickup(testStack,2))
         self.assertTrue(self.solitaire.isLegalMove(stackOff, stackOn))
-
     
-class TestSpiderDeck(unittest.TestCase):
-
-    deck1 = SpiderDeck(1)
-    deck2 = SpiderDeck(2)
-    deck4 = SpiderDeck(4)
-    
-    len1 = len(deck1.decklist)
-    len2 = len(deck2.decklist)
-    len3 = len(deck4.decklist)
-    
-    def test_init(self):
-        # Checks if all decks are equally long
-        self.assertEqual(self.len1, self.len2)
-        self.assertEqual(self.len2, self.len3)
-        self.assertEqual(self.len1, self.len3)
-    
-    def test_shuffle1(self):
-        self.deck1.shuffle()
-        self.assertEqual(len(self.deck1.decklist), self.len1)
-        
-    def test_shuffle2(self):
-        card1 = self.deck1.remove()
-        self.assertIsInstance(card1, SpiderCard)
-        self.assertEqual(len(self.deck1.decklist), self.len1-1)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
