@@ -107,6 +107,7 @@ hiscores = []
 
 #colors
 BLACK = (0,0,0)
+CARDBACKPURPLE = (164,73,164)
 def play(spiderWindow):
     pygame.init()
     fpsClock = pygame.time.Clock()
@@ -267,7 +268,7 @@ def play(spiderWindow):
                 displayTime(spiderWindow, font)
                 pygame.display.update()
                     
-    if isHighScore(game.score) or True:
+    if isHighScore(game.score):
         gettext.install("highscore")
         dialog = HSDialog(0)
         dialog.MainLoop()
@@ -336,9 +337,7 @@ def initialize(surface, suitNo):
         cardSurface = pygame.transform.smoothscale(cardSurface, (cardWidth, cardHeight))
         aces.append(cardSurface)
     #get image for the back of card:    
-    cardBack = SpiderCard('S',1).getImage(deck_graphic,True)
-    cardBack = pygame.transform.smoothscale(cardBack, (cardWidth, cardHeight))
-    cardBack.set_colorkey(BLACK)
+    changeCardback('Cardbacks/standard_back.png', surface)
                           
 
     updateHitboxes()
@@ -367,8 +366,20 @@ def changeBackground(path, surface):
     displayScore(surface,font)
     createMenuButton(surface)
     displayStacks(surface, stacks, x, y)
-    
 
+# use:  changeCardback(path, surface, colorkey)
+# pre:  path is a legal path to an image file, surface is a pygame surface, colorkey is a color
+# post: the cardback has been changed to the image at path    
+def changeCardback(path, surface, colorkey=BLACK):
+    global cardBack
+    cardBack = pygame.image.load(path).convert()
+    cardBack = pygame.transform.smoothscale(cardBack, (cardWidth, cardHeight))
+    cardBack.set_colorkey(BLACK)
+    displayDeck(surface)
+    displayPiles(surface)
+    displayScore(surface,font)
+    createMenuButton(surface)
+    displayStacks(surface, stacks, x, y)
 
 #use: createHelp()
 #post: creates the win screen for the game
@@ -689,7 +700,6 @@ def toggleHelp(surface):
         background = surface.copy()                           
         helpMenu(surface)
 
-
 #use: helpMenu()
 #pre: surface is a pygame surface
 #post: creates the Help screen for the game
@@ -790,9 +800,12 @@ def displayStack(surface, i, stack_x,stack_y):
 #pre: surf is a pygame.Surface object, card is a SpiderCard object, hidden is boolean,  x,y are positive integers
 #post: the image of card has been drawn onto surf, face down if hidden, at (x,y)
 def displayCard(surface, card, isHidden, card_x, card_y, deck_graphic):
-    cardSurf = card.getImage(deck_graphic,isHidden)
-    cardSurf = pygame.transform.smoothscale(cardSurf,(cardWidth,cardHeight))
-    cardSurf.set_colorkey(BLACK)
+    if not isHidden:
+        cardSurf = card.getImage(deck_graphic)
+        cardSurf = pygame.transform.smoothscale(cardSurf,(cardWidth,cardHeight))
+        cardSurf.set_colorkey(BLACK)
+    else:
+        cardSurf = cardBack
     surface.blit(cardSurf, (card_x,card_y))
 
 #use: displayDeck(surf)
