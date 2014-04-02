@@ -137,6 +137,7 @@ def play(spiderWindow):
         #update the background and inHand image constantly:
         if not inHand.isEmpty() and mouseDown:
             spiderWindow.blit(background, (0,0))
+            displayTime(spiderWindow, font)
             inHandX = mouse[0] - offset[0]
             inHandY = mouse[1] - offset[1]
             inHandPos = (inHandX,inHandY)
@@ -158,8 +159,9 @@ def play(spiderWindow):
             inHandCoord[3] = inHandCoord[3] + 3
             #draw a rectangular outline around the selected cards
             pygame.draw.rect(spiderWindow,color, inHandCoord, 4)
+        else:
             displayTime(spiderWindow, font)
-            pygame.display.update()
+        pygame.display.update()
         for event in pygame.event.get():
             if event.type == QUIT: 
                 pygame.quit()
@@ -267,8 +269,8 @@ def play(spiderWindow):
                     toggleHelp(spiderWindow)
             if event.type == SEC_EVENT and not (helpOn or menuOn):
                 time += 1
-                displayTime(spiderWindow, font)
-                pygame.display.update()
+                #displayTime(spiderWindow, font)
+                #pygame.display.update()
                     
     if isHighScore(game.score) or True:
         gettext.install("highscore")
