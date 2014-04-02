@@ -398,12 +398,18 @@ def getAllDealVectors(p):
 
 def playDealAnimation(surface, p):
     vectors = getAllDealVectors(p)
+    tempCard = SpiderCard('H', 1)
     for n in range(0, colNum):
-        # the animation for the first n cards has been played
-        pos_x_start = deck_x
-        pos_y_start = deck_y
+        # the animation for the first n-1 cards has been played
+        current_pos_x = deck_x
+        current_pos_y = deck_y
         
-        #displayCard(surface, )
+        TOLERANCE = 10
+        while not current_pos_x - getCardLoc(n, len(stacks[n]))[0] <= TOLERANCE:
+            displayCard(surface, tempCard, True, current_pos_x, current_pos_y, deck_graphic)
+            current_pos_x += vectors[n][0]
+            current_pos_y += vectors[n][1]
+            print current_pos_x, current_pos_y
 
 #use: displayStack(surface, i, x, y)
 #pre: surface is a pygame.Surface object, i is a legal index to stacks, (x,y) are positive coordinates.
