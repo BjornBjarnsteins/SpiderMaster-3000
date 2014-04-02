@@ -371,6 +371,19 @@ def displayStacks(surface, Stacks, x, y):
         displayStack(surface, i, x[i], y)
     pygame.display.update()
 
+# use:  s = getDealSlope(n)
+# pre:  n is the number of the stack where the card should go
+# post: s is the slope of the path that the card should follow in the deal animation
+def getDealSlope(n):
+    destination = getCardLoc(n, len(stacks[n]))
+    slope =  (destination[1]-deck_y)/(destination[0]-deck_x)
+    return slope
+
+# use:  v = getDealVector(n, s)
+# pre:  n is the number of the target stack, s is the desired speed of the card
+# post: v[0] is how far along the x axis the card should go, v[1] is how far along the y axis
+def getDealVector(n, p):
+    return (getDealSlope(n)*p, getDealSlope(n)*p)
 
 #use: displayStack(surface, i, x, y)
 #pre: surface is a pygame.Surface object, i is a legal index to stacks, (x,y) are positive coordinates.
