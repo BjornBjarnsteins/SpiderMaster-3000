@@ -101,7 +101,7 @@ fullscreenOn = False
 # Initializes the game timer
 time = 0
 SEC_EVENT = USEREVENT + 1
-pygame.time.set_timer(SEC_EVENT, 1000)
+pygame.time.set_timer(SEC_EVENT, 50)
 
 hiscores = []
 
@@ -133,7 +133,6 @@ def play(spiderWindow):
     while not winCond():
         #update the background and inHand image constantly:
         if not inHand.isEmpty() and mouseDown:
-            inHandSurf.set_colorkey((0,0,0))
             spiderWindow.blit(background, (0,0))
             inHandX = mouse[0] - offset[0]
             inHandY = mouse[1] - offset[1]
@@ -152,12 +151,12 @@ def play(spiderWindow):
             inHandCoord[0] = inHandX-2
             inHandCoord[1] = inHandY-2
             #outline size
-            inHandCoord[2] = inHandCoord[2] + 2
-            inHandCoord[3] = inHandCoord[3] + 2
-            #draw a rectangle outline around the selected cards
+            inHandCoord[2] = inHandCoord[2] + 3
+            inHandCoord[3] = inHandCoord[3] + 3
+            #draw a rectangular outline around the selected cards
             pygame.draw.rect(spiderWindow,color, inHandCoord, 4)
+            displayTime(spiderWindow, font)
             pygame.display.update()
-            
         for event in pygame.event.get():
             if event.type == QUIT: 
                 pygame.quit()
@@ -180,7 +179,8 @@ def play(spiderWindow):
                 elif (loc_i,loc_j) == (-1,-1) and inHand.isEmpty():
                     continue
                 #if we have cards in our hand, put them down if legal, else return to last position:
-                #NOTE: this part is not in use yet. It will implement a different method of moving cards.     
+                #NOTE: this part is not in use yet. It will implement a different method of moving cards. 
+    
                 elif not inHand.isEmpty():
                     n = len(inHand)
                     if (loc_i,loc_j) != (-1,-1) and game.isLegalMove(inHand,stacks[loc_i]):
@@ -672,7 +672,7 @@ def displayStack(surface, i, stack_x,stack_y):
             gap = revealedGapByStack[i]     
         displayCard(surface,cards[j],isHidden,card_x,card_y,deck_graphic)
         card_y += gap
-
+        
 #use: displayCard(surf, card, hidden, x, y)
 #pre: surf is a pygame.Surface object, card is a SpiderCard object, hidden is boolean,  x,y are positive integers
 #post: the image of card has been drawn onto surf, face down if hidden, at (x,y)
@@ -703,7 +703,7 @@ def displayScore(surface, font):
 def displayTime(surface, font):
     if not helpOn:
         surface.blit(mainBack, (timer_x,timer_y),pygame.Rect(timer_x, timer_y, 100, 15))
-        surface.blit(font.render('Time: '+str(time) + 's', True, (255,255,255)), (timer_x, timer_y))
+        surface.blit(font.render('Time: '+str(int(math.ceil(time*0.05))) + 's', True, (255,255,255)), (timer_x, timer_y))
 
         
 #use: updateStack(surf, num)
@@ -725,7 +725,7 @@ def updateStack(surface, i):
     #surface.fill(backgroundColor, StackBox)
     surface.blit(mainBack, (x[i],y), StackBox)
     displayStack(surface,i,top_x,top_y)
-    pygame.display.update() 
+    #pygame.display.update() unnecessary display call ????
 
 #use: updateStacks(surf)
 #pre: surf is a pygame.Surface object
@@ -844,7 +844,7 @@ def detectCol():
                 h = -(j+1)
                 h = len(hitboxes[i])+h
                 if hitboxes[i][h].collidepoint(mouse):
-                    print (i,h)
+                    #print (i,h)
                     return (i,h)
     else:
         #print "inHandRect at (%d,%d) w = %d, h = %d"%(inHandRect.x,inHandRect.y,inHandRect.w,inHandRect.h)
@@ -887,7 +887,8 @@ def pickupCards(surface,(i,j)):
     global stacks
     global last_i,last_j
     card_x,card_y = getCardLoc(i,j)
-    toCopy = pygame.Rect(card_x,card_y,cardWidth,stackHeight[i]-card_y+y)
+    offsetGap = 30-revealedGapByStack[i]
+    toCopy = pygame.Rect(card_x,card_y+offsetGap,cardWidth,stackHeight[i]-card_y+y)
     inHandSurf = surface.subsurface(toCopy).copy()
     inHandRect = inHandSurf.get_rect()
     inHand = stacks[i].remove(len(stacks[i])-j)
