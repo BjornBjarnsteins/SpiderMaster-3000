@@ -363,6 +363,8 @@ def initialize(surface, suitNo):
     #surface.blit(instructions,(instr_x,instr_y))
     time = 0
     background = surface.copy()
+    
+    print getPileVectors(5, 4)
   
   
 
@@ -425,7 +427,28 @@ def playDealAnimation(surface, p=100):
         updateStack(surface, n)
         background = surface.copy()
         #pygame.display.update()
+
+# use:  v = getPileVector(stackNo, n)
+# pre:  stackNo is a positive integer, 0 <= stackNo <= 9, n is a positive integer
+# post: v is the vector from card n in stack stackNo to the pile
+def getPileVector(stackNo, n):
+    global piles
+    
+    origin = getCardLoc(stackNo, n)
+    dest = (pile_x+len(piles)*hiddenGap, pile_y+len(piles)*hiddenGap)
+    
+    return (dest[0]-origin[0], dest[1]-origin[1])
+
+# use:  v = getPileVectors(stackNo, n)
+# pre:  stackNo is a positive integer, 0 <= stackNo <= 9, n is a positive integer
+# post: v is the list of vectors between the n topmost cards of stack stackNo and the pile
+def getPileVectors(stackNo, n=13):
+    v = []
+    
+    for i in range(len(stacks[stackNo])-13, len(stacks[stackNo])):
+        v = v + [getPileVector(stackNo, i)]
         
+    return v
 
 #use: displayStack(surface, i, x, y)
 #pre: surface is a pygame.Surface object, i is a legal index to stacks, (x,y) are positive coordinates.
