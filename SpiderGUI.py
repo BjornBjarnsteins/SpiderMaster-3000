@@ -406,12 +406,15 @@ def playDealAnimation(surface, p=100):
     
     for n in range(0, colNum):
         background = surface.copy()
+        if n == colNum-1:
+            print colNum-1
+            print 'is the stack I should be dealing to now'
         # the animation for the first n-1 cards has been played
         current_pos_x = deck_x
         current_pos_y = deck_y
         
-        TOLERANCE = 0.5
-        while not current_pos_x - getCardLoc(n, len(stacks[n]))[0] <= TOLERANCE:
+        TOLERANCE = 0.01
+        while not (current_pos_x - getCardLoc(n, len(stacks[n]))[0] <= TOLERANCE and current_pos_y - getCardLoc(n, len(stacks[n]))[1] <= TOLERANCE) :
             surface.blit(background,(0,0))
             displayCard(surface, tempCard, True, current_pos_x, current_pos_y, deck_graphic)
             current_pos_x += vectors[n][0]
