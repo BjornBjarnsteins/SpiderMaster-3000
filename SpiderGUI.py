@@ -295,6 +295,25 @@ def play(spiderWindow):
 #post: creates a new instance of the Spider Solitaire 'game' with n number of suits in play.
 #      surface is the game window.
 def initialize(surface, suitNo):
+    '''
+    GLOBALS
+    ********************************
+    game:   SpiderSolitaire object
+    stack:  list of stack of cards used in the game
+    deal:   number of deals left
+    m:      space between stacks and coordinates of the stacks.
+    x:      a point on the x-axis of the coordinate system used in the game
+    font: pygame Font 
+    cardBack:   back of card picture
+    aces:       list of aces as SpiderCard objects
+    helpOn: True if help screen is on,else false
+    overlay: overlay used when menu is accessed
+    hiscores: list of high scores
+    time:  time elapsed in playing the game
+    revealedGapByStack: length of gap that is in use for the particular stack in question, stack is not hidden
+    background:     background currently in use
+    *********************************
+    '''
     global game
     global stacks
     global deal
@@ -749,7 +768,10 @@ def createMenuButton(surface):
     surface.blit(spider, (windowWidth-65, windowHeight-65))
     spiderBox = pygame.Rect(windowWidth-65, windowHeight-65, spiderW, spiderH)
     pygame.display.update(spiderBox)
-   
+
+#use: toggleMenu(surface)
+#pre: surface is the background surface, pygame Surface object
+#post: if menu was not on display, it has now been set on, else off  
 def toggleMenu(surface):
     global menuOn
     global background
@@ -845,6 +867,9 @@ def menu(surface):
                     surface.blit(background, (0,0))
                     toggleHelp(surface)
 
+#use: toggleSettings(surface)
+#pre: surface is a pygame Surface object
+#post: toggles the settings interface depending on whether it's on or off
 def toggleSettings(surface):
     global background
     global settOn
@@ -942,7 +967,9 @@ def settingsMenu(surface):
                     elif detectSettingsCol():
                         toggleSettings(surface)
 
-                    
+#use: toggleHighscores(surface)
+#pre: surface is a pygame Surface object
+#post: toggles the high scores interface depending on whether it's on or off            
 def toggleHighscores(surface):
     global background
     global hsOn
@@ -956,6 +983,9 @@ def toggleHighscores(surface):
         background = surface.copy()                           
         highscoresMenu(surface)
 
+#use: highscoresMenu(surface)
+#pre: surface is a pygame Surface object
+#post: displays the top 10 scores in the game
 def highscoresMenu(surface):
     global hsScreen
     global backButton
@@ -967,7 +997,7 @@ def highscoresMenu(surface):
     hsScreen.set_alpha(200)
     hsScreen.fill(pygame.Color(0,0,0))
     surface.blit(hsScreen, (0,0))
-    
+    #specify back-button attributes
     back_x = 50
     back_y = windowHeight - 100
     back_width = 100
@@ -979,7 +1009,8 @@ def highscoresMenu(surface):
     backSurf.set_colorkey(pygame.Color(0,0,0))
     back = backfont.render('Back', True, (248, 248, 255))
     backSurf.blit(back, (0,0))
-    
+
+    #changes certain coordinates depending on the resolution of the user
     if windowWidth > 1024:
         labels_y = 100
         name_label_x = 300
@@ -999,16 +1030,16 @@ def highscoresMenu(surface):
     diff_label = font.render('Difficulty', True, (248, 248, 255))
     
     
-    
+     #scorefont is the font used for the hall-of-famers   
     scorefont = pygame.font.SysFont(None, 24)
     top_scores = LoadScores()
     
-    max_scores = 15 #specify max number of high scores to be displayed
+    #score_cnt used as an index to fetch values for the highest scorers
     score_cnt = 0
     
     for score in top_scores:
-        if score_cnt > max_scores:
-            break
+        #fetch and display values that pertain to this particular high scorer
+        #the (score_cnt+1)-nth highest scorer for each iteration
         name_val = score[0]
         score_val = str(score[1])
         level_val = score[2]
@@ -1020,7 +1051,7 @@ def highscoresMenu(surface):
         surface.blit(diff, (diff_label_x, scores_y))                
         score_cnt += 1
         scores_y += 30
-
+    #top 10 scores have been put on the scoreboard
     surface.blit(backSurf, (back_x, back_y))
     surface.blit(name_label, (name_label_x, labels_y))
     surface.blit(score_label, (score_label_x, labels_y))
@@ -1046,7 +1077,9 @@ def highscoresMenu(surface):
                     toggleHighscores(surface)
                     toggleMenu(surface)   
 
-
+#use: toggleHelp(surface)
+#pre: surface is a pygame Surface object
+#post: toggles the help interface depending on whether it's on or off
 def toggleHelp(surface):
     global background
     global helpOn
