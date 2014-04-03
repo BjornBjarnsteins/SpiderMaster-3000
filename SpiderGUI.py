@@ -48,6 +48,7 @@ instr_y = 4
 colNum = 10
 #image of the back of a card
 cardBack = pygame.Surface((0,0))
+currentCardback = 'Cardbacks/red.jpg'
 #surfaces for the aces:
 aces = []
 
@@ -309,6 +310,7 @@ def initialize(surface, suitNo):
     global time
     global revealedGapByStack
     global background
+    global piles
     
     overlay = pygame.Surface((windowWidth, windowHeight))
     overlay.set_alpha(200)
@@ -319,6 +321,7 @@ def initialize(surface, suitNo):
     stacks = game.getStacks()
     revealedGapByStack = [revealedGap]*len(stacks)
     deal = 5
+    piles = []
     helpOn = False
     font = pygame.font.Font(None, 18)
     hiscores = LoadScores()
@@ -348,7 +351,7 @@ def initialize(surface, suitNo):
     #cardBack = pygame.transform.smoothscale(cardBack, (cardWidth, cardHeight))
     #cardBack.set_colorkey(BLACK)
     
-    changeCardback('Cardbacks/red.jpg', surface)
+    changeCardback(currentCardback, surface)
                           
 
     updateHitboxes()
@@ -879,31 +882,63 @@ def settingsMenu(surface):
     back = backfont.render('Back', True, (248, 248, 255))
     backSurf.blit(back, (0,0))
     
+    #Backgrounds:
     #We want 3 thumbnails per line
-    thumbWidth = (windowWidth-500)/4
-    thumbHeight = int(thumbWidth*(float(windowHeight)/windowWidth))
-    spaceBetween = ((windowWidth-500)-3*thumbWidth)/4
+    backgroundThumbWidth = (windowWidth-500)/4
+    backgroundThumbHeight = int(backgroundThumbWidth*(float(windowHeight)/windowWidth))
+    backgroundSpaceBetween = backgroundThumbWidth/4
     backgroundFolder = 'Backgrounds/'
-    thumbfile = ['grumpy_thumb.jpg','nes_thumb.jpg','panda_thumb.jpg','pandaprogrammer_thumb.jpg','pandasuit_thumb.jpg','pulp_star_thumb.jpg','vintage_thumb.jpg']
-    backgroundFile = ['grumpy.jpg','nes.jpg','panda.jpg','pandaprogrammer.jpg','pandasuit.jpg','pulp_star.jpg','vintage.jpg']
-    thumbnails = []
-    for image in thumbfile:
+    backgroundThumbFile = ['grumpy_thumb.jpg','nes_thumb.jpg','panda_thumb.jpg','pulp_star_thumb.jpg','vintage_thumb.jpg']
+    backgroundFile = ['grumpy.jpg','nes.jpg','panda.jpg','pulp_star.jpg','vintage.jpg']
+    backgroundThumbnails = []
+    for image in backgroundThumbFile:
         tempSurf = pygame.image.load(backgroundFolder+image).convert()
-        thumbnails.append(tempSurf)
-    thumbX = spaceBetween
+        backgroundThumbnails.append(tempSurf)
+    thumbX = backgroundSpaceBetween
     thumbY = 250
-    selection = []
-    for thumbnail in thumbnails:
-        if thumbX+thumbWidth>(windowWidth-500):
-            thumbX = spaceBetween
-            thumbY += thumbHeight+20
+    backSelection = []
+    for thumbnail in backgroundThumbnails:
+        if thumbX+backgroundThumbWidth>(windowWidth-500):
+            thumbX = backgroundSpaceBetween
+            thumbY += backgroundThumbHeight+20
         surface.blit(thumbnail,(thumbX,thumbY))
-        print 'blitting thumbnail at (%d,%d)'%(thumbX,thumbY)
-        tempRect = pygame.Rect(thumbX,thumbY,thumbWidth,thumbHeight)
-        selection.append(tempRect)
-        thumbX += thumbWidth+spaceBetween
+        tempRect = pygame.Rect(thumbX,thumbY,backgroundThumbWidth,backgroundThumbHeight)
+        backSelection.append(tempRect)
+        thumbX += backgroundThumbWidth+backgroundSpaceBetween
     surface.blit(backSurf, (back_x, back_y))
     
+    #CardBakcs:
+    
+    cardThumbHeight = (windowHeight-190)/4
+    cardThumbWidth = int(cardThumbHeight*(float(cardWidth)/cardHeight))
+    cardSpaceBetween = cardThumbHeight/4
+    cardFolder = 'Cardbacks/'
+    cardFile = ['BicycleBlue.jpg','hearthstone_back.png','owl.jpg','red.jpg','standard_back.png']
+    cardThumbFile = ['BicycleBlue_thumb.jpg','hearthstone_back_thumb.png','owl_thumb.jpg','red_thumb.jpg','standard_back_thumb.png']
+    cardThumbnails = []
+    
+    #Render the thumbnails
+    for image in cardThumbFile:
+        tempSurf = pygame.image.load(cardFolder+image).convert()
+        cardThumbnails.append(tempSurf)
+    
+    thumbX = windowWidth-390
+    thumbY = 250
+    cardSelection = []
+    for i in range(0,len(cardThumbnails)):
+        thumb = cardThumbnails[i]
+        if i>0 and i%2==0:
+            thumbX = windowWidth-390
+            thumbY += cardThumbHeight+cardSpaceBetween
+        surface.blit(thumb,(thumbX,thumbY))
+        tempRect = pygame.Rect(thumbX,thumbY,cardThumbWidth,cardThumbHeight)
+        cardSelection.append(tempRect)
+        thumbX += 20+cardThumbWidth
+    
+        
+    
+    #Difficulty:
+        
     #Text:
     font = pygame.font.Font('fonts/FancyCardText.ttf', 50)
     
@@ -925,14 +960,29 @@ def settingsMenu(surface):
                 pygame.quit()
                 sys.exit()
             elif event.type == MOUSEBUTTONDOWN:
+                #Check if background is selected
                 overBackgroundNr = -1
-                for i in range(0,len(selection)):
-                    if selection[i].collidepoint(mousePos):
+                for i in range(0,len(backSelection)):
+                    if backSelection[i].collidepoint(mousePos):
                         overBackgroundNr = i
                 if overBackgroundNr >= 0:
                     changeBackground(backgroundFolder+backgroundFile[overBackgroundNr],surface)
                     background = surface.copy()
                     toggleSettings(surface)
+                    
+                #Check if cardback is selected
+                overCardbackNr = -1
+                for i in range(0,len(cardSelection)):
+                    if cardSelection[i].collidepoint(mousePos):
+                        overCardbackNr = i
+                if overCardbackNr >= 0:
+                    surface.blit(background,(0,0))
+                    changeCardback(cardFolder+cardFile[overCardbackNr],surface)
+                    background = surface.copy()
+                    toggleSettings(surface)
+                
+                #Check if Difficulty is selected
+                
                 elif event.type == MOUSEBUTTONDOWN:
                     mouseXY = pygame.mouse.get_pos()
                     back_rect = pygame.Rect(back_x, back_y, back_width, back_height)
@@ -941,8 +991,8 @@ def settingsMenu(surface):
                         toggleMenu(surface)
                     elif detectSettingsCol():
                         toggleSettings(surface)
-
-                    
+                        
+                        
 def toggleHighscores(surface):
     global background
     global hsOn
@@ -1158,6 +1208,10 @@ def changeBackground(path, surface):
 # post: the cardback has been changed to the image at path    
 def changeCardback(path, surface, colorkey=BLACK):
     global cardBack
+    global currentCardback
+    
+    currentCardback = path
+    
     cardBack = pygame.image.load(path).convert()
     cardBack = pygame.transform.smoothscale(cardBack, (cardWidth, cardHeight))
     cardBack.set_colorkey(BLACK)
