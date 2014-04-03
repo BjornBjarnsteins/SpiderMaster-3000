@@ -86,7 +86,7 @@ mouse = (0,0)
 offset = (0,0)
 #image to update the background while moving cards:
 background = 0
-mainBack = pygame.image.load('Backgrounds/green_pattern.jpg')
+mainBack = pygame.image.load('Backgrounds/green.jpg')
 #for settings on/off:
 settOn = False
 #for help on/off:
@@ -398,11 +398,14 @@ def getAllDealVectors(p):
     return v
 
 def playDealAnimation(surface, p=100):
+    global background
+    background = surface.copy()
     vectors = getAllDealVectors(p)
     tempCard = SpiderCard('H', 1)
     #print vectors
     
     for n in range(0, colNum):
+        background = surface.copy()
         # the animation for the first n-1 cards has been played
         current_pos_x = deck_x
         current_pos_y = deck_y
@@ -415,10 +418,12 @@ def playDealAnimation(surface, p=100):
             current_pos_y += vectors[n][1]
             pygame.display.update()
         
-        updateStack(surface, n)
-        pygame.display.update()
         
-    surface.blit(background,(0,0))
+        surface.blit(background,(0,0))
+        updateStack(surface, n)
+        background = surface.copy()
+        #pygame.display.update()
+        
 
 #use: displayStack(surface, i, x, y)
 #pre: surface is a pygame.Surface object, i is a legal index to stacks, (x,y) are positive coordinates.
@@ -581,12 +586,12 @@ def dealNew(surface):
     global game
     global deal
     
-    playDealAnimation(surface)
     
     if(deal > 0):
         game.deal()
         updateHitboxes()
-        updateStacks(surface)
+        playDealAnimation(surface)
+        #updateStacks(surface)
         updateDeck(surface)
         deal -= 1
     else:
