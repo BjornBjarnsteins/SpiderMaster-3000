@@ -363,7 +363,6 @@ def initialize(surface, suitNo):
     #surface.blit(instructions,(instr_x,instr_y))
     time = 0
     background = surface.copy()
-    playDealAnimation(surface, 100)
   
   
 
@@ -398,7 +397,7 @@ def getAllDealVectors(p):
         v = v + [getDealVector(n, p)]
     return v
 
-def playDealAnimation(surface, p):
+def playDealAnimation(surface, p=100):
     vectors = getAllDealVectors(p)
     tempCard = SpiderCard('H', 1)
     print vectors
@@ -579,6 +578,8 @@ def updateDeck(surface):
 def dealNew(surface):
     global game
     global deal
+    
+    playDealAnimation(surface)
     
     if(deal > 0):
         game.deal()
