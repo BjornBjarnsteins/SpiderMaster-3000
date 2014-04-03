@@ -26,14 +26,16 @@ from SpiderSolitaire import *
 #         suit number and if it's image has correct dimensions.
 class TestSpiderCard(unittest.TestCase):
 
+    #UT01
     def setUp(self):
         self.card1 = SpiderCard('H', 3)
 
-
+    #UT02
     def test_getSuitNo(self):
         suitNo = self.card1.getSuitNo()
         self.assertEqual(suitNo, 2)
-
+    
+    #UT03
     def test_getImage(self):
         deckGraphic = pygame.image.load('deck.png')
         pygame.init()
@@ -55,16 +57,19 @@ class TestSpiderDeck(unittest.TestCase):
     len2 = len(deck2.decklist)
     len3 = len(deck4.decklist)
     
+    #UT04
     def test_init(self):
         # Checks if all decks are equally long
         self.assertEqual(self.len1, self.len2)
         self.assertEqual(self.len2, self.len3)
         self.assertEqual(self.len1, self.len3)
     
+    #UT05
     def test_shuffle1(self):
         self.deck1.shuffle()
         self.assertEqual(len(self.deck1.decklist), self.len1)
-        
+    
+    #UT06    
     def test_shuffle2(self):
         card1 = self.deck1.remove()
         self.assertIsInstance(card1, SpiderCard)
@@ -85,15 +90,19 @@ class TestSpiderStack(unittest.TestCase):
     stack = SpiderStack(cards, hidden)
     stack2 = SpiderStack(cards,hidden)
     
+    #UT07
     def test_isEmpty(self):
         self.assertFalse(self.stack2.isEmpty())
     
+    #UT08
     def test_hasHidden(self):
         self.assertTrue(self.stack.hasHidden())
     
+    #UT09
     def test_hasVisible(self):
         self.assertTrue(self.stack2.hasVisible())
     
+    #UT10
     #flip decreases number of hidden cards by one if there are no revealed cards at top of the stack
     def test_flip(self):
         self.stack2.flip()
@@ -102,6 +111,7 @@ class TestSpiderStack(unittest.TestCase):
         self.stack2.flip()
         self.assertFalse(self.stack2.hasHidden())
     
+    #UT11
     def test_add(self):
         #add stack on top of itself
         length = len(self.stack)*2
@@ -109,13 +119,12 @@ class TestSpiderStack(unittest.TestCase):
         self.stack.add(self.stack)
         self.assertEqual(len(self.stack),length)
     
+    #UT12
     def test_remove(self):
         cards_removed = len(self.stack)
         self.stack.remove(cards_removed)
         self.assertTrue(self.stack.isEmpty())
-        
-    def test_getStack(self):
-        pass
+     
 
 #Testclass: SpiderSolitaire
 #Purpose:   Create a game of spidersolitaire. Try to deal a new row,
@@ -127,6 +136,7 @@ class TestSpiderSolitaire(unittest.TestCase):
     number_of_suits = 1
     solitaire = SpiderSolitaire(number_of_suits)
     
+    #UT13
     def test_deal(self):
         hidden_cards = 50
         cards_dealt = 10
@@ -137,10 +147,12 @@ class TestSpiderSolitaire(unittest.TestCase):
             except KeyError, ex:
                 print "KeyError: " + ex
     
+    #UT14
     def test_getStacks(self):
         stacks = self.solitaire.getStacks()
         self.assertEqual(self.solitaire.stacks,stacks)
     
+    #UT15-17
     def test_miscellaneous(self):
         
         C1 = SpiderCard('H', 7)
@@ -154,10 +166,13 @@ class TestSpiderSolitaire(unittest.TestCase):
         stackOff = SpiderStack([C1, C2],0)
         stackOn = SpiderStack([B1],0) 
         
+        #UT15
         self.assertTrue(self.solitaire.inSuit(testStack, 2))
         self.assertFalse(self.solitaire.inSuit(testStack, 3))
+        #UT16
         self.assertTrue(self.solitaire.isLegalPickup(testStack, 3))
         self.assertFalse(self.solitaire.isLegalPickup(testStack,2))
+        #UT17
         self.assertTrue(self.solitaire.isLegalMove(stackOff, stackOn))
     
 
