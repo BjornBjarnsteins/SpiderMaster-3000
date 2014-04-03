@@ -17,6 +17,7 @@ class TextItem (pygame.font.Font):
 
         self.position = self.textSurface.get_rect(centerx=position[0], centery=position[1])
 
+#post: runs the menu part of the game
 def main():
     #Set window position at top left corner
     windowX = 0
@@ -33,7 +34,7 @@ def main():
     
     pygame.init()
     screen = pygame.display.set_mode((windowWidth, windowHeight))
-    pygame.display.set_caption('SpiderMaster-3000')
+    pygame.display.set_caption('Spider Solitaire') #Name of the game
 
     #colors
     WHITE = (255,255,255)
@@ -42,13 +43,12 @@ def main():
     RED = (255,0,0)
     FPS = 60 #FPS controls the framerate of our display
         
-    #graphics
+    #suit graphics
     suits = pygame.image.load('images/suits.png').convert()
     
     suitWidth = 160
     suitHeight = 160
     suitSurf = pygame.Surface((suitWidth,suitHeight))
-
 
     clock = pygame.time.Clock()
         
@@ -71,14 +71,17 @@ def main():
     suitSize = (suitWidth,suitHeight)
     
     #pre: distanceFromMid is float, turnSize and suitPos are integers
-    #post: draws the mouseOver animation
+    #     distanceFromMid specifies the distance from the middle of the screen on the x-axis
+    #     turnSize is the length of how far the suit has turned on the x-axis
+    #     suitPos is the position of the suit on the x-axis
+    #post: draws the the next frame in the animation for when the mouse is hovering over a menu button
     def animation(distanceFromMid,turnSize,suitPos):
         suitSurf.blit(suits,(0,0),(suitPos,suitSize))
         surf = pygame.transform.scale(suitSurf,(turnSize,suitWidth))
         offsetX = suitWidth-turnSize/2
         spadePos = (distanceFromMid+(windowWidth/2)+offsetX-suitWidth,0.63*windowHeight)
         screen.blit(surf,spadePos)
-        
+    #main menu logic contained in the while loop 
     while True:
         #draw background
         screen.fill(LIGHTGREEN)
@@ -113,7 +116,7 @@ def main():
             turnSize = math.fabs(math.sin(seconds))
             turnSize = int(turnSize*suitWidth)+1
 
-            #specify distances from the midpoint for each suits
+            #specify distances from the midpoint on the window for each suits
             distanceSpade = 200*0.5
             distanceHeart = -200*0.5
             distanceDiamond = 200*1.5
@@ -121,20 +124,23 @@ def main():
             #draw mouse focus animation and color text depending on which button the cursor 
             #is hovering over
             if fontEasy.position.collidepoint(eventX,eventY):
-                distance = 0
+                distance = 0 
                 fontEasy.textSurface = fontEasy.render('{easy}',False,RED)
                 fontMedium.textSurface = fontEasy.render('{medium}',False,BLACK)
                 fontHard.textSurface = fontEasy.render('{hard}',False,BLACK)
+                #animation for level easy
                 animation(distance,turnSize,suitSpade)
             elif fontMedium.position.collidepoint(eventX,eventY):
                 fontMedium.textSurface = fontMedium.render('{medium}',False,RED)
                 fontEasy.textSurface = fontEasy.render('{easy}',False,BLACK)
                 fontHard.textSurface = fontEasy.render('{hard}',False,BLACK)
                 animation(distanceSpade,turnSize,suitSpade)
+                #animation for level medium
                 animation(distanceHeart,turnSize,suitHeart)
             elif fontHard.position.collidepoint(eventX,eventY):
                 fontHard.textSurface = fontHard.render('{hard}',False,RED)
                 fontMedium.textSurface = fontEasy.render('{medium}',False,BLACK)
+                #animation for level hard
                 animation(distanceSpade,turnSize,suitSpade)
                 animation(distanceHeart,turnSize,suitHeart)
                 animation(distanceDiamond,turnSize,suitDiamond)
@@ -152,8 +158,8 @@ def main():
         screen.blit(fontEasy.textSurface,fontEasy.position)
         screen.blit(fontMedium.textSurface,fontMedium.position)
         screen.blit(fontHard.textSurface,fontHard.position)
-        clock.tick(FPS)
-        pygame.display.flip()
+        clock.tick(FPS) #pass already defined variable FPS to set the framerate
+        pygame.display.flip()#update display
 
 if __name__ == '__main__':
     main()
