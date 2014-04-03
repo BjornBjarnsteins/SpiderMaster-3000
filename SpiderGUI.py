@@ -232,6 +232,7 @@ def play(spiderWindow):
                         if checkPile(loc_i):
                             addToPiles(loc_i)
                             spiderWindow.blit(background, (0,0))
+                            playPileAnimation(spiderWindow, loc_i)
                             displayPiles(spiderWindow) 
                             updateStack(spiderWindow, loc_i)
                             updateHitbox(loc_i)
@@ -432,26 +433,50 @@ def playDealAnimation(surface, p=100):
         #pygame.display.update()
 
 # use:  v = getPileVector(stackNo, n)
-# pre:  stackNo is a positive integer, 0 <= stackNo <= 9, n is a positive integer
-# post: v is the vector from card n in stack stackNo to the pile
-def getPileVector(stackNo, n):
+# pre:  stackNo is a positive integer, 0 <= stackNo <= 9, n, p are positive integers
+# post: v is the vector from card n in stack stackNo to the pile, scaled by 1/p
+def getPileVector(stackNo, n, p):
     global piles
     
     origin = getCardLoc(stackNo, n)
     dest = (pile_x+len(piles)*hiddenGap, pile_y+len(piles)*hiddenGap)
     
-    return (dest[0]-origin[0], dest[1]-origin[1])
+    return ((dest[0]-origin[0])/p, (dest[1]-origin[1])/p)
 
 # use:  v = getPileVectors(stackNo, n)
 # pre:  stackNo is a positive integer, 0 <= stackNo <= 9, n is a positive integer
 # post: v is the list of vectors between the n topmost cards of stack stackNo and the pile
-def getPileVectors(stackNo, n=13):
+def getPileVectors(stackNo, p, n=13):
     v = []
     
     for i in range(len(stacks[stackNo])-13, len(stacks[stackNo])):
-        v = v + [getPileVector(stackNo, i)]
+        v = v + [getPileVector(stackNo, i, p)]
         
     return v
+
+def playPileAnimation(surface, stackNo, p=100):
+    global background
+    background = surface.copy()
+    vectors = getPileVectors(stackNo, p)
+    print vectors
+    for n in range(len(stacks[stackNo])-13, len(stacks[stackNo])):
+        background = surface.copy()
+        # the animation for the first n-1 cards has been played
+        current_pos_x = deck_x
+        current_pos_y = deck_y
+        
+        TOLERANCE = 0.01
+        while not (current_pos_x - getCardLoc(n, len(stacks[n]))[0] <= TOLERANCE and current_pos_y - getCardLoc(n, len(stacks[n]))[1] <= TOLERANCE) :
+            surface.blit(background,(0,0))
+            displayCard(surface, stacks[stackNo].cards[n-1], False, current_pos_x, current_pos_y, deck_graphic)
+            current_pos_x += vectors[n][0]
+            current_pos_y += vectors[n][1]
+            pygame.display.update()
+        
+        
+        surface.blit(background,(0,0))
+        updateStack(surface, n)
+        background = surface.copy()
 
 #use: displayStack(surface, i, x, y)
 #pre: surface is a pygame.Surface object, i is a legal index to stacks, (x,y) are positive coordinates.
