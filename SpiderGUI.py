@@ -415,6 +415,8 @@ def playDealAnimation(surface, p):
             current_pos_y += vectors[n][1]
             pygame.display.update()
             #print current_pos_x, current_pos_y
+    surface.blit(background,(0,0))
+    displayCard(surface, tempCard, True, -200, 0, deck_graphic)
 
 #use: displayStack(surface, i, x, y)
 #pre: surface is a pygame.Surface object, i is a legal index to stacks, (x,y) are positive coordinates.
