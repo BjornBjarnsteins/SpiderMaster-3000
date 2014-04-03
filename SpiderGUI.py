@@ -308,6 +308,7 @@ def initialize(surface, suitNo):
     global hiscores
     global time
     global revealedGapByStack
+    global background
     
     overlay = pygame.Surface((windowWidth, windowHeight))
     overlay.set_alpha(200)
@@ -362,7 +363,6 @@ def initialize(surface, suitNo):
     #surface.blit(instructions,(instr_x,instr_y))
     time = 0
     background = surface.copy()
-    
     playDealAnimation(surface, 100)
   
   
@@ -409,6 +409,7 @@ def playDealAnimation(surface, p):
         
         TOLERANCE = 0.5
         while not current_pos_x - getCardLoc(n, len(stacks[n]))[0] <= TOLERANCE:
+            surface.blit(background,(0,0))
             displayCard(surface, tempCard, True, current_pos_x, current_pos_y, deck_graphic)
             current_pos_x += vectors[n][0]
             current_pos_y += vectors[n][1]
