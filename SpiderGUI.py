@@ -86,7 +86,7 @@ mouse = (0,0)
 offset = (0,0)
 #image to update the background while moving cards:
 background = 0
-mainBack = pygame.image.load('Backgrounds/vintage.jpg')
+mainBack = pygame.image.load('Backgrounds/greenpat.jpg')
 #for settings on/off:
 settOn = False
 #for help on/off:
@@ -413,7 +413,10 @@ def playDealAnimation(surface, p=100):
             current_pos_x += vectors[n][0]
             current_pos_y += vectors[n][1]
             pygame.display.update()
-            #print current_pos_x, current_pos_y
+        
+        updateStack(surface, n)
+        pygame.display.update()
+        
     surface.blit(background,(0,0))
 
 #use: displayStack(surface, i, x, y)
@@ -436,7 +439,7 @@ def displayStack(surface, i, stack_x,stack_y):
             gap = revealedGapByStack[i]     
         displayCard(surface,cards[j],isHidden,card_x,card_y,deck_graphic)
         card_y += gap
-        
+
 #use: displayCard(surf, card, hidden, x, y)
 #pre: surf is a pygame.Surface object, card is a SpiderCard object, hidden is boolean,  x,y are positive integers
 #post: the image of card has been drawn onto surf, face down if hidden, at (x,y)
@@ -1062,26 +1065,26 @@ def helpMenu(surface):
     back = backfont.render('Back', True, (248, 248, 255))
     backSurf.blit(back, (0,0))
     
-    headfont = pygame.font.SysFont(None, 70)
+    headfont = pygame.font.Font('fonts/FancyCardText.ttf', 72)
     basicfont = pygame.font.SysFont(None, 30)
     littlefont = pygame.font.SysFont(None, 20)
     text1 = headfont.render('Welcome to Spider Solitaire!', True, (248, 248, 255))
     text2 = basicfont.render('Your objective is to collect 8 full suits. You can put a card down on', True, (248, 248, 255))
     text3 = basicfont.render(' another card if it is one below it in rank. You can only pick up cards', True, (248, 248, 255))
-    text4 = basicfont.render(' in rank order of the same suit. Down in the right corner is your deck of', True, (248, 248, 255))
-    text5 = basicfont.render('50 cards. You can deal a new row 5 times. Down in the left corner is your', True, (248, 248, 255))
-    text6 = basicfont.render('collection of full suits.', True, (248, 248, 255))
+    text4 = basicfont.render(' in rank order of the same suit. Down in the right corner is your deck', True, (248, 248, 255))
+    text5 = basicfont.render('of 50 cards. You can deal a new row 5 times. Down in the left corner is', True, (248, 248, 255))
+    text6 = basicfont.render('your collection of full suits.', True, (248, 248, 255))
     text7 = headfont.render('Good luck and may the odds be ever in your favor!', True, (248, 248, 255))
     text8 = littlefont.render('Press F for fullscreen and H if you would like to see this help again.', True, (248, 248, 255))
 
     surface.blit(overlay, (0,0))
-    surface.blit(text1, (windowWidth/2-350,windowHeight/2-200))
-    surface.blit(text2, (windowWidth/2-350,windowHeight/2-120))
-    surface.blit(text3, (windowWidth/2-350,windowHeight/2-95))
-    surface.blit(text4, (windowWidth/2-360,windowHeight/2-70))
-    surface.blit(text5, (windowWidth/2-360,windowHeight/2-45))
-    surface.blit(text6, (windowWidth/2-350,windowHeight/2-20))
-    surface.blit(text7, (windowWidth/2-600,windowHeight/2+150))
+    surface.blit(text1, (windowWidth/2-245,windowHeight/2-200))
+    surface.blit(text2, (windowWidth/2-335,windowHeight/2-60))
+    surface.blit(text3, (windowWidth/2-335,windowHeight/2-35))
+    surface.blit(text4, (windowWidth/2-335,windowHeight/2-10))
+    surface.blit(text5, (windowWidth/2-335,windowHeight/2+15))
+    surface.blit(text6, (windowWidth/2-335,windowHeight/2+40))
+    surface.blit(text7, (windowWidth/2-415,windowHeight/2+150))
     surface.blit(text8, (windowWidth/2-225,windowHeight/2+300))
     
     surface.blit(backSurf, (back_x, back_y))
