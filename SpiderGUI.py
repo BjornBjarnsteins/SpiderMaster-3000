@@ -584,13 +584,18 @@ def updateDeck(surface):
 
 #use: dealNew(surf)
 #pre: surf is a pygame.Surface object
-#post: one card has been delt on top of each stack
+#post: one card has been dealt on top of each stack
 def dealNew(surface):
     global game
     global deal
     
-    
-    if(deal > 0):
+    b = True
+    for stack in stacks:
+        if not stack.hasVisible():
+            b = False
+            break
+        
+    if(deal > 0 and b):
         game.deal()
         updateHitboxes()
         playDealAnimation(surface)
