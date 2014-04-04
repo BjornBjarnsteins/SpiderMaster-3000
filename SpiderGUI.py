@@ -986,8 +986,8 @@ def settingsMenu(surface):
     cardThumbWidth = int(cardThumbHeight*(float(cardWidth)/cardHeight))
     cardSpaceBetween = cardThumbHeight/4
     cardFolder = 'Cardbacks/'
-    cardFile = ['BicycleBlue.jpg','hearthstone_back.png','owl.jpg','red.jpg','standard_back.png']
-    cardThumbFile = ['BicycleBlue_thumb.jpg','hearthstone_back_thumb.png','owl_thumb.jpg','red_thumb.jpg','standard_back_thumb.png']
+    cardFile = ['BicycleBlue.jpg', 'gold_back.png', 'mystic_back.png', 'hearthstone_back.png','archangel_back.jpg','spiral.jpg']
+    cardThumbFile = ['BicycleBlue_thumb.jpg', 'gold_back_thumb.png', 'mystic_back_thumb.png', 'hearthstone_back_thumb.png','archangel_back_thumb.jpg','spiral_thumb_back.jpg']
     cardThumbnails = []
     
     #Render the thumbnails
