@@ -870,10 +870,10 @@ def settingsMenu(surface):
     #We want 3 thumbnails per line
     backgroundThumbWidth = (windowWidth-500)/4
     backgroundThumbHeight = int(backgroundThumbWidth*(float(windowHeight)/windowWidth))
-    backgroundSpaceBetween = backgroundThumbWidth/4
+    backgroundSpacing = backgroundThumbWidth/4
     backgroundFolder = 'Backgrounds/'
-    backgroundFile = ['grumpy.jpg','nes.jpg','panda.jpg','pulp_star.jpg','vintage.jpg']
-    backgroundThumbFile = ['grumpy_thumb.jpg','nes_thumb.jpg','panda_thumb.jpg','pulp_star_thumb.jpg','vintage_thumb.jpg']
+    backgroundFile = ['grumpy.jpg','nes.jpg','panda.jpg','pulp_star.jpg','vintage.jpg','red.jpg','orange.jpg','spider.jpg','green.jpg']
+    backgroundThumbFile = ['grumpy_thumb.jpg','nes_thumb.jpg','panda_thumb.jpg','pulp_star_thumb.jpg','vintage_thumb.jpg','red_thumb.jpg','orange_thumb.jpg','spider_thumb.jpg','green_thumb.jpg']
     
     #uncomment and run once to create thumbnails
     #for i in range(0,len(backgroundFile)):
@@ -883,27 +883,27 @@ def settingsMenu(surface):
     for image in backgroundThumbFile:
         tempSurf = pygame.image.load(backgroundFolder+image).convert()
         backgroundThumbnails.append(tempSurf)
-    thumbX = backgroundSpaceBetween
+    thumbX = backgroundSpacing
     thumbY = 250
     backSelection = []
     for thumbnail in backgroundThumbnails:
         if thumbX+backgroundThumbWidth>(windowWidth-500):
-            thumbX = backgroundSpaceBetween
+            thumbX = backgroundSpacing
             thumbY += backgroundThumbHeight+20
         surface.blit(thumbnail,(thumbX,thumbY))
         tempRect = pygame.Rect(thumbX,thumbY,backgroundThumbWidth,backgroundThumbHeight)
         backSelection.append(tempRect)
-        thumbX += backgroundThumbWidth+backgroundSpaceBetween
+        thumbX += backgroundThumbWidth+backgroundSpacing
     surface.blit(backSurf, (back_x, back_y))
     
     #CardBakcs:
     
     cardThumbHeight = (windowHeight-190)/4
     cardThumbWidth = int(cardThumbHeight*(float(cardWidth)/cardHeight))
-    cardSpaceBetween = cardThumbHeight/4
+    cardSpacing = cardThumbHeight/4
     cardFolder = 'Cardbacks/'
-    cardFile = ['BicycleBlue.jpg', 'gold_back.png', 'mystic_back.png', 'hearthstone_back.png','archangel_back.jpg','spiral.jpg']
-    cardThumbFile = ['BicycleBlue_thumb.jpg', 'gold_back_thumb.png', 'mystic_back_thumb.png', 'hearthstone_back_thumb.png','archangel_back_thumb.jpg','spiral_thumb_back.jpg']
+    cardFile = ['BicycleBlue.jpg', 'gold_back.png', 'mystic_back.png', 'hearthstone_back.png','spiral.jpg','red.jpg']
+    cardThumbFile = ['BicycleBlue_thumb.jpg', 'gold_back_thumb.png', 'mystic_back_thumb.png', 'hearthstone_back_thumb.png','spiral_thumb.jpg','red_thumb.jpg']
    
     #uncomment and run once to create thumbnails
     #for i in range(0,len(cardFile)):
@@ -922,7 +922,7 @@ def settingsMenu(surface):
         thumb = cardThumbnails[i]
         if i>0 and i%2==0:
             thumbX = windowWidth-390
-            thumbY += cardThumbHeight+cardSpaceBetween
+            thumbY += cardThumbHeight+cardSpacing
         surface.blit(thumb,(thumbX,thumbY))
         tempRect = pygame.Rect(thumbX,thumbY,cardThumbWidth,cardThumbHeight)
         cardSelection.append(tempRect)
@@ -931,17 +931,45 @@ def settingsMenu(surface):
         
     
     #Difficulty:
+    
+    choices = pygame.image.load('images/suits_smooth.png').convert()
+    choices.set_colorkey(pygame.Color(255,255,255))
+    Easy = choices.subsurface(182,0,112,147)
+    Medium = choices.subsurface(118,147,237,147)
+    Hard = choices.subsurface(0,294,485,147)
+    
+    choiceWidth = windowWidth/12
+    choiceHeight = int(choiceWidth*(147/112.0))
+    choiceSpacing = int(choiceWidth*(5.0/4))
+    
+    Easy = pygame.transform.smoothscale(Easy,(choiceWidth,choiceHeight))
+    Medium = pygame.transform.smoothscale(Medium,(choiceWidth*2,choiceHeight))
+    Hard = pygame.transform.smoothscale(Hard,(choiceWidth*4,choiceHeight))
+    
+    choice_y = 45
+    
+    EasyPos = (choiceSpacing,choice_y)
+    MediumPos = (2*choiceSpacing+choiceWidth,choice_y)
+    HardPos = (3*choiceSpacing+3*choiceWidth,choice_y)
+    
+    surface.blit(Easy,EasyPos)
+    surface.blit(Medium,MediumPos)
+    surface.blit(Hard,HardPos)
+    
+    EasyRect = pygame.Rect(EasyPos,(choiceWidth,choiceHeight))
+    MediumRect = pygame.Rect(MediumPos,(choiceWidth*2,choiceHeight))
+    HardRect = pygame.Rect(HardPos,(choiceWidth*4,choiceHeight))
         
     #Text:
-    font = pygame.font.Font('fonts/FancyCardText.ttf', 50)
+    font = pygame.font.Font('fonts/FancyCardText.ttf', 40)
     
     SelDiff = font.render('Select New Difficulty (restarts the game)', True, (248, 248, 255))
     SelBack = font.render('Select New Background', True, (248, 248, 255))
     SelCard = font.render('Select New Card Back', True, (248, 248, 255))
     
-    surface.blit(SelDiff,(windowWidth/2-260,10))
-    surface.blit(SelBack,(350,190))
-    surface.blit(SelCard,(windowWidth-400,190))
+    surface.blit(SelDiff,(windowWidth/2-200,10))
+    surface.blit(SelBack,(380,200))
+    surface.blit(SelCard,(windowWidth-380,200))
     
     
     createMenuButton(surface)
@@ -974,7 +1002,20 @@ def settingsMenu(surface):
                     background = surface.copy()
                     toggleSettings(surface)
                 
-                #Check if Difficulty is selected
+                #Check if Easy difficulty is selected
+                if EasyRect.collidepoint(mousePos):
+                    toggleSettings(surface)
+                    initialize(surface,1)
+                    
+                #Check if Medium difficulty is selected
+                if MediumRect.collidepoint(mousePos):
+                    toggleSettings(surface)
+                    initialize(surface,2)
+                    
+                #Check if Hard difficulty is selected
+                if HardRect.collidepoint(mousePos):
+                    toggleSettings(surface)
+                    initialize(surface,4)
                 
                 elif event.type == MOUSEBUTTONDOWN:
                     mouseXY = pygame.mouse.get_pos()
