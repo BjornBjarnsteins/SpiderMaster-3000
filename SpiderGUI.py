@@ -831,7 +831,7 @@ def displayPiles(surface):
     if len(piles) == 0:
         return
     for i in range(0,len(piles)):
-        surface.blit(aces[piles[i]],(pile_x+i*revealedGap,pile_y))
+        surface.blit(kings[piles[i]],(pile_x+i*revealedGap,pile_y))
 
 # use:  getDifficulty()
 # post: returns the difficulty of the game
