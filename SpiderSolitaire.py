@@ -111,7 +111,7 @@ class SpiderSolitaire:
         topRank = topCard.rank
         bottomRank = bottomCard.rank
         
-        if(topRank == bottomRank-1):
+        if(topRank == bottomRank-1) and stackOn.hasVisible():
             return True
         else:
             return False

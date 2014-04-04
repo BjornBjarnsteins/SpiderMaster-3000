@@ -482,8 +482,11 @@ def cardToPileAnimation(surface,card,cardLoc,pileLoc,p=100):
         current_pos_x += vector[0]
         current_pos_y += vector[1]
         pygame.display.update()
-    print vector
-    print "card has arrived at (%d,%d)"%(current_pos_x,current_pos_y)
+    #Finally display the card at the final position:
+    surface.blit(background,(0,0))
+    displayCard(surface, card, False, pileLoc[0], pileLoc[1], deck_graphic)
+    pygame.display.update()
+    
     
 def playPileAnimation(surface, stackNo, pile, p=100):
     global background
@@ -808,12 +811,11 @@ def addToPiles(surface,i):
     updateHitbox(i)
     updateStack(surface,i)
     updateHitbox(i)
-    pileLoc = (pile_x+len(piles)*hiddenGap, pile_y)
+    pileLoc = (pile_x+len(piles)*revealedGap, pile_y)
     for j in range(0,13):
         #go through the loop backwards using cardNo:
         cardNo = len(stacks[i])-1
         cardLoc = getCardLoc(i,cardNo)
-        print 'card number %d,%d is at (%d,%d) going to (%d,%d)'%(i,cardNo,cardLoc[0],cardLoc[1],pileLoc[0],pileLoc[1]) 
         card = stacks[i].cards[-1]
         displayStack(surface,i,x[i],y,True)
         suitNo = stacks[i].remove(1).cards[0].getSuitNo()
