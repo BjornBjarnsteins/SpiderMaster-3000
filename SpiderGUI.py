@@ -10,7 +10,7 @@ from win32api import GetSystemMetrics
 from HighscoreGUI import *
 
 #Global constants
-#Note: If fullscreen and/or resizable will be implemented, some of these will not be kept constant.
+
 #screen dimensions:
 systemWidth = GetSystemMetrics(0)
 sizeOfWindowsBar = 38
@@ -23,8 +23,7 @@ windowHeight = min(systemHeight, 850)-sizeOfWindowsBar
 #card dimensions
 cardWidth = 100
 cardHeight = 132
-#number of suits in play:
-NoSuits = 1
+
 #gap settings
 hiddenGap = 10 #the gap from a hidden card to the next card on top.
 revealedGap = 30 #the gap from a revealed card to the next card on top.
@@ -46,9 +45,6 @@ instr_x = windowWidth-297
 instr_y = 4
 #number of stacks in game:
 colNum = 10
-#image of the back of a card
-cardBack = pygame.Surface((0,0))
-currentCardback = 'Cardbacks/red.jpg'
 #surfaces for the piles:
 kings = []
 
@@ -71,14 +67,14 @@ stackHeight = [0]*colNum
 stacks = []
 #this instance of spider solitaire:
 game = SpiderSolitaire(1)
+#number of suits in play:
+NoSuits = 1
 #contains collected piles denoted by suit number.
 piles = []
 #cards that have been picked up:
 inHand = SpiderStack([],0)
 inHandSurf = pygame.Surface((0,0)) #the image of inHand
 inHandRect = pygame.Rect(0,0,0,0) #hitbox
-#the fabulous green:
-backgroundColor = pygame.Color(30,148,45)
 #position where inHand was picked up last:
 last_i,last_j = 0,0
 mouseDown = False
@@ -88,25 +84,29 @@ offset = (0,0)
 #image to update the background while moving cards:
 background = 0
 mainBack = pygame.image.load('Backgrounds/green.jpg')
+#image of the back of a card
+cardBack = pygame.Surface((0,0))
+currentCardback = 'Cardbacks/red.jpg'
+
+#for all option screens we create a dark overlay:
+overlay = 0
+#for the menu 
+menuOn = False
 #for settings on/off:
 settOn = False
 #for help on/off:
 helpOn = False
 #for highscore screen on/off:
 hsOn = False
-#for all option screens we create a dark overlay:
-overlay = 0
-#for settings:
-menuOn = False
-
+#for the fullscreen
 fullscreenOn = False
+#top 10 highscores:
+hiscores = []
 
 # Initializes the game timer
 time = 0
 SEC_EVENT = USEREVENT + 1
 pygame.time.set_timer(SEC_EVENT, 1000)
-
-hiscores = []
 
 #colors
 BLACK = (0,0,0)
@@ -127,9 +127,7 @@ def play(spiderWindow):
     global helpOn
     #setup window and initialize game:
 
-    #spiderWindow = pygame.display.set_mode((windowWidth,windowHeight))
     pygame.display.set_caption('SpiderSolitaire')
-    #spiderWindow.fill(backgroundColor)
     mainBack = pygame.transform.smoothscale(mainBack, (windowWidth, windowHeight))
     spiderWindow.blit(mainBack, (0,0))
     initialize(spiderWindow,NoSuits)
@@ -327,20 +325,27 @@ def initialize(surface, suitNo):
     global background
     global piles
     
+    #this overlay is a transparent black that will be used for the menu screen and it's embedded screens:
     overlay = pygame.Surface((windowWidth, windowHeight))
     overlay.set_alpha(200)
     overlay.fill(pygame.Color(0,0,0))
     
+    #Sets up the game:
     surface.blit(mainBack,(0,0))
     game = SpiderSolitaire(suitNo)
     stacks = game.getStacks()
     revealedGapByStack = [revealedGap]*len(stacks)
-    deal = 5
-    piles = []
-    helpOn = False
-    font = pygame.font.Font(None, 18)
-    hiscores = LoadScores()
+    #creates the spider menu button in the down right corner
     createMenuButton(surface)
+    
+    #the game offers you 5 deals
+    deal = 5
+    #for the piles of full suits you've collected:
+    piles = []
+
+    font = pygame.font.Font(None, 18)
+    #top 10 highscore list:
+    hiscores = LoadScores()
     
     #calculate space between stacks and coordinates of the stacks.
     m = (windowWidth-10*cardWidth)/11
@@ -361,29 +366,16 @@ def initialize(surface, suitNo):
         cardSurface = SpiderCard(i,13).getImage(deck_graphic)
         cardSurface = pygame.transform.smoothscale(cardSurface, (cardWidth, cardHeight))
         kings.append(cardSurface)
-    #get image for the back of card:    
-    #cardBack = SpiderCard('S',1).getImage(deck_graphic,True)
-    #cardBack = pygame.transform.smoothscale(cardBack, (cardWidth, cardHeight))
-    #cardBack.set_colorkey(BLACK)
     
     changeCardback(currentCardback, surface)
                           
-
     updateHitboxes()
     displayDeck(surface)
     displayScore(surface, font)     
     displayStacks(surface, stacks, x, y)
     
-    #normal_font = pygame.font.SysFont(None, 18)
-    #gray = (200,200,200)
-    #instructions = normal_font.render("Press h for help and f for fullscreen mode", True,gray)
-    
-    #surface.blit(instructions,(instr_x,instr_y))
     time = 0
     background = surface.copy()
-  
-  
-
 
 #use: displayStacks(surface, s, x, y)
 #pre: surface is a pygame.Surface object, s an array of SpiderStack objects, x an array of positive integers
@@ -395,119 +387,6 @@ def displayStacks(surface, Stacks, x, y):
         displayStack(surface, i, x[i], y)
     pygame.display.update()
 
-# use:  s = getDealSlope(n, p)
-# pre:  n is the number of the stack where the card should go
-# post: s is the slope of the path that the card should follow in the deal animation
-def getDealSlope(n):
-    destination = getCardLoc(n, len(stacks[n]))
-    slope = (destination[0]-deck_x, destination[1]-deck_y)
-    return slope
-
-# use:  v = getDealVector(n, s)
-# pre:  n is the number of the target stack, s indicates how many parts the the vector is split into
-# post: v[0] is how far along the x axis the card should go, v[1] is how far along the y axis
-def getDealVector(n, p):
-    return (float(getDealSlope(n)[0])/p, float(getDealSlope(n)[1])/p)
-
-def getAllDealVectors(p):
-    v = []
-    for n in range(0, colNum):
-        v = v + [getDealVector(n, p)]
-    return v
-
-def playDealAnimation(surface, p=100):
-    global background
-    background = surface.copy()
-    vectors = getAllDealVectors(p)
-    tempCard = SpiderCard('H', 1)
-    print vectors
-    for n in range(0, colNum):
-        background = surface.copy()
-        if n == colNum-1:
-            print colNum-1
-            print 'is the stack I should be dealing to now'
-        # the animation for the first n-1 cards has been played
-        current_pos_x = deck_x
-        current_pos_y = deck_y
-        
-        TOLERANCE = 0.01
-        while not (current_pos_x - getCardLoc(n, len(stacks[n]))[0] <= TOLERANCE and current_pos_y - getCardLoc(n, len(stacks[n]))[1] <= TOLERANCE) :
-            surface.blit(background,(0,0))
-            displayCard(surface, tempCard, True, current_pos_x, current_pos_y, deck_graphic)
-            current_pos_x += vectors[n][0]
-            current_pos_y += vectors[n][1]
-            pygame.display.update()
-        
-        
-        surface.blit(background,(0,0))
-        updateStack(surface, n)
-        background = surface.copy()
-        #pygame.display.update()
-
-# use:  v = getPileVector(stackNo, n)
-# pre:  stackNo is a positive integer, 0 <= stackNo <= 9, n, p are positive integers
-# post: v is the vector from card n in stack stackNo to the pile, scaled by 1/p
-def getPileVector(origin, dest, p):
-    return (float(dest[0]-origin[0])/p, float(dest[1]-origin[1])/p)
-
-# use:  v = getPileVectors(stackNo, n)
-# pre:  stackNo is a positive integer, 0 <= stackNo <= 9, n is a positive integer
-# post: v is the list of vectors between the n topmost cards of stack stackNo and the pile
-def getPileVectors(stackNo, p, n=13):
-    v = []
-    
-    for i in range(0, n):
-        #go backwards through the loop using j:
-        j = len(stacks[stackNo])+n-i-1
-        v = v + [getPileVector(stackNo, j, p)]
-        
-    return v
-
-def cardToPileAnimation(surface,card,cardLoc,pileLoc,p=100):
-    global background
-    background = surface.copy()
-    vector = getPileVector(cardLoc,pileLoc,p)
-    
-    current_pos_x, current_pos_y = cardLoc
-    
-    TOLERANCE = 0.01 
-    while not (current_pos_x - pileLoc[0] <= TOLERANCE and current_pos_y - pileLoc[1] <= TOLERANCE) :
-        surface.blit(background,(0,0))
-        displayCard(surface, card, False, current_pos_x, current_pos_y, deck_graphic)
-        current_pos_x += vector[0]
-        current_pos_y += vector[1]
-        pygame.display.update()
-    #Finally display the card at the final position:
-    surface.blit(background,(0,0))
-    displayCard(surface, card, False, pileLoc[0], pileLoc[1], deck_graphic)
-    pygame.display.update()
-    
-    
-def playPileAnimation(surface, stackNo, pile, p=100):
-    global background
-    background = surface.copy()
-    vectors = getPileVectors(stackNo, p)
-    print vectors
-    for n in range(0, len(pile)):
-        #go backwards through the loop using m:
-        m = len(pile)-1-n
-        background = surface.copy()
-        # the animation for the first n-1 cards has been played
-        current_pos_x = getCardLoc(stackNo,len(stacks[stackNo])+m)[0]
-        current_pos_y = getCardLoc(stackNo,len(stacks[stackNo])+m)[1]
-        
-        TOLERANCE = 0.01
-        while not (current_pos_x - getCardLoc(n, len(stacks[n]))[0] <= TOLERANCE and current_pos_y - getCardLoc(n, len(pile))[1] <= TOLERANCE) :
-            surface.blit(background,(0,0))
-            displayCard(surface, pile.cards[n], False, current_pos_x, current_pos_y, deck_graphic)
-            current_pos_x += vectors[n][0]
-            current_pos_y += vectors[n][1]
-            pygame.display.update()
-        
-        
-        surface.blit(background,(0,0))
-        updateStack(surface, n)
-        background = surface.copy()
 
 #use: displayStack(surface, i, x, y)
 #pre: surface is a pygame.Surface object, i is a legal index to stacks, (x,y) are positive coordinates.
@@ -715,10 +594,9 @@ def detectCol():
                 h = -(j+1)
                 h = len(hitboxes[i])+h
                 if hitboxes[i][h].collidepoint(mouse):
-                    #print (i,h)
+                    # (i,h)
                     return (i,h)
     else:
-        #print "inHandRect at (%d,%d) w = %d, h = %d"%(inHandRect.x,inHandRect.y,inHandRect.w,inHandRect.h)
         for i in range(0,len(stackhboxes)):
             if stackhboxes[i].colliderect(inHandRect):
                 if game.isLegalMove(inHand, stacks[i]):
@@ -738,7 +616,9 @@ def detectDeckCol():
 def detectSettingsCol():
     mouse = pygame.mouse.get_pos()
     return spiderBox.collidepoint(mouse)
-    
+
+#use: b = detectMenuCol()
+#post: b = i if mouse is over button i in the menu, else b = -1    
 def detectMenuCol():
     mouse = pygame.mouse.get_pos()
     for i in range(0,len(menuButtons)):
@@ -1108,7 +988,6 @@ def settingsMenu(surface):
 #use: toggleHighscores(surface)
 #pre: surface is a pygame Surface object
 #post: toggles the high scores interface depending on whether it's on or off            
-
 def toggleHighscores(surface):
     global background
     global hsOn
@@ -1345,6 +1224,101 @@ def createWin(surface):
 #post: b = True if the game is won, b = False otherwise.    
 def winCond():
     return len(piles) == 8
+
+
+# use:  s = getDealSlope(n, p)
+# pre:  n is the number of the stack where the card should go
+# post: s is the slope of the path that the card should follow in the deal animation
+def getDealSlope(n):
+    destination = getCardLoc(n, len(stacks[n]))
+    slope = (destination[0]-deck_x, destination[1]-deck_y)
+    return slope
+
+# use:  v = getDealVector(n, s)
+# pre:  n is the number of the target stack, s indicates how many parts the the vector is split into
+# post: v[0] is how far along the x axis the card should go, v[1] is how far along the y axis
+def getDealVector(n, p):
+    return (float(getDealSlope(n)[0])/p, float(getDealSlope(n)[1])/p)
+
+# post: v is an array of all the deal vectors obtained from getDealVector(n,p)
+def getAllDealVectors(p):
+    v = []
+    for n in range(0, colNum):
+        v = v + [getDealVector(n, p)]
+    return v
+
+# use: playDealAnimation(surface, p=100)
+# pre: surface is a pygame surface, p number of frames (100 default)
+# post: plays the animation when user hits the deal button. 
+#       this will animate a card traveling from the deal stack to a card stack, one to each stack.
+def playDealAnimation(surface, p=100):
+    global background
+    background = surface.copy()
+    vectors = getAllDealVectors(p)
+    tempCard = SpiderCard('H', 1)
+    for n in range(0, colNum):
+        background = surface.copy()
+        # the animation for the first n-1 cards has been played
+        current_pos_x = deck_x
+        current_pos_y = deck_y
+        
+        TOLERANCE = 0.01
+        while not (current_pos_x - getCardLoc(n, len(stacks[n]))[0] <= TOLERANCE and current_pos_y - getCardLoc(n, len(stacks[n]))[1] <= TOLERANCE) :
+            surface.blit(background,(0,0))
+            displayCard(surface, tempCard, True, current_pos_x, current_pos_y, deck_graphic)
+            current_pos_x += vectors[n][0]
+            current_pos_y += vectors[n][1]
+            pygame.display.update()
+        
+        
+        surface.blit(background,(0,0))
+        updateStack(surface, n)
+        background = surface.copy()
+        #pygame.display.update()
+
+# use:  v = getPileVector(stackNo, n)
+# pre:  stackNo is a positive integer, 0 <= stackNo <= 9, n, p are positive integers
+# post: v is the vector from card n in stack stackNo to the pile, scaled by 1/p
+def getPileVector(origin, dest, p):
+    return (float(dest[0]-origin[0])/p, float(dest[1]-origin[1])/p)
+
+# use:  v = getPileVectors(stackNo, n)
+# pre:  stackNo is a positive integer, 0 <= stackNo <= 9, n is a positive integer
+# post: v is the list of vectors between the n topmost cards of stack stackNo and the pile
+def getPileVectors(stackNo, p, n=13):
+    v = []
+    
+    for i in range(0, n):
+        #go backwards through the loop using j:
+        j = len(stacks[stackNo])+n-i-1
+        v = v + [getPileVector(stackNo, j, p)]
+        
+    return v
+
+
+#use: cardToPileAnimation(surface, card, cardLoc, pileLoc, p=100)
+#pre: surface is a pygame surface, card a SpiderCard object, cardLoc the original location 
+#     of the card, pileLoc the end location (where the pile is), p number of frames
+#post: plays the animation for a pile of full suit travelinn from a card stack to the down left corner where the piles are kept.
+#      it will show the ace go first, then 2, then 3, up to the king.
+def cardToPileAnimation(surface,card,cardLoc,pileLoc,p=100):
+    global background
+    background = surface.copy()
+    vector = getPileVector(cardLoc,pileLoc,p)
+    
+    current_pos_x, current_pos_y = cardLoc
+    
+    TOLERANCE = 0.01 
+    while not (current_pos_x - pileLoc[0] <= TOLERANCE and current_pos_y - pileLoc[1] <= TOLERANCE) :
+        surface.blit(background,(0,0))
+        displayCard(surface, card, False, current_pos_x, current_pos_y, deck_graphic)
+        current_pos_x += vector[0]
+        current_pos_y += vector[1]
+        pygame.display.update()
+    #Finally display the card at the final position:
+    surface.blit(background,(0,0))
+    displayCard(surface, card, False, pileLoc[0], pileLoc[1], deck_graphic)
+    pygame.display.update()
 
 #use: changeBackground(path, surface)
 #pre: path is a legal path to an image file and surface is a pygame surface
