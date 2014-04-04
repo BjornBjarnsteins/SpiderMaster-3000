@@ -1000,8 +1000,13 @@ def settingsMenu(surface):
     backgroundThumbHeight = int(backgroundThumbWidth*(float(windowHeight)/windowWidth))
     backgroundSpaceBetween = backgroundThumbWidth/4
     backgroundFolder = 'Backgrounds/'
-    backgroundThumbFile = ['grumpy_thumb.jpg','nes_thumb.jpg','panda_thumb.jpg','pulp_star_thumb.jpg','vintage_thumb.jpg']
     backgroundFile = ['grumpy.jpg','nes.jpg','panda.jpg','pulp_star.jpg','vintage.jpg']
+    backgroundThumbFile = ['grumpy_thumb.jpg','nes_thumb.jpg','panda_thumb.jpg','pulp_star_thumb.jpg','vintage_thumb.jpg']
+    
+    #uncomment and run once to create thumbnails
+    #for i in range(0,len(backgroundFile)):
+    #    pygame.image.save(pygame.transform.smoothscale(pygame.image.load(backgroundFolder+backgroundFile[i]),(backgroundThumbWidth,backgroundThumbHeight)),backgroundFolder+backgroundThumbFile[i])
+    
     backgroundThumbnails = []
     for image in backgroundThumbFile:
         tempSurf = pygame.image.load(backgroundFolder+image).convert()
@@ -1027,8 +1032,12 @@ def settingsMenu(surface):
     cardFolder = 'Cardbacks/'
     cardFile = ['BicycleBlue.jpg', 'gold_back.png', 'mystic_back.png', 'hearthstone_back.png','archangel_back.jpg','spiral.jpg']
     cardThumbFile = ['BicycleBlue_thumb.jpg', 'gold_back_thumb.png', 'mystic_back_thumb.png', 'hearthstone_back_thumb.png','archangel_back_thumb.jpg','spiral_thumb_back.jpg']
-    cardThumbnails = []
+   
+    #uncomment and run once to create thumbnails
+    #for i in range(0,len(cardFile)):
+    #    pygame.image.save(pygame.transform.smoothscale(pygame.image.load(cardFolder+cardFile[i]),(cardThumbWidth,cardThumbHeight)),cardFolder+cardThumbFile[i])
     
+    cardThumbnails = []
     #Render the thumbnails
     for image in cardThumbFile:
         tempSurf = pygame.image.load(cardFolder+image).convert()
