@@ -276,14 +276,6 @@ def play(spiderWindow):
                 #displayTime(spiderWindow, font)
                 #pygame.display.update()
     
-    timeBonus = max(1000-time, 0)
-    game.changeScore(timeBonus)
-                    
-    if isHighScore(game.score):
-        gettext.install("highscore")
-        dialog = HSDialog(0)
-        dialog.MainLoop()
-    
     while True:
         for event in pygame.event.get():
             if event.type == QUIT: 
@@ -1309,10 +1301,45 @@ def helpMenu(surface):
 #post: creates the win screen for the game
 def createWin(surface):
     global overlay
-    winfont = pygame.font.SysFont(None, 70)
-    text9 = winfont.render('You won!', True, (248, 248, 255))
+    font = pygame.font.Font('fonts/FancyCardText.ttf', 84)
+    font2 = pygame.font.Font('fonts/FancyCardText.ttf', 72)
+    text = font.render('You won!', True, (248, 248, 255))
     surface.blit(overlay, (0,0))
-    surface.blit(text9, (windowWidth/2-100, windowHeight/2-150))
+    surface.blit(text, (windowWidth/2-140, windowHeight/2-250))
+    
+    bWidth = 300
+    bHeight = 100
+    x_loc = windowWidth/2-110
+    y_loc = windowHeight/2-100
+    
+    gameSurf = pygame.Surface((bWidth, bHeight))
+    gameSurf.set_colorkey(pygame.Color(0,0,0))
+    gameText = font2.render('New Game', True, (248, 248, 255))
+    gameSurf.blit(gameText, (0,0))
+    surface.blit(gameSurf, (x_loc, y_loc))
+    pygame.display.update()
+    
+    timeBonus = max(1000-time, 0)
+    game.changeScore(timeBonus)
+                    
+    #if isHighScore(game.score):
+    gettext.install("highscore")
+    dialog = HSDialog(0)
+    dialog.MainLoop()
+    
+    while True:
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == MOUSEBUTTONDOWN:
+                mouseXY = pygame.mouse.get_pos()
+                game_rect = pygame.Rect(x_loc, y_loc, bWidth, bHeight)
+                if game_rect.collidepoint(mouseXY):
+                    initialize(surface,NoSuits)
+                    return
+    
+    pygame.display.update()
 
 #use: b = winCond()
 #post: b = True if the game is won, b = False otherwise.    
