@@ -275,6 +275,9 @@ def play(spiderWindow):
                 time += 1
                 #displayTime(spiderWindow, font)
                 #pygame.display.update()
+    
+    timeBonus = max(1000-time, 0)
+    game.changeScore(timeBonus)
                     
     if isHighScore(game.score):
         gettext.install("highscore")
