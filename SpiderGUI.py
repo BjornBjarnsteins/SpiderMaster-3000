@@ -1064,15 +1064,11 @@ def settingsMenu(surface):
                         toggleMenu(surface)
                     elif detectSettingsCol():
                         toggleSettings(surface)
-<<<<<<< HEAD
 
 #use: toggleHighscores(surface)
 #pre: surface is a pygame Surface object
 #post: toggles the high scores interface depending on whether it's on or off            
-=======
-                        
-                        
->>>>>>> 7f7d0121f30def3ae1c5e71cb58ae58439ebd33e
+
 def toggleHighscores(surface):
     global background
     global hsOn
